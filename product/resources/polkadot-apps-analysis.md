@@ -1,7 +1,7 @@
 # Polkadot Apps Staking Interface Analysis
 
 **Source:** [Autonomys Staking Documentation](https://docs.autonomys.xyz/staking/operator/polkadot)  
-**Interface:** [Polkadot Apps - Subspace Network](https://polkadot.js.org/apps/?rpc=wss://rpc.taurus.autonomys.xyz/ws#/extrinsics)  
+**Interface:** [Polkadot Apps - Autonomys Network](https://polkadot.js.org/apps/?rpc=wss://rpc.taurus.autonomys.xyz/ws#/extrinsics)  
 **Date Analyzed:** <!-- YYYY-MM-DD -->
 
 ---

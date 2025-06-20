@@ -144,7 +144,7 @@
 
 ---
 
-## Key Learnings for Subspace
+## Key Learnings for Autonomys
 
 ### Applicable Patterns
 
@@ -169,7 +169,7 @@
 - Simplified mobile layout
 - Consistent interaction patterns
 
-### Subspace-Specific Adaptations
+### Autonomys-Specific Adaptations
 
 **Domain Specialization:**
 

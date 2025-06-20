@@ -1,4 +1,4 @@
-# Subspace Staking Protocol Insights
+# Autonomys Staking Protocol Insights
 
 **Source:** [Protocol Staking Specification](https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)  
 **Date Analyzed:** <!-- YYYY-MM-DD -->  

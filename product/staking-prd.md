@@ -10,7 +10,7 @@
 
 ### 1.1 Purpose
 
-Enable operators and nominators to seamlessly stake on Subspace domains with a friction-less, transparent experience that matches or exceeds Web2 financial apps.
+Enable operators and nominators to seamlessly stake on Autonomys domains with a friction-less, transparent experience that matches or exceeds Web2 financial apps.
 
 ### 1.2 Success Metrics
 
@@ -35,7 +35,7 @@ Enable operators and nominators to seamlessly stake on Subspace domains with a f
 
 **Farmer Frank**
 
-- Actively farms on Subspace network using Space Acres
+- Actively farms on Autonomys Network using Space Acres
 - Has earned AI3 tokens through farming rewards
 - Needs: Simple way to put idle tokens to work, clear yield comparison
 - Pain points: Complex Polkadot Apps interface, unclear operator selection

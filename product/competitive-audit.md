@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Current State: Polkadot Apps (Subspace)
+## 1. Current State: Polkadot Apps (Autonomys)
 
 ### 1.1 Current User Flow
 
@@ -187,7 +187,7 @@ Based on [Autonomys staking docs](https://docs.autonomys.xyz/staking/operator/po
 
 ---
 
-## 6. Competitive Advantages for Subspace
+## 6. Competitive Advantages for Autonomys
 
 ### 6.1 Unique Value Props
 

@@ -131,7 +131,7 @@
 
 ---
 
-## Key Learnings for Subspace Staking
+## Key Learnings for Autonomys Staking
 
 ### Applicable Patterns
 
@@ -224,4 +224,4 @@
 
 ---
 
-_These patterns inform our approach to creating an equally simple yet powerful staking experience for Subspace._
+_These patterns inform our approach to creating an equally simple yet powerful staking experience for Autonomys._
