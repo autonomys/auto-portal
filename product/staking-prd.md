@@ -27,24 +27,34 @@ Enable operators and nominators to seamlessly stake on Subspace domains with a f
 
 - Staking is only possible through Polkadot Apps interface (poor UX)
 - Complex multi-step withdrawal process (withdraw → unlock) is confusing
-- No mobile-optimized experience
-- Terminology inconsistent with Subspace protocol
+- Due to lazy evaluation, getting accurate current state of a user's staking position is difficult. (see https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)
 
 ### 2.2 Target Users
 
 #### Primary Personas
 
+**Farmer Frank**
+
+- Actively farms on Subspace network using Space Acres
+- Has earned AI3 tokens through farming rewards
+- Needs: Simple way to put idle tokens to work, clear yield comparison
+- Pain points: Complex Polkadot Apps interface, unclear operator selection
+
+**Token Holder Tina**
+
+- Purchased AI3 tokens from exchanges (Bybit, Gate.io, etc.)
+- Seeking passive yield opportunities
+- Needs: Transparent APY display, easy staking process, secure withdrawal
+- Pain points: Confusing withdrawal process, technical terminology
+
 **Operator Oliver**
 
-- Runs domain infrastructure
-- Needs: Predictable delegated stake, clear reward visibility, uptime monitoring
-- Pain points: Complex setup, unclear nomination management
+- Runs domain infrastructure and operates validator nodes
+- Has technical expertise but wants simplified staking UX for self-stake
+- Needs: Easy operator registration, clear pool management, nomination visibility
+- Pain points: Complex Polkadot Apps setup, unclear delegation tracking
 
-**Nominator Nina**
-
-- Passive income seeker
-- Needs: Simple staking flow, transparent rewards, easy exit
-- Pain points: Confusing withdrawal process, poor mobile experience
+**Note:** Operators are also nominators but have additional technical workflows for domain operation that are separate from the core nomination experience.
 
 ---
 
@@ -107,19 +117,20 @@ Enable operators and nominators to seamlessly stake on Subspace domains with a f
 
 #### 3.2.1 Performance
 
-- Page load time: < 2s P95 on 4G
+- Page load time: < 2s P95 on desktop broadband
 - Transaction signing: < 5s from click to wallet prompt
 - Real-time data refresh: < 10s for critical updates
 
 #### 3.2.2 Compatibility
 
 - **Wallet Support**: SubWallet, Talisman, Polkadot.js extension
-- **Responsive Design**: Desktop + mobile web (≥ 375px)
+- **Responsive Design**: Desktop-first (mobile-responsive but not priority)
 - **Browser Support**: Chrome, Firefox, Safari (last 2 versions)
 
 #### 3.2.3 Technical Constraints
 
-- Substrate RPC for on-chain data (minimize centralized indexing)
+- Substrate RPC for on-chain data
+- Indexer for necessary historical data (APY, nominator/operator actions, etc.)
 - TypeScript + functional React architecture
 - Yarn package management
 - Auto SDK integration for consensus layer
@@ -146,7 +157,7 @@ Select Operator → Enter Amount → Review Terms →
 Confirm Transaction → Staking Confirmation → Portfolio View
 ```
 
-#### C. Monitoring & Claiming Rewards
+#### C. Monitoring Positions
 
 ```
 Portfolio Dashboard → View Rewards → Historical Analysis →
@@ -165,11 +176,9 @@ Confirm Transaction → Completed
 ### 4.2 Edge Cases & Error Handling
 
 - Insufficient balance for staking
-- Operator oversubscription
 - Network connectivity issues
 - Wallet rejection/timeout
 - Slashing events
-- Partial fee coverage
 
 ---
 
@@ -222,6 +231,7 @@ Confirm Transaction → Completed
 - Transaction pending states
 - Real-time balance updates
 - Epoch countdown timers
+- Withdrawal status and unlock times
 
 ---
 
@@ -265,17 +275,19 @@ Confirm Transaction → Completed
 
 ### 9.1 MVP Scope
 
-- Basic staking/unstaking flows
-- Operator browsing and selection
-- Portfolio dashboard
-- Desktop web only
+- **Core Nomination Flow**: Browse operators, stake tokens, view portfolio
+- **Withdrawal Process**: Two-step withdraw → unlock with clear status
+- **Operator Discovery**: Compare APY, tax rates, and operator details
+- **Desktop Experience**: Optimized for desktop web browsers
 
 ### 9.2 Post-MVP Features
 
-- Mobile optimization
-- Advanced analytics and charts
-- Batch operations
-- Governance integration
+- **Operator Registration Flow**: UI for domain operators to register
+- **Advanced Analytics**: Historical yield charts, performance metrics
+- **Batch Operations**: Multi-operator staking, bulk withdrawals
+- **Governance Integration**: Voting with staked tokens
+- **Mobile Experience**: Mobile-responsive design (≥ 375px)
+- **Accessibility**: WCAG AA compliance
 
 ---
 
@@ -285,7 +297,7 @@ Confirm Transaction → Completed
 | --- | --------------------------------------------------------- | ------- | -------- | ---------------------------------- |
 | 1   | Share price calculation accuracy during epoch transitions | Eng     | High     | Need to confirm RPC reliability    |
 | 2   | Mobile wallet deep-linking UX                             | Design  | Medium   | Test with SubWallet mobile         |
-| 3   | Real-time vs cached data strategy                         | Eng     | High     | Balance performance vs accuracy    |
+| 3   | Real-time vs indexed data strategy                        | Eng     | High     | Balance performance vs accuracy    |
 | 4   | Withdrawal locking period communication                   | Product | High     | Clear countdown and status         |
 | 5   | Slashing event notification system                        | Product | Medium   | On-chain events vs external alerts |
 
