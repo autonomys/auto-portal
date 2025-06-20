@@ -1,0 +1,59 @@
+# Cursor Rules for TypeScript/React Project
+
+## General Guidelines
+
+- Use TypeScript for all new files
+- Prefer yarn over npm for package management
+- Use arrow functions instead of function declarations
+- Prioritize immutability and functional programming patterns
+- Avoid classes; use functional components and hooks instead
+- Use strict TypeScript configuration
+
+## Code Style
+
+- Use 2 spaces for indentation
+- Use single quotes for strings
+- Add trailing commas in multiline objects/arrays
+- Use const assertions and as const where appropriate
+- Prefer interface over type for object shapes
+- Use meaningful variable and function names
+
+## React Patterns
+
+- Use functional components with hooks
+- Prefer custom hooks for reusable logic
+- Use React.memo() for performance optimization when needed
+- Destructure props at the function parameter level
+- Use proper TypeScript types for props and state
+
+## State Management
+
+- Use useState and useReducer for local state
+- Prefer immutable updates (spread operator, immer if needed)
+- Use useCallback and useMemo appropriately for performance
+
+## File Organization
+
+- Use kebab-case for file names
+- Use PascalCase for component names
+- Group related files in folders
+- Keep components small and focused
+- Separate business logic from UI components
+
+## Import/Export
+
+- Use named exports over default exports
+- Group imports: external libraries, internal modules, relative imports
+- Use absolute imports with path mapping when configured
+
+## Error Handling
+
+- Use proper error boundaries for React components
+- Handle async operations with proper error states
+- Use TypeScript's strict null checks
+
+## Performance
+
+- Lazy load components and routes when appropriate
+- Optimize bundle size with tree shaking
+- Use React DevTools and performance profiling tools
