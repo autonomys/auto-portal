@@ -1,6 +1,6 @@
 # Staking Product Development
 
-This directory contains all product development artifacts for the Subspace staking application. The goal is to create a user-friendly interface that enables operators and nominators to seamlessly stake on Subspace domains.
+This directory contains all product development artifacts for the Autonomys staking application. The goal is to create a user-friendly interface that enables operators and nominators to seamlessly stake on Autonomys domains.
 
 ---
 
@@ -8,7 +8,7 @@ This directory contains all product development artifacts for the Subspace staki
 
 ### Vision
 
-Enable operators and nominators to seamlessly stake on Subspace domains with a friction-less, transparent experience that matches or exceeds Web2 financial apps.
+Enable operators and nominators to seamlessly stake on Autonomys domains with a friction-less, transparent experience that matches or exceeds Web2 financial apps.
 
 ### Success Metrics
 
@@ -25,12 +25,14 @@ Enable operators and nominators to seamlessly stake on Subspace domains with a f
 
 - **`rough-description.txt`** - Initial project brief and requirements
 - **`kickoff-workshop.md`** - Workshop notes with shared terminology and decisions
-- **`staking-prd.md`** - Comprehensive Product Requirements Document
-- **`competitive-audit.md`** - High-level analysis of staking UX patterns
+- **`staking-prd.md`** - Complete Product Requirements Document with functional specs
+- **`wireframes.md`** - Screen layouts and user interface design patterns
+- **`technical-architecture.md`** - Component structure, data flow, and implementation plan
+- **`technical-specifications.md`** - Detailed calculations, business logic, and implementation decisions
 
 ### Research Resources
 
-- **`resources/`** - Detailed research findings and UX patterns
+- **`resources/`** - Competitive analysis and protocol insights for reference
   - `polkadot-apps-analysis.md` - Current state pain points
   - `lido-ux-patterns.md` - Best-in-class simplicity patterns
   - `keplr-validator-selection.md` - Validator marketplace UX
@@ -38,194 +40,122 @@ Enable operators and nominators to seamlessly stake on Subspace domains with a f
 
 ---
 
+## 🎯 Target Users
+
+### Primary Personas
+
+- **Farmer Frank**: Active Autonomys farmers with earned AI3 tokens seeking yield
+- **Token Holder Tina**: Exchange purchasers looking for passive income opportunities
+- **Operator Oliver**: Domain operators needing simplified registration and nomination UX
+
+### Core User Journeys
+
+1. **Nominator Flow**: Connect → Browse Operators → Stake → Monitor Portfolio
+2. **Withdrawal Flow**: Request Withdrawal → Wait for Epoch → Unlock Funds
+3. **Portfolio Management**: Track positions, rewards, and transaction history
+
+---
+
 ## 🚀 Development Phases
 
-### ✅ Phase 1: Discovery & Requirements (Completed)
+### ✅ Phase 1: Discovery & Requirements (Complete)
 
-- [x] Kickoff workshop and terminology alignment
-- [x] Competitive research and UX pattern analysis
-- [x] Protocol specification deep dive
-- [x] Product requirements documentation
-- [x] Technical constraints identification
+- [x] Stakeholder alignment and shared terminology
+- [x] Competitive research (Polkadot Apps, Lido, Keplr)
+- [x] Protocol deep-dive and constraint analysis
+- [x] Complete PRD with functional requirements
 
-### 🔄 Phase 2: Design & Architecture (In Progress)
+### ✅ Phase 2: Design & Architecture (Complete)
 
-- [ ] User journey wireframes
-- [ ] Information architecture design
-- [ ] Component system planning
-- [ ] Mobile-first responsive design
-- [ ] Accessibility considerations
+- [x] User journey wireframes and screen layouts
+- [x] Information architecture and navigation design
+- [x] Technical architecture and component planning
+- [x] Performance and security considerations
 
-### 📋 Phase 3: Technical Planning (Upcoming)
+### 🔄 Phase 3: Technical Planning (Next)
 
-- [ ] Auto SDK integration planning
-- [ ] Data architecture design
-- [ ] Performance requirements
-- [ ] Testing strategy
-- [ ] Deployment planning
+- [ ] Component library setup and design system
+- [ ] Auto SDK integration and blockchain service layer
+- [ ] State management implementation (Zustand stores)
+- [ ] Development environment and tooling setup
 
-### 🛠️ Phase 4: Development (Future)
+### 📋 Phase 4: Implementation (Upcoming)
 
-- [ ] Component development
-- [ ] Integration testing
-- [ ] User acceptance testing
-- [ ] Performance optimization
-- [ ] Security audit
+- [ ] Core UI components and layout system
+- [ ] Wallet connection and account management
+- [ ] Operator discovery and comparison interface
+- [ ] Staking flow implementation
+- [ ] Portfolio and withdrawal management
 
----
+### 🧪 Phase 5: Testing & Launch (Future)
 
-## 👥 Key Personas
-
-### Operator Oliver
-
-- **Role**: Infrastructure provider running domain nodes
-- **Needs**: Predictable delegated stake, clear reward visibility, uptime monitoring
-- **Pain Points**: Complex setup process, unclear nomination management
-
-### Nominator Nina
-
-- **Role**: Token holder seeking passive income
-- **Needs**: Simple staking flow, transparent rewards, easy exit process
-- **Pain Points**: Confusing withdrawal process, poor mobile experience
+- [ ] Unit and integration testing
+- [ ] User acceptance testing with target personas
+- [ ] Performance optimization and security audit
+- [ ] Staging deployment and production launch
 
 ---
 
-## 🔑 Key Insights
+## 🔍 Key Insights
 
-### Current State Problems
+### Protocol Constraints
 
-- **Shannon Conversion Hell**: Manual 10^18 calculations required
-- **Hidden in Developer Tools**: Staking buried in technical interface
-- **No Operator Discovery**: Must know operator ID beforehand
-- **Confusing Storage Fund**: 20% allocation not explained
-- **Zero Progress Tracking**: No withdrawal status visibility
+- **Two-step withdrawal**: Withdraw request → Unlock after locking period
+- **Share-based rewards**: Operators use share pools rather than direct token rewards
+- **Storage fund**: 20% of stake allocated to storage fund (refunded on withdrawal)
+- **Epoch-based processing**: State changes processed at epoch boundaries
 
-### Protocol Opportunities
+### UX Principles
 
-- **Domain-Specific Operators**: Unique positioning vs generic validators
-- **Predictable Epoch Timing**: Clear scheduling vs immediate/variable
-- **Storage Fund Innovation**: Infrastructure sustainability story
-- **Share-Based Rewards**: Efficient reward distribution system
+- **Trust First**: Clear security indicators and transparent fee breakdowns
+- **Progressive Disclosure**: Essential info first, details on demand
+- **Efficiency**: Minimize clicks for core actions (stake, withdraw)
 
-### Design Principles
+### Technical Decisions
 
-- **Hide Complexity**: Abstract away technical details (Shannons, extrinsics)
-- **Visual Operator Selection**: Rich marketplace vs manual ID entry
-- **Clear Withdrawal Process**: 2-step flow with progress tracking
-- **Mobile Optimization**: Touch-first design from day one
+- **Desktop-first**: Optimized for desktop browsers (mobile-responsive but not priority)
+- **React + TypeScript**: Functional programming with strict type safety
+- **Auto SDK**: Direct blockchain integration with Polkadot.js fallback
+- **Zustand**: Lightweight state management for wallet and staking data (TBD)
 
 ---
 
-## 🎯 Core User Journeys
+## 📊 Success Tracking
 
-### A. Operator Onboarding
+### MVP Scope
 
-```
-Landing → Connect Wallet → Operator Registration →
-Configure Pool → Confirm Transaction → Pending State →
-Active Operator (next epoch)
-```
+- **Core Nomination Flow**: Browse operators, stake tokens, view portfolio
+- **Withdrawal Process**: Two-step withdraw → unlock with clear status tracking
+- **Operator Discovery**: Compare APY, tax rates, and operator details
+- **Desktop Experience**: Optimized for desktop web browsers
 
-### B. Nominator Staking
+### Post-MVP Features
 
-```
-Landing → Connect Wallet → Browse Operators →
-Select Operator → Enter Amount → Review Terms →
-Confirm Transaction → Staking Confirmation → Portfolio View
-```
-
-### C. Withdrawal Process
-
-```
-Portfolio → Select Position → Withdraw Request →
-Confirm Transaction → Pending Withdrawal →
-Wait for Unlock Period → Unlock Funds →
-Confirm Transaction → Completed
-```
+- **Operator Registration Flow**: UI for domain operators to register
+- **Advanced Analytics**: Historical yield charts and performance metrics
+- **Batch Operations**: Multi-operator staking and bulk withdrawals
+- **Governance Integration**: Voting with staked tokens
 
 ---
 
-## 🛡️ Technical Constraints
+## 🛠 Next Steps
 
-### Protocol Requirements
+### Immediate Actions (Phase 3)
 
-- **Wallet Integration**: SubWallet, Talisman, Polkadot.js extension support
-- **Epoch-Based Processing**: Deposits/withdrawals processed at epoch boundaries
-- **Two-Step Withdrawal**: Withdraw request → unlock after locking period
-- **Storage Fund**: 20% of stakes automatically allocated
-
-### Performance Targets
-
-- **Page Load**: < 2s P95 on 4G
-- **Transaction Signing**: < 5s from click to wallet prompt
-- **Real-time Updates**: < 10s for critical data refresh
-
-### Responsive Design
-
-- **Mobile Web**: ≥ 375px viewport support
-- **Desktop**: Full-featured experience
-- **Tablet**: Hybrid approach with collapsible details
+1. **Component Library Setup**: Initialize shadcn/ui + Tailwind CSS design system
+2. **Auto SDK Integration**: Set up blockchain service layer and RPC connections
+3. **State Management**: Implement Zustand stores for wallet and staking data
+4. **Development Environment**: Vite setup with TypeScript and testing framework
 
 ---
 
-## 📊 Success Metrics & KPIs
+## 📚 Resources
 
-### User Experience
+### Protocol Documentation
 
-- Time-to-first-stake completion rate
-- Transaction success rate by flow
-- User retention and repeat usage
-- Mobile vs desktop conversion rates
-
-### Product Performance
-
-- Total value staked through interface
-- Operator discovery and selection patterns
-- Withdrawal completion rates
-- Support ticket volume and resolution
-
-### Technical Performance
-
-- Page load times and Core Web Vitals
-- Transaction failure rates
-- API response times
-- Error rates by feature
-
----
-
-## 🔄 Next Steps
-
-### Immediate Actions (This Week)
-
-1. **Wireframe Core Flows** - Start with nominator staking journey
-2. **Operator Data Modeling** - Define marketplace information architecture
-3. **Unit Conversion Strategy** - Hide Shannon complexity from users
-4. **Withdrawal UX Design** - Clear 2-step process visualization
-
-### Short Term (Next 2 Weeks)
-
-1. **Interactive Prototypes** - Clickable flows for validation
-2. **Component Architecture** - Design system planning
-3. **Technical Feasibility** - Auto SDK integration research
-4. **Mobile Optimization** - Touch-first interaction patterns
-
-### Medium Term (Next Month)
-
-1. **Development Planning** - Sprint planning and resource allocation
-2. **Testing Strategy** - User testing and validation approach
-3. **Performance Planning** - Optimization and caching strategies
-4. **Launch Strategy** - MVP scope and rollout plan
-
----
-
-## 📚 Key Resources
-
-### External Documentation
-
-- [Autonomys Staking Guide](https://docs.autonomys.xyz/staking/operator/polkadot)
-- [Protocol Staking Specification](https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)
-- [Auto SDK Consensus Package](https://github.com/autonomys/auto-sdk/tree/main/packages/auto-consensus)
-- [Protocol Monorepo](https://github.com/autonomys/subspace)
+- [Staking Specification](https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)
+- [Auto SDK Documentation](https://github.com/autonomys/auto-sdk)
+- [Farming Overview](https://academy.autonomys.xyz/autonomys-network/consensus/proof-of-archival-storage/farming)
 
 ### Design References
 
@@ -235,22 +165,4 @@ Confirm Transaction → Completed
 
 ---
 
-## 🤝 Contributing
-
-### Document Updates
-
-- Keep all documents current with latest decisions
-- Cross-reference related information
-- Update this README when adding new files
-- Use consistent formatting and terminology
-
-### Research Additions
-
-- Add new competitive analyses to `resources/` folder
-- Document user feedback and insights
-- Update protocol insights as specifications evolve
-- Maintain links to external resources
-
----
-
-_This README serves as the central hub for all staking product development activities and should be updated as the project evolves._
+_This product development is following an iterative approach with clear milestones and user-centered design principles._
