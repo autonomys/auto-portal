@@ -12,12 +12,12 @@ export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">
-                  A
-                </span>
-              </div>
+            <div className="flex items-center space-x-3">
+              <img
+                src="/autonomys-icon-dark.svg"
+                alt="Autonomys"
+                className="h-8 w-8"
+              />
               <span className="text-xl font-serif font-semibold text-foreground">
                 Autonomys Staking
               </span>
@@ -28,19 +28,19 @@ export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           <nav className="hidden md:flex items-center space-x-8">
             <a
               href="#dashboard"
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
             >
               Dashboard
             </a>
             <a
               href="#operators"
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
             >
               Operators
             </a>
             <a
               href="#portfolio"
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
             >
               Portfolio
             </a>
@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
 
           {/* Wallet Connection */}
           <div className="flex items-center space-x-4">
-            <Button>Connect Wallet</Button>
+            <Button className="font-sans">Connect Wallet</Button>
           </div>
         </div>
       </div>
