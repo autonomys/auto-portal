@@ -26,9 +26,15 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - **`rough-description.txt`** - Initial project brief and requirements
 - **`kickoff-workshop.md`** - Workshop notes with shared terminology and decisions
 - **`staking-prd.md`** - Complete Product Requirements Document with functional specs
-- **`wireframes.md`** - Screen layouts and user interface design patterns
-- **`technical-architecture.md`** - Component structure, data flow, and implementation plan
+- **`wireframes.md`** - Screen layouts and user interface design patterns (markdown format)
+- **`technical-architecture.md`** - Component structure, data flow, and implementation plan (functional programming)
 - **`technical-specifications.md`** - Detailed calculations, business logic, and implementation decisions
+- **`design-system.md`** - Visual design tokens, component specifications, and styling guidelines
+- **`visual-mockups.md`** - High-fidelity screen designs with interactive preview links
+- **`mockups/`** - Interactive HTML previews and brand assets
+  - `dashboard-preview.html` - Working dashboard mockup with official Autonomys branding
+  - `autonomys-logo-dark.svg` - Official Autonomys logo (dark version)
+  - `autonomys-icon-dark.svg` - Official Autonomys icon (dark version)
 
 ### Research Resources
 
@@ -67,14 +73,18 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### ✅ Phase 2: Design & Architecture (Complete)
 
-- [x] User journey wireframes and screen layouts
+- [x] User journey wireframes and screen layouts (markdown format)
 - [x] Information architecture and navigation design
-- [x] Technical architecture and component planning
+- [x] Technical architecture and component planning (functional programming)
+- [x] Design system specification with tokens and components
+- [x] Visual mockups for key screens with component integration
 - [x] Performance and security considerations
 
 ### 🔄 Phase 3: Technical Planning (Next)
 
-- [ ] Component library setup and design system
+- [ ] Project initialization with Vite + React + TypeScript
+- [ ] Component library setup (shadcn/ui + Tailwind CSS)
+- [ ] Design system implementation with CSS custom properties
 - [ ] Auto SDK integration and blockchain service layer
 - [ ] State management implementation (Zustand stores)
 - [ ] Development environment and tooling setup
@@ -156,6 +166,10 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [Staking Specification](https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)
 - [Auto SDK Documentation](https://github.com/autonomys/auto-sdk)
 - [Farming Overview](https://academy.autonomys.xyz/autonomys-network/consensus/proof-of-archival-storage/farming)
+
+### Brand Resources
+
+- [Autonomys Brand Kit](https://www.autonomys.xyz/brand-kit) - Official logos, colors, and typography
 
 ### Design References
 
