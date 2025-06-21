@@ -97,7 +97,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### 🔄 Phase 4: Implementation (Next)
 
-- [ ] Core UI components and layout system
+- [x] Core UI components and layout system (dashboard layout implemented; operator components next)
 - [ ] Wallet connection and account management
 - [ ] Operator discovery and comparison interface
 - [ ] Staking flow implementation
@@ -158,10 +158,10 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### Immediate Actions (Phase 4)
 
-1. **Core UI Components**: Implement dashboard, operator cards, and form components
-2. **Wallet Integration**: Connect wallet providers and account management
-3. **Operator Discovery**: Build operator browsing and comparison interface
-4. **Staking Flow**: Implement end-to-end staking transaction flow
+1. **Wallet Integration**: Integrate SubWallet / Polkadot.js extension and create wallet store
+2. **Operator Discovery**: Build operator cards & comparison interface powered by mock data
+3. **State Stores**: Implement Zustand wallet & staking stores skeleton
+4. **Stake Flow Scaffolding**: Prepare staking route and stepper components
 
 ---
 
