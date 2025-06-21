@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choose Operator - Autonomys Staking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f4ff",
+                100: "#e0e7ff",
+                200: "#c7d2fe",
+                300: "#a5b4fc",
+                400: "#818cf8",
+                500: "#5870B3",
+                600: "#4f63a0",
+                700: "#3f4f7f",
+                800: "#374151",
+                900: "#1f2937",
+              },
+              secondary: {
+                50: "#f8fafc",
+                100: "#f1f5f9",
+                200: "#e2e8f0",
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#1D2C57",
+                600: "#1a2548",
+                700: "#151f3a",
+                800: "#0f172a",
+                900: "#020617",
+              },
+              accent: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                200: "#bbf7d0",
+                300: "#86efac",
+                400: "#4ade80",
+                500: "#33EDA6",
+                600: "#2dd894",
+                700: "#22c55e",
+                800: "#16a34a",
+                900: "#15803d",
+              },
+              success: {
+                50: "#f7fee7",
+                100: "#ecfccb",
+                200: "#d9f99d",
+                300: "#bef264",
+                400: "#a3e635",
+                500: "#75DF22",
+                600: "#65d61e",
+                700: "#4d7c0f",
+                800: "#365314",
+                900: "#1a2e05",
+              },
+              error: {
+                50: "#fef2f2",
+                100: "#fee2e2",
+                200: "#fecaca",
+                300: "#fca5a5",
+                400: "#f87171",
+                500: "#FC5146",
+                600: "#e53e3e",
+                700: "#b91c1c",
+                800: "#991b1b",
+                900: "#7f1d1d",
+              },
+              warning: {
+                50: "#fffbeb",
+                100: "#fef3c7",
+                200: "#fde68a",
+                300: "#fcd34d",
+                400: "#fbbf24",
+                500: "#FFDF35",
+                600: "#d97706",
+                700: "#b45309",
+                800: "#92400e",
+                900: "#78350f",
+              },
+              neutral: {
+                0: "#ffffff",
+                50: "#f9fafb",
+                100: "#f3f4f6",
+                200: "#e5e7eb",
+                300: "#d1d5db",
+                400: "#9ca3af",
+                500: "#6b7280",
+                600: "#4b5563",
+                700: "#374151",
+                800: "#1f2937",
+                900: "#111827",
+              },
+            },
+            fontFamily: {
+              serif: ["Roboto Serif", "serif"],
+              sans: ["Libre Franklin", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            boxShadow: {
+              sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+              DEFAULT:
+                "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+              md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+              lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Custom component styles */
+      .btn-primary {
+        @apply bg-primary-500 hover:bg-primary-600 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md;
+      }
+      .btn-secondary {
+        @apply bg-neutral-0 hover:bg-neutral-50 text-neutral-700 font-medium px-4 py-2 rounded-lg border border-neutral-300 transition-all duration-200 hover:shadow-sm;
+      }
+      .btn-ghost {
+        @apply text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 font-medium px-3 py-2 rounded-lg transition-all duration-200;
+      }
+      .operator-card {
+        @apply bg-neutral-0 border border-neutral-200 rounded-xl p-6 hover:shadow-lg hover:border-primary-200 transition-all duration-200 cursor-pointer;
+      }
+      .operator-card:hover {
+        transform: translateY(-2px);
+      }
+      .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+      }
+      .badge.success {
+        @apply bg-success-100 text-success-800;
+      }
+      .badge.warning {
+        @apply bg-warning-100 text-warning-800;
+      }
+      .badge.error {
+        @apply bg-error-100 text-error-800;
+      }
+      .metric-highlight {
+        @apply text-2xl font-bold text-primary-600;
+      }
+      .metric-label {
+        @apply text-sm font-medium text-neutral-600;
+      }
+      .performance-bar {
+        @apply w-full bg-neutral-200 rounded-full h-2;
+      }
+      .performance-fill {
+        @apply bg-success-500 h-2 rounded-full transition-all duration-500;
+      }
+    </style>
+  </head>
+  <body class="bg-neutral-50 font-sans">
+    <div class="min-h-screen">
+      <!-- Header -->
+      <header
+        class="bg-neutral-0 border-b border-neutral-200 sticky top-0 z-10"
+      >
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center py-4">
+            <div class="flex items-center space-x-4">
+              <button class="btn-ghost">
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  ></path>
+                </svg>
+                Back
+              </button>
+              <div class="h-6 w-px bg-neutral-300"></div>
+              <h1 class="text-xl font-semibold text-neutral-900">
+                Choose Operator
+              </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+              <img
+                src="./autonomys-logo-dark.svg"
+                alt="Autonomys"
+                class="h-6 w-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Filters & Search -->
+        <div class="mb-8">
+          <div
+            class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+          >
+            <div class="flex flex-wrap gap-3">
+              <!-- Domain Filter -->
+              <select
+                class="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-0 text-neutral-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option>All Domains</option>
+                <option>Auto EVM</option>
+                <option>Auto ID</option>
+              </select>
+
+              <!-- Sort Options -->
+              <select
+                class="px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-0 text-neutral-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option>Sort: APY (High to Low)</option>
+                <option>Sort: APY (Low to High)</option>
+                <option>Sort: Total Staked</option>
+                <option>Sort: Uptime</option>
+              </select>
+            </div>
+
+            <!-- Search -->
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <svg
+                  class="h-5 w-5 text-neutral-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search operators..."
+                class="pl-10 pr-4 py-2 border border-neutral-300 rounded-lg bg-neutral-0 text-neutral-700 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="mb-6">
+          <p class="text-neutral-600">
+            Showing
+            <span class="font-medium text-neutral-900">12 operators</span> •
+            Average APY: <span class="font-medium text-success-600">17.8%</span>
+          </p>
+        </div>
+
+        <!-- Operator Cards Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Operator Card 1 -->
+          <div class="operator-card">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center"
+                >
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M2 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6l-2 2V5zm0 8a2 2 0 012-2h2l2-2v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-2z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">
+                    Gemini-3h-Farmer-1
+                  </h3>
+                  <p class="text-sm text-neutral-500">Auto EVM Domain</p>
+                </div>
+              </div>
+              <span class="badge success">Active</span>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center">
+                <div class="metric-highlight">18.5%</div>
+                <div class="metric-label">APY</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight">5%</div>
+                <div class="metric-label">Tax</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight font-mono">10</div>
+                <div class="metric-label">Min Stake</div>
+              </div>
+            </div>
+
+            <!-- Pool Stats -->
+            <div
+              class="grid grid-cols-2 gap-4 mb-4 p-3 bg-neutral-50 rounded-lg"
+            >
+              <div>
+                <div class="text-sm font-medium text-neutral-900 font-mono">
+                  12,450 AI3
+                </div>
+                <div class="text-xs text-neutral-500">Total Staked</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-neutral-900">23</div>
+                <div class="text-xs text-neutral-500">Nominators</div>
+              </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-neutral-700">Uptime</span>
+                <span class="text-sm font-mono text-success-600">99.2%</span>
+              </div>
+              <div class="performance-bar">
+                <div class="performance-fill" style="width: 99.2%"></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button class="btn-primary flex-1">Stake</button>
+              <button class="btn-secondary">Details</button>
+            </div>
+          </div>
+
+          <!-- Operator Card 2 -->
+          <div class="operator-card">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center"
+                >
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">
+                    Auto-Domain-Op-2
+                  </h3>
+                  <p class="text-sm text-neutral-500">Auto EVM Domain</p>
+                </div>
+              </div>
+              <span class="badge success">Active</span>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center">
+                <div class="metric-highlight">17.8%</div>
+                <div class="metric-label">APY</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight">8%</div>
+                <div class="metric-label">Tax</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight font-mono">50</div>
+                <div class="metric-label">Min Stake</div>
+              </div>
+            </div>
+
+            <!-- Pool Stats -->
+            <div
+              class="grid grid-cols-2 gap-4 mb-4 p-3 bg-neutral-50 rounded-lg"
+            >
+              <div>
+                <div class="text-sm font-medium text-neutral-900 font-mono">
+                  8,920 AI3
+                </div>
+                <div class="text-xs text-neutral-500">Total Staked</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-neutral-900">15</div>
+                <div class="text-xs text-neutral-500">Nominators</div>
+              </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-neutral-700">Uptime</span>
+                <span class="text-sm font-mono text-success-600">98.7%</span>
+              </div>
+              <div class="performance-bar">
+                <div class="performance-fill" style="width: 98.7%"></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button class="btn-primary flex-1">Stake</button>
+              <button class="btn-secondary">Details</button>
+            </div>
+          </div>
+
+          <!-- Operator Card 3 -->
+          <div class="operator-card">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-secondary-400 to-secondary-600 rounded-full flex items-center justify-center"
+                >
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">
+                    Autonomys-Validator-X
+                  </h3>
+                  <p class="text-sm text-neutral-500">Auto EVM Domain</p>
+                </div>
+              </div>
+              <span class="badge warning">Degraded</span>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center">
+                <div class="metric-highlight">16.9%</div>
+                <div class="metric-label">APY</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight">10%</div>
+                <div class="metric-label">Tax</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight font-mono">25</div>
+                <div class="metric-label">Min Stake</div>
+              </div>
+            </div>
+
+            <!-- Pool Stats -->
+            <div
+              class="grid grid-cols-2 gap-4 mb-4 p-3 bg-neutral-50 rounded-lg"
+            >
+              <div>
+                <div class="text-sm font-medium text-neutral-900 font-mono">
+                  15,600 AI3
+                </div>
+                <div class="text-xs text-neutral-500">Total Staked</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-neutral-900">45</div>
+                <div class="text-xs text-neutral-500">Nominators</div>
+              </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-neutral-700">Uptime</span>
+                <span class="text-sm font-mono text-warning-600">97.1%</span>
+              </div>
+              <div class="performance-bar">
+                <div
+                  class="performance-fill bg-warning-500"
+                  style="width: 97.1%"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button class="btn-primary flex-1">Stake</button>
+              <button class="btn-secondary">Details</button>
+            </div>
+          </div>
+
+          <!-- Operator Card 4 -->
+          <div class="operator-card">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-12 h-12 bg-gradient-to-br from-neutral-400 to-neutral-600 rounded-full flex items-center justify-center"
+                >
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">
+                    Secure-Node-Alpha
+                  </h3>
+                  <p class="text-sm text-neutral-500">Auto EVM Domain</p>
+                </div>
+              </div>
+              <span class="badge success">Active</span>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center">
+                <div class="metric-highlight">16.2%</div>
+                <div class="metric-label">APY</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight">12%</div>
+                <div class="metric-label">Tax</div>
+              </div>
+              <div class="text-center">
+                <div class="metric-highlight font-mono">100</div>
+                <div class="metric-label">Min Stake</div>
+              </div>
+            </div>
+
+            <!-- Pool Stats -->
+            <div
+              class="grid grid-cols-2 gap-4 mb-4 p-3 bg-neutral-50 rounded-lg"
+            >
+              <div>
+                <div class="text-sm font-medium text-neutral-900 font-mono">
+                  22,180 AI3
+                </div>
+                <div class="text-xs text-neutral-500">Total Staked</div>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-neutral-900">67</div>
+                <div class="text-xs text-neutral-500">Nominators</div>
+              </div>
+            </div>
+
+            <!-- Performance -->
+            <div class="mb-4">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-neutral-700">Uptime</span>
+                <span class="text-sm font-mono text-success-600">99.8%</span>
+              </div>
+              <div class="performance-bar">
+                <div class="performance-fill" style="width: 99.8%"></div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+              <button class="btn-primary flex-1">Stake</button>
+              <button class="btn-secondary">Details</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Load More -->
+        <div class="mt-8 text-center">
+          <button class="btn-secondary">
+            Load More Operators
+            <svg
+              class="w-4 h-4 ml-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

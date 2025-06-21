@@ -6,9 +6,15 @@
 
 ## Interactive Previews
 
-📱 **[Dashboard Preview](./mockups/dashboard-preview.html)** - Working HTML mockup with official Autonomys branding and interactive elements
+🏠 **[Dashboard Preview](./mockups/dashboard-preview.html)** - Portfolio overview with metric cards, active positions, and recent activity
 
-> **Note**: The preview files are located in the `mockups/` folder along with official brand assets (logos, icons) downloaded from the [Autonomys Brand Kit](https://www.autonomys.xyz/brand-kit).
+🔍 **[Operator Discovery](./mockups/operator-discovery.html)** - Browse and compare operators with filtering, search, and performance metrics
+
+💰 **[Staking Flow](./mockups/staking-flow.html)** - Complete staking process with transaction breakdown and fee transparency
+
+📤 **[Withdrawal Flow](./mockups/withdrawal-flow.html)** - Two-step withdrawal process with cost basis tracking and timeline visualization
+
+> **Note**: All preview files are located in the `mockups/` folder along with official brand assets (logos, icons) downloaded from the [Autonomys Brand Kit](https://www.autonomys.xyz/brand-kit). Each mockup includes interactive elements, hover states, and realistic data examples.
 
 ---
 

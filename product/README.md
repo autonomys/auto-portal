@@ -32,7 +32,10 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - **`design-system.md`** - Visual design tokens, component specifications, and styling guidelines
 - **`visual-mockups.md`** - High-fidelity screen designs with interactive preview links
 - **`mockups/`** - Interactive HTML previews and brand assets
-  - `dashboard-preview.html` - Working dashboard mockup with official Autonomys branding
+  - `dashboard-preview.html` - Portfolio overview with metrics and active positions
+  - `operator-discovery.html` - Browse and compare operators with filtering and search
+  - `staking-flow.html` - Complete staking process with transaction breakdown
+  - `withdrawal-flow.html` - Two-step withdrawal with cost basis tracking
   - `autonomys-logo-dark.svg` - Official Autonomys logo (dark version)
   - `autonomys-icon-dark.svg` - Official Autonomys icon (dark version)
 

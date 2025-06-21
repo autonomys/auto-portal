@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Withdraw from Operator - Autonomys Staking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f4ff",
+                100: "#e0e7ff",
+                200: "#c7d2fe",
+                300: "#a5b4fc",
+                400: "#818cf8",
+                500: "#5870B3",
+                600: "#4f63a0",
+                700: "#3f4f7f",
+                800: "#374151",
+                900: "#1f2937",
+              },
+              secondary: {
+                50: "#f8fafc",
+                100: "#f1f5f9",
+                200: "#e2e8f0",
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#1D2C57",
+                600: "#1a2548",
+                700: "#151f3a",
+                800: "#0f172a",
+                900: "#020617",
+              },
+              accent: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                200: "#bbf7d0",
+                300: "#86efac",
+                400: "#4ade80",
+                500: "#33EDA6",
+                600: "#2dd894",
+                700: "#22c55e",
+                800: "#16a34a",
+                900: "#15803d",
+              },
+              success: {
+                50: "#f7fee7",
+                100: "#ecfccb",
+                200: "#d9f99d",
+                300: "#bef264",
+                400: "#a3e635",
+                500: "#75DF22",
+                600: "#65d61e",
+                700: "#4d7c0f",
+                800: "#365314",
+                900: "#1a2e05",
+              },
+              error: {
+                50: "#fef2f2",
+                100: "#fee2e2",
+                200: "#fecaca",
+                300: "#fca5a5",
+                400: "#f87171",
+                500: "#FC5146",
+                600: "#e53e3e",
+                700: "#b91c1c",
+                800: "#991b1b",
+                900: "#7f1d1d",
+              },
+              warning: {
+                50: "#fffbeb",
+                100: "#fef3c7",
+                200: "#fde68a",
+                300: "#fcd34d",
+                400: "#fbbf24",
+                500: "#FFDF35",
+                600: "#d97706",
+                700: "#b45309",
+                800: "#92400e",
+                900: "#78350f",
+              },
+              neutral: {
+                0: "#ffffff",
+                50: "#f9fafb",
+                100: "#f3f4f6",
+                200: "#e5e7eb",
+                300: "#d1d5db",
+                400: "#9ca3af",
+                500: "#6b7280",
+                600: "#4b5563",
+                700: "#374151",
+                800: "#1f2937",
+                900: "#111827",
+              },
+            },
+            fontFamily: {
+              serif: ["Roboto Serif", "serif"],
+              sans: ["Libre Franklin", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            boxShadow: {
+              sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+              DEFAULT:
+                "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+              md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+              lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Custom component styles */
+      .btn-primary {
+        @apply bg-primary-500 hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:shadow-md;
+      }
+      .btn-secondary {
+        @apply bg-neutral-0 hover:bg-neutral-50 text-neutral-700 font-medium px-6 py-3 rounded-lg border border-neutral-300 transition-all duration-200 hover:shadow-sm;
+      }
+      .btn-ghost {
+        @apply text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 font-medium px-3 py-2 rounded-lg transition-all duration-200;
+      }
+      .btn-danger {
+        @apply bg-error-500 hover:bg-error-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:shadow-md;
+      }
+      .position-summary {
+        @apply bg-neutral-0 border border-neutral-200 rounded-xl p-6 mb-6;
+      }
+      .form-card {
+        @apply bg-neutral-0 border border-neutral-200 rounded-xl p-6;
+      }
+      .preview-card {
+        @apply bg-neutral-50 border border-neutral-200 rounded-xl p-6;
+      }
+      .input-field {
+        @apply w-full px-4 py-3 border border-neutral-300 rounded-lg bg-neutral-0 text-neutral-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-lg;
+      }
+      .radio-option {
+        @apply flex items-center p-4 border border-neutral-200 rounded-lg cursor-pointer hover:bg-neutral-50 transition-colors;
+      }
+      .radio-option.selected {
+        @apply border-primary-500 bg-primary-50;
+      }
+      .breakdown-row {
+        @apply flex justify-between items-center py-2;
+      }
+      .timeline-step {
+        @apply flex items-center space-x-4 p-4 rounded-lg;
+      }
+      .timeline-step.active {
+        @apply bg-primary-50 border border-primary-200;
+      }
+      .timeline-step.pending {
+        @apply bg-warning-50 border border-warning-200;
+      }
+      .step-number {
+        @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold;
+      }
+      .step-number.active {
+        @apply bg-primary-500 text-white;
+      }
+      .step-number.pending {
+        @apply bg-warning-500 text-white;
+      }
+    </style>
+  </head>
+  <body class="bg-neutral-50 font-sans">
+    <div class="min-h-screen">
+      <!-- Header -->
+      <header
+        class="bg-neutral-0 border-b border-neutral-200 sticky top-0 z-10"
+      >
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center py-4">
+            <div class="flex items-center space-x-4">
+              <button class="btn-ghost">
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  ></path>
+                </svg>
+                Back
+              </button>
+              <div class="h-6 w-px bg-neutral-300"></div>
+              <h1 class="text-xl font-semibold text-neutral-900">
+                Withdraw from Gemini-3h-Farmer-1
+              </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+              <img
+                src="./autonomys-logo-dark.svg"
+                alt="Autonomys"
+                class="h-6 w-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Current Position Summary -->
+        <div class="position-summary">
+          <div class="flex items-center space-x-4 mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6l-2 2V5zm0 8a2 2 0 012-2h2l2-2v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-2z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-neutral-900">
+                Current Position
+              </h2>
+              <p class="text-neutral-600">
+                Gemini-3h-Farmer-1 • Auto EVM Domain
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-mono font-bold text-neutral-900">
+                758.20 AI3
+              </div>
+              <div class="text-sm text-neutral-600">Position Value</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-mono font-bold text-neutral-900">
+                750.00 AI3
+              </div>
+              <div class="text-sm text-neutral-600">Total Invested</div>
+              <div class="text-xs text-neutral-500">(cost basis)</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-mono font-bold text-success-600">
+                +8.20 AI3
+              </div>
+              <div class="text-sm text-neutral-600">Total Earned</div>
+              <div class="text-xs text-success-600">(+1.09%)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Withdrawal Options -->
+          <div class="form-card">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+              Withdrawal Options
+            </h3>
+
+            <!-- Withdrawal Type Selection -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-neutral-700 mb-3">
+                Withdrawal Type
+              </label>
+              <div class="space-y-3">
+                <div class="radio-option">
+                  <input
+                    type="radio"
+                    name="withdrawal-type"
+                    value="partial"
+                    class="mr-3"
+                  />
+                  <div>
+                    <div class="font-medium text-neutral-900">
+                      Partial Withdrawal
+                    </div>
+                    <div class="text-sm text-neutral-600">
+                      Withdraw a specific amount
+                    </div>
+                  </div>
+                </div>
+                <div class="radio-option selected">
+                  <input
+                    type="radio"
+                    name="withdrawal-type"
+                    value="full"
+                    class="mr-3"
+                    checked
+                  />
+                  <div>
+                    <div class="font-medium text-neutral-900">
+                      Full Withdrawal
+                    </div>
+                    <div class="text-sm text-neutral-600">
+                      Withdraw entire position
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amount Input (for partial withdrawal) -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-neutral-700 mb-2">
+                Withdrawal Amount
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  value="300.00"
+                  class="input-field pr-12"
+                  placeholder="0.00"
+                />
+                <span
+                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-neutral-500"
+                  >AI3</span
+                >
+              </div>
+              <p class="text-xs text-neutral-500 mt-1">
+                Maximum available: 758.20 AI3
+              </p>
+            </div>
+
+            <!-- Timeline Warning -->
+            <div class="p-4 bg-warning-50 border border-warning-200 rounded-lg">
+              <div class="flex items-start space-x-3">
+                <svg
+                  class="w-5 h-5 text-warning-600 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <div>
+                  <h4 class="text-sm font-semibold text-warning-800">
+                    Two-Step Process
+                  </h4>
+                  <p class="text-sm text-warning-700 mt-1">
+                    Withdrawals require two transactions: Request → Wait →
+                    Unlock
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Withdrawal Preview -->
+          <div class="preview-card">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+              Withdrawal Preview
+            </h3>
+
+            <div class="space-y-3 mb-6">
+              <div class="breakdown-row">
+                <span class="text-neutral-700">Cost Basis of Withdrawal</span>
+                <span class="font-mono text-neutral-900">296.83 AI3</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="text-neutral-700">Realized Gains</span>
+                <span class="font-mono text-success-600">+3.17 AI3</span>
+              </div>
+              <div class="breakdown-row border-t border-neutral-300 pt-3">
+                <span class="font-medium text-neutral-900"
+                  >Total Withdrawal</span
+                >
+                <span class="font-mono font-semibold text-neutral-900"
+                  >300.00 AI3</span
+                >
+              </div>
+            </div>
+
+            <div class="p-4 bg-neutral-100 rounded-lg mb-6">
+              <h4 class="text-sm font-semibold text-neutral-800 mb-3">
+                After Withdrawal
+              </h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-neutral-700">Remaining Position</span>
+                  <span class="font-mono text-neutral-900">458.20 AI3</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-neutral-700">Remaining Cost Basis</span>
+                  <span class="font-mono text-neutral-900">453.17 AI3</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-neutral-700">Remaining Gains</span>
+                  <span class="font-mono text-success-600"
+                    >+5.03 AI3 (+1.09%)</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Process Timeline -->
+            <div class="space-y-4">
+              <h4 class="text-sm font-semibold text-neutral-800">
+                Process Timeline
+              </h4>
+
+              <div class="timeline-step active">
+                <div class="step-number active">1</div>
+                <div class="flex-1">
+                  <div class="font-medium text-neutral-900">
+                    Request Withdrawal
+                  </div>
+                  <div class="text-sm text-neutral-600">
+                    Submit withdrawal transaction
+                  </div>
+                </div>
+                <div class="text-xs text-neutral-500">Now</div>
+              </div>
+
+              <div class="timeline-step pending">
+                <div class="step-number pending">2</div>
+                <div class="flex-1">
+                  <div class="font-medium text-neutral-900">
+                    Epoch Processing
+                  </div>
+                  <div class="text-sm text-neutral-600">
+                    Request processed at next epoch
+                  </div>
+                </div>
+                <div class="text-xs text-neutral-500">~4 hours</div>
+              </div>
+
+              <div class="timeline-step">
+                <div class="step-number bg-neutral-300 text-neutral-600">3</div>
+                <div class="flex-1">
+                  <div class="font-medium text-neutral-900">Unlock Period</div>
+                  <div class="text-sm text-neutral-600">
+                    Wait for locking period to end
+                  </div>
+                </div>
+                <div class="text-xs text-neutral-500">~7 days</div>
+              </div>
+
+              <div class="timeline-step">
+                <div class="step-number bg-neutral-300 text-neutral-600">4</div>
+                <div class="flex-1">
+                  <div class="font-medium text-neutral-900">Claim Funds</div>
+                  <div class="text-sm text-neutral-600">
+                    Submit unlock transaction
+                  </div>
+                </div>
+                <div class="text-xs text-neutral-500">Manual</div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 mt-6">
+              <button class="btn-secondary flex-1">Cancel</button>
+              <button class="btn-danger flex-1">
+                Request Withdrawal
+                <svg
+                  class="w-4 h-4 ml-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Important Information -->
+        <div
+          class="mt-8 p-6 bg-primary-50 border border-primary-200 rounded-lg"
+        >
+          <h4 class="text-lg font-semibold text-primary-800 mb-3">
+            Important Information
+          </h4>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-primary-700"
+          >
+            <div>
+              <h5 class="font-medium mb-2">Cost Basis Tracking</h5>
+              <p>
+                Your cost basis is reduced proportionally to maintain consistent
+                gains percentage across remaining positions.
+              </p>
+            </div>
+            <div>
+              <h5 class="font-medium mb-2">Storage Fund Refund</h5>
+              <p>
+                The 20% storage fund allocated to your stake will be refunded
+                during the withdrawal process.
+              </p>
+            </div>
+            <div>
+              <h5 class="font-medium mb-2">Withdrawal Timeline</h5>
+              <p>
+                The entire process takes approximately 7-11 days from request to
+                receiving funds in your wallet.
+              </p>
+            </div>
+            <div>
+              <h5 class="font-medium mb-2">Transaction Fees</h5>
+              <p>
+                You'll pay network fees for both the withdrawal request and the
+                final unlock transaction.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Simple interactivity for demo
+      document.addEventListener("DOMContentLoaded", function () {
+        const input = document.querySelector(".input-field");
+        const radioButtons = document.querySelectorAll(
+          'input[name="withdrawal-type"]'
+        );
+
+        radioButtons.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            // Update radio option styling
+            document.querySelectorAll(".radio-option").forEach((option) => {
+              option.classList.remove("selected");
+            });
+            this.closest(".radio-option").classList.add("selected");
+
+            // Update input field
+            if (this.value === "full") {
+              input.value = "758.20";
+            } else {
+              input.value = "300.00";
+            }
+            updatePreview();
+          });
+        });
+
+        input.addEventListener("input", updatePreview);
+
+        function updatePreview() {
+          const amount = parseFloat(input.value) || 0;
+          const totalPosition = 758.2;
+          const totalCostBasis = 750.0;
+
+          // Calculate proportional cost basis
+          const costBasisRatio = amount / totalPosition;
+          const costBasisWithdrawal = totalCostBasis * costBasisRatio;
+          const realizedGains = amount - costBasisWithdrawal;
+
+          // Calculate remaining amounts
+          const remainingPosition = totalPosition - amount;
+          const remainingCostBasis = totalCostBasis - costBasisWithdrawal;
+          const remainingGains = remainingPosition - remainingCostBasis;
+          const remainingGainsPercent =
+            remainingCostBasis > 0
+              ? (remainingGains / remainingCostBasis) * 100
+              : 0;
+
+          // Update preview values
+          const breakdownRows = document.querySelectorAll(".breakdown-row");
+          breakdownRows[0].lastElementChild.textContent = `${costBasisWithdrawal.toFixed(
+            2
+          )} AI3`;
+          breakdownRows[1].lastElementChild.textContent = `+${realizedGains.toFixed(
+            2
+          )} AI3`;
+          breakdownRows[2].lastElementChild.textContent = `${amount.toFixed(
+            2
+          )} AI3`;
+
+          // Update remaining amounts
+          const remainingRows = document.querySelectorAll(
+            ".bg-neutral-100 .flex"
+          );
+          remainingRows[0].lastElementChild.textContent = `${remainingPosition.toFixed(
+            2
+          )} AI3`;
+          remainingRows[1].lastElementChild.textContent = `${remainingCostBasis.toFixed(
+            2
+          )} AI3`;
+          remainingRows[2].lastElementChild.textContent = `+${remainingGains.toFixed(
+            2
+          )} AI3 (+${remainingGainsPercent.toFixed(2)}%)`;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stake to Operator - Autonomys Staking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Libre+Franklin:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f4ff",
+                100: "#e0e7ff",
+                200: "#c7d2fe",
+                300: "#a5b4fc",
+                400: "#818cf8",
+                500: "#5870B3",
+                600: "#4f63a0",
+                700: "#3f4f7f",
+                800: "#374151",
+                900: "#1f2937",
+              },
+              secondary: {
+                50: "#f8fafc",
+                100: "#f1f5f9",
+                200: "#e2e8f0",
+                300: "#cbd5e1",
+                400: "#94a3b8",
+                500: "#1D2C57",
+                600: "#1a2548",
+                700: "#151f3a",
+                800: "#0f172a",
+                900: "#020617",
+              },
+              accent: {
+                50: "#f0fdf4",
+                100: "#dcfce7",
+                200: "#bbf7d0",
+                300: "#86efac",
+                400: "#4ade80",
+                500: "#33EDA6",
+                600: "#2dd894",
+                700: "#22c55e",
+                800: "#16a34a",
+                900: "#15803d",
+              },
+              success: {
+                50: "#f7fee7",
+                100: "#ecfccb",
+                200: "#d9f99d",
+                300: "#bef264",
+                400: "#a3e635",
+                500: "#75DF22",
+                600: "#65d61e",
+                700: "#4d7c0f",
+                800: "#365314",
+                900: "#1a2e05",
+              },
+              error: {
+                50: "#fef2f2",
+                100: "#fee2e2",
+                200: "#fecaca",
+                300: "#fca5a5",
+                400: "#f87171",
+                500: "#FC5146",
+                600: "#e53e3e",
+                700: "#b91c1c",
+                800: "#991b1b",
+                900: "#7f1d1d",
+              },
+              warning: {
+                50: "#fffbeb",
+                100: "#fef3c7",
+                200: "#fde68a",
+                300: "#fcd34d",
+                400: "#fbbf24",
+                500: "#FFDF35",
+                600: "#d97706",
+                700: "#b45309",
+                800: "#92400e",
+                900: "#78350f",
+              },
+              neutral: {
+                0: "#ffffff",
+                50: "#f9fafb",
+                100: "#f3f4f6",
+                200: "#e5e7eb",
+                300: "#d1d5db",
+                400: "#9ca3af",
+                500: "#6b7280",
+                600: "#4b5563",
+                700: "#374151",
+                800: "#1f2937",
+                900: "#111827",
+              },
+            },
+            fontFamily: {
+              serif: ["Roboto Serif", "serif"],
+              sans: ["Libre Franklin", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            boxShadow: {
+              sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+              DEFAULT:
+                "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+              md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+              lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Custom component styles */
+      .btn-primary {
+        @apply bg-primary-500 hover:bg-primary-600 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:shadow-md;
+      }
+      .btn-secondary {
+        @apply bg-neutral-0 hover:bg-neutral-50 text-neutral-700 font-medium px-6 py-3 rounded-lg border border-neutral-300 transition-all duration-200 hover:shadow-sm;
+      }
+      .btn-ghost {
+        @apply text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 font-medium px-3 py-2 rounded-lg transition-all duration-200;
+      }
+      .btn-max {
+        @apply bg-accent-100 hover:bg-accent-200 text-accent-700 font-medium px-3 py-1 rounded text-sm transition-all duration-200;
+      }
+      .operator-summary {
+        @apply bg-neutral-0 border border-neutral-200 rounded-xl p-6 mb-6;
+      }
+      .form-card {
+        @apply bg-neutral-0 border border-neutral-200 rounded-xl p-6;
+      }
+      .breakdown-card {
+        @apply bg-neutral-50 border border-neutral-200 rounded-xl p-6;
+      }
+      .input-field {
+        @apply w-full px-4 py-3 border border-neutral-300 rounded-lg bg-neutral-0 text-neutral-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-lg;
+      }
+      .breakdown-row {
+        @apply flex justify-between items-center py-2;
+      }
+      .breakdown-total {
+        @apply flex justify-between items-center py-3 border-t border-neutral-300 font-semibold text-lg;
+      }
+      .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+      }
+      .badge.success {
+        @apply bg-success-100 text-success-800;
+      }
+      .info-tooltip {
+        @apply inline-flex items-center ml-1 text-neutral-400 hover:text-neutral-600 cursor-help;
+      }
+    </style>
+  </head>
+  <body class="bg-neutral-50 font-sans">
+    <div class="min-h-screen">
+      <!-- Header -->
+      <header
+        class="bg-neutral-0 border-b border-neutral-200 sticky top-0 z-10"
+      >
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center py-4">
+            <div class="flex items-center space-x-4">
+              <button class="btn-ghost">
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  ></path>
+                </svg>
+                Back
+              </button>
+              <div class="h-6 w-px bg-neutral-300"></div>
+              <h1 class="text-xl font-semibold text-neutral-900">
+                Stake to Gemini-3h-Farmer-1
+              </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+              <img
+                src="./autonomys-logo-dark.svg"
+                alt="Autonomys"
+                class="h-6 w-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Operator Summary -->
+        <div class="operator-summary">
+          <div class="flex items-center space-x-4 mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6l-2 2V5zm0 8a2 2 0 012-2h2l2-2v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-2z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold text-neutral-900">
+                Gemini-3h-Farmer-1
+              </h2>
+              <p class="text-neutral-600">Auto EVM Domain</p>
+            </div>
+            <span class="badge success">Active</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-primary-600">18.5%</div>
+              <div class="text-sm text-neutral-600">APY</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-neutral-900">5%</div>
+              <div class="text-sm text-neutral-600">Tax</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-neutral-900">0%</div>
+              <div class="text-sm text-neutral-600">Your Share</div>
+            </div>
+            <div class="text-center">
+              <div class="text-lg font-mono text-neutral-900">12,450 AI3</div>
+              <div class="text-sm text-neutral-600">Pool Size</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Stake Input Form -->
+          <div class="form-card">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+              Stake Amount
+            </h3>
+
+            <!-- Available Balance -->
+            <div class="mb-4 p-3 bg-accent-50 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-neutral-700"
+                  >Available Balance</span
+                >
+                <span class="text-lg font-mono font-semibold text-neutral-900"
+                  >500.00 AI3</span
+                >
+              </div>
+            </div>
+
+            <!-- Amount Input -->
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-neutral-700 mb-2">
+                Amount to Stake
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  value="100"
+                  class="input-field pr-20"
+                  placeholder="0.00"
+                />
+                <div class="absolute inset-y-0 right-0 flex items-center">
+                  <button class="btn-max mr-2">MAX</button>
+                  <span class="text-neutral-500 mr-4">AI3</span>
+                </div>
+              </div>
+              <p class="text-xs text-neutral-500 mt-1">Minimum stake: 10 AI3</p>
+            </div>
+
+            <!-- Estimated Rewards -->
+            <div class="p-4 bg-success-50 rounded-lg">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-success-800">
+                  Estimated Annual Rewards
+                  <span class="info-tooltip">
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </span>
+                </span>
+                <span class="text-lg font-mono font-semibold text-success-700"
+                  >~18.5 AI3</span
+                >
+              </div>
+              <p class="text-xs text-success-600 mt-1">
+                Based on current APY and operator performance
+              </p>
+            </div>
+          </div>
+
+          <!-- Transaction Breakdown -->
+          <div class="breakdown-card">
+            <h3 class="text-lg font-semibold text-neutral-900 mb-4">
+              Transaction Breakdown
+            </h3>
+
+            <div class="space-y-1">
+              <div class="breakdown-row">
+                <span class="text-neutral-700">Stake Amount</span>
+                <span class="font-mono text-neutral-900">100.00 AI3</span>
+              </div>
+
+              <div class="breakdown-row">
+                <span class="text-neutral-700">
+                  Storage Fund (20%)
+                  <span class="info-tooltip">
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </span>
+                </span>
+                <span class="font-mono text-neutral-900">20.00 AI3</span>
+              </div>
+
+              <div class="breakdown-row">
+                <span class="text-neutral-700">Transaction Fee</span>
+                <span class="font-mono text-neutral-900">0.01 AI3</span>
+              </div>
+            </div>
+
+            <div class="breakdown-total">
+              <span class="text-neutral-900">Total Required</span>
+              <span class="font-mono text-neutral-900">120.01 AI3</span>
+            </div>
+
+            <!-- Important Notes -->
+            <div class="mt-6 p-4 bg-primary-50 rounded-lg">
+              <h4 class="text-sm font-semibold text-primary-800 mb-2">
+                Important Notes
+              </h4>
+              <ul class="text-xs text-primary-700 space-y-1">
+                <li>• Storage fund is refunded when you withdraw</li>
+                <li>• Rewards are automatically compounded</li>
+                <li>• Stake will be active after next epoch (~4 hours)</li>
+              </ul>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 mt-6">
+              <button class="btn-secondary flex-1">Cancel</button>
+              <button class="btn-primary flex-1">
+                Stake Tokens
+                <svg
+                  class="w-4 h-4 ml-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Disclosure -->
+        <div
+          class="mt-8 p-4 bg-warning-50 border border-warning-200 rounded-lg"
+        >
+          <div class="flex items-start space-x-3">
+            <svg
+              class="w-5 h-5 text-warning-600 mt-0.5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <div>
+              <h4 class="text-sm font-semibold text-warning-800">
+                Risk Disclosure
+              </h4>
+              <p class="text-sm text-warning-700 mt-1">
+                Staking involves risks including potential slashing for operator
+                misbehavior. Please review the operator's performance history
+                and understand the risks before staking.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Simple interactivity for demo
+      document.addEventListener("DOMContentLoaded", function () {
+        const input = document.querySelector(".input-field");
+        const maxButton = document.querySelector(".btn-max");
+
+        maxButton.addEventListener("click", function () {
+          input.value = "500.00";
+          updateBreakdown();
+        });
+
+        input.addEventListener("input", updateBreakdown);
+
+        function updateBreakdown() {
+          const amount = parseFloat(input.value) || 0;
+          const storageFund = amount * 0.2;
+          const fee = 0.01;
+          const total = amount + storageFund + fee;
+          const rewards = amount * 0.185;
+
+          // Update breakdown values
+          document.querySelectorAll(
+            ".breakdown-row"
+          )[0].lastElementChild.textContent = `${amount.toFixed(2)} AI3`;
+          document.querySelectorAll(
+            ".breakdown-row"
+          )[1].lastElementChild.textContent = `${storageFund.toFixed(2)} AI3`;
+          document.querySelector(
+            ".breakdown-total"
+          ).lastElementChild.textContent = `${total.toFixed(2)} AI3`;
+
+          // Update estimated rewards
+          document.querySelector(
+            ".bg-success-50 .font-mono"
+          ).textContent = `~${rewards.toFixed(1)} AI3`;
+        }
+      });
+    </script>
+  </body>
+</html>
