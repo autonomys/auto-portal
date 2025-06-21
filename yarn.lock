@@ -88,6 +88,7 @@ __metadata:
     "@autonomys/auto-utils": "npm:^0.3.0"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
+    "@polkadot/extension-inject": "npm:^0.60.1"
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@types/react": "npm:^18.2.43"
@@ -1424,7 +1425,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/extension-inject@npm:0.60.1":
+"@polkadot/extension-inject@npm:0.60.1, @polkadot/extension-inject@npm:^0.60.1":
   version: 0.60.1
   resolution: "@polkadot/extension-inject@npm:0.60.1"
   dependencies:

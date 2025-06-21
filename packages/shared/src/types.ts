@@ -1,29 +1,19 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // ============================================================================
 // Core Domain Types
 // ============================================================================
 
-export const OperatorStatusSchema = z.enum([
-  "active",
-  "inactive",
-  "slashed",
-  "deregistered",
-]);
+export const OperatorStatusSchema = z.enum(['active', 'inactive', 'slashed', 'deregistered']);
 export type OperatorStatus = z.infer<typeof OperatorStatusSchema>;
 
-export const DomainTypeSchema = z.enum(["auto-evm", "auto-id"]);
+export const DomainTypeSchema = z.enum(['auto-evm', 'auto-id']);
 export type DomainType = z.infer<typeof DomainTypeSchema>;
 
-export const WithdrawalStatusSchema = z.enum(["pending", "ready", "completed"]);
+export const WithdrawalStatusSchema = z.enum(['pending', 'ready', 'completed']);
 export type WithdrawalStatus = z.infer<typeof WithdrawalStatusSchema>;
 
-export const TransactionTypeSchema = z.enum([
-  "stake",
-  "withdraw",
-  "unlock",
-  "compound",
-]);
+export const TransactionTypeSchema = z.enum(['stake', 'withdraw', 'unlock', 'compound']);
 export type TransactionType = z.infer<typeof TransactionTypeSchema>;
 
 // ============================================================================
@@ -133,7 +123,7 @@ export const TransactionSchema = z.object({
   blockNumber: z.number(),
 
   // Status
-  status: z.enum(["pending", "confirmed", "failed"]),
+  status: z.enum(['pending', 'confirmed', 'failed']),
 
   // Metadata
   createdAt: z.date(),
@@ -199,9 +189,7 @@ export const PaginationSchema = z.object({
 
 export type Pagination = z.infer<typeof PaginationSchema>;
 
-export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(
-  itemSchema: T
-) =>
+export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
   z.object({
     items: z.array(itemSchema),
     pagination: PaginationSchema,
@@ -227,16 +215,10 @@ export const OperatorFilterSchema = z.object({
 
 export type OperatorFilter = z.infer<typeof OperatorFilterSchema>;
 
-export const OperatorSortSchema = z.enum([
-  "apy",
-  "totalStaked",
-  "uptime",
-  "taxRate",
-  "name",
-]);
+export const OperatorSortSchema = z.enum(['apy', 'totalStaked', 'uptime', 'taxRate', 'name']);
 export type OperatorSort = z.infer<typeof OperatorSortSchema>;
 
-export const SortOrderSchema = z.enum(["asc", "desc"]);
+export const SortOrderSchema = z.enum(['asc', 'desc']);
 export type SortOrder = z.infer<typeof SortOrderSchema>;
 
 // ============================================================================

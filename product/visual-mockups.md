@@ -25,9 +25,7 @@
 ```html
 <div class="container">
   <!-- Header -->
-  <header
-    class="flex justify-between items-center py-6 border-b border-neutral-200"
-  >
+  <header class="flex justify-between items-center py-6 border-b border-neutral-200">
     <div class="flex items-center space-x-3">
       <img src="autonomys-logo.svg" alt="Autonomys" class="h-8 w-auto" />
       <h1 class="text-xl font-semibold text-neutral-900">Staking</h1>
@@ -71,9 +69,7 @@
 
   <!-- Active Positions -->
   <section class="py-8">
-    <h3 class="text-xl font-semibold text-neutral-900 mb-6">
-      Active Positions
-    </h3>
+    <h3 class="text-xl font-semibold text-neutral-900 mb-6">Active Positions</h3>
 
     <div class="table-container">
       <table class="table">
@@ -90,14 +86,10 @@
           <tr>
             <td>
               <div class="flex items-center space-x-3">
-                <div
-                  class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center"
-                >
+                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                   <span class="text-primary-600 font-medium text-sm">G</span>
                 </div>
-                <span class="font-medium text-neutral-900"
-                  >Gemini-3h-Farmer-1</span
-                >
+                <span class="font-medium text-neutral-900">Gemini-3h-Farmer-1</span>
               </div>
             </td>
             <td class="font-mono text-neutral-900">758.2 AI3</td>
@@ -112,14 +104,10 @@
           <tr>
             <td>
               <div class="flex items-center space-x-3">
-                <div
-                  class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center"
-                >
+                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                   <span class="text-primary-600 font-medium text-sm">A</span>
                 </div>
-                <span class="font-medium text-neutral-900"
-                  >Auto-Domain-Op-2</span
-                >
+                <span class="font-medium text-neutral-900">Auto-Domain-Op-2</span>
               </div>
             </td>
             <td class="font-mono text-neutral-900">505.7 AI3</td>
@@ -142,9 +130,7 @@
 
     <div class="space-y-4">
       <div class="flex items-center space-x-4 p-4 bg-neutral-50 rounded-lg">
-        <div
-          class="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center"
-        >
+        <div class="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
           <svg class="w-5 h-5 text-success-600"><!-- Plus icon --></svg>
         </div>
         <div class="flex-1">
@@ -156,15 +142,11 @@
       </div>
 
       <div class="flex items-center space-x-4 p-4 bg-neutral-50 rounded-lg">
-        <div
-          class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center"
-        >
+        <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
           <svg class="w-5 h-5 text-primary-600"><!-- Trend up icon --></svg>
         </div>
         <div class="flex-1">
-          <p class="text-sm font-medium text-neutral-900">
-            Position value increased by 2.1 AI3
-          </p>
+          <p class="text-sm font-medium text-neutral-900">Position value increased by 2.1 AI3</p>
           <p class="text-xs text-neutral-500">1 day ago</p>
         </div>
       </div>
@@ -217,9 +199,7 @@
 
   <!-- Filters and Search -->
   <section class="py-6">
-    <div
-      class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
-    >
+    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
       <div class="flex gap-4">
         <!-- Domain Filter -->
         <select class="input-base min-w-[160px]">
@@ -243,9 +223,7 @@
           placeholder="Search operators..."
           class="input-base pl-10 min-w-[240px]"
         />
-        <svg
-          class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"
-        >
+        <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">
           <!-- Search icon -->
         </svg>
       </div>
@@ -259,15 +237,11 @@
       <div class="card hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <div
-              class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center"
-            >
+            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
               <span class="text-primary-600 font-semibold text-lg">G</span>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-neutral-900">
-                Gemini-3h-Farmer-1
-              </h3>
+              <h3 class="text-lg font-semibold text-neutral-900">Gemini-3h-Farmer-1</h3>
               <p class="text-sm text-neutral-600">Domain: Auto EVM</p>
             </div>
           </div>
@@ -277,9 +251,7 @@
           </div>
         </div>
 
-        <div
-          class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-neutral-100"
-        >
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-neutral-100">
           <div>
             <p class="text-xs text-neutral-500 uppercase tracking-wide">APY</p>
             <p class="text-lg font-semibold text-success-600">18.5%</p>
@@ -289,24 +261,16 @@
             <p class="text-lg font-semibold text-neutral-900">5%</p>
           </div>
           <div>
-            <p class="text-xs text-neutral-500 uppercase tracking-wide">
-              Total Staked
-            </p>
-            <p class="text-lg font-semibold text-neutral-900 font-mono">
-              12,450 AI3
-            </p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wide">Total Staked</p>
+            <p class="text-lg font-semibold text-neutral-900 font-mono">12,450 AI3</p>
           </div>
           <div>
-            <p class="text-xs text-neutral-500 uppercase tracking-wide">
-              Uptime
-            </p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wide">Uptime</p>
             <p class="text-lg font-semibold text-success-600">99.2%</p>
           </div>
         </div>
 
-        <div
-          class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100"
-        >
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
           <p class="text-sm text-neutral-600">
             <span class="font-medium">23 nominators</span> • Min stake:
             <span class="font-mono">10 AI3</span>
@@ -322,15 +286,11 @@
       <div class="card hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <div
-              class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center"
-            >
+            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
               <span class="text-primary-600 font-semibold text-lg">A</span>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-neutral-900">
-                Auto-Domain-Op-2
-              </h3>
+              <h3 class="text-lg font-semibold text-neutral-900">Auto-Domain-Op-2</h3>
               <p class="text-sm text-neutral-600">Domain: Auto EVM</p>
             </div>
           </div>
@@ -340,9 +300,7 @@
           </div>
         </div>
 
-        <div
-          class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-neutral-100"
-        >
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-neutral-100">
           <div>
             <p class="text-xs text-neutral-500 uppercase tracking-wide">APY</p>
             <p class="text-lg font-semibold text-success-600">17.8%</p>
@@ -352,24 +310,16 @@
             <p class="text-lg font-semibold text-neutral-900">8%</p>
           </div>
           <div>
-            <p class="text-xs text-neutral-500 uppercase tracking-wide">
-              Total Staked
-            </p>
-            <p class="text-lg font-semibold text-neutral-900 font-mono">
-              8,920 AI3
-            </p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wide">Total Staked</p>
+            <p class="text-lg font-semibold text-neutral-900 font-mono">8,920 AI3</p>
           </div>
           <div>
-            <p class="text-xs text-neutral-500 uppercase tracking-wide">
-              Uptime
-            </p>
+            <p class="text-xs text-neutral-500 uppercase tracking-wide">Uptime</p>
             <p class="text-lg font-semibold text-success-600">98.7%</p>
           </div>
         </div>
 
-        <div
-          class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100"
-        >
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
           <p class="text-sm text-neutral-600">
             <span class="font-medium">15 nominators</span> • Min stake:
             <span class="font-mono">50 AI3</span>
@@ -416,24 +366,18 @@
       <svg class="w-4 h-4 mr-2"><!-- Arrow left icon --></svg>
       Back
     </button>
-    <h1 class="text-xl font-semibold text-neutral-900">
-      Stake to Gemini-3h-Farmer-1
-    </h1>
+    <h1 class="text-xl font-semibold text-neutral-900">Stake to Gemini-3h-Farmer-1</h1>
   </header>
 
   <!-- Operator Summary -->
   <section class="py-8">
     <div class="card mb-8">
       <div class="flex items-center space-x-4 mb-6">
-        <div
-          class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center"
-        >
+        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
           <span class="text-primary-600 font-bold text-xl">G</span>
         </div>
         <div>
-          <h2 class="text-xl font-semibold text-neutral-900">
-            Gemini-3h-Farmer-1
-          </h2>
+          <h2 class="text-xl font-semibold text-neutral-900">Gemini-3h-Farmer-1</h2>
           <p class="text-neutral-600">Domain: Auto EVM</p>
         </div>
       </div>
@@ -474,16 +418,9 @@
 
       <!-- Amount Input -->
       <div class="mb-6">
-        <label class="block text-sm font-medium text-neutral-700 mb-2">
-          Amount to Stake
-        </label>
+        <label class="block text-sm font-medium text-neutral-700 mb-2"> Amount to Stake </label>
         <div class="input-amount-wrapper">
-          <input
-            type="text"
-            value="100"
-            class="input-base input-amount"
-            placeholder="0.00"
-          />
+          <input type="text" value="100" class="input-base input-amount" placeholder="0.00" />
           <span class="input-amount-currency">AI3</span>
         </div>
         <button class="btn-secondary btn-sm mt-2">MAX</button>
@@ -491,21 +428,15 @@
 
       <!-- Transaction Breakdown -->
       <div class="mb-8">
-        <h4 class="text-md font-semibold text-neutral-900 mb-4">
-          Transaction Breakdown
-        </h4>
+        <h4 class="text-md font-semibold text-neutral-900 mb-4">Transaction Breakdown</h4>
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <span class="text-sm text-neutral-600">Stake Amount</span>
-            <span class="font-mono font-medium text-neutral-900"
-              >100.00 AI3</span
-            >
+            <span class="font-mono font-medium text-neutral-900">100.00 AI3</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-sm text-neutral-600">Storage Fund (20%)</span>
-            <span class="font-mono font-medium text-neutral-900"
-              >20.00 AI3</span
-            >
+            <span class="font-mono font-medium text-neutral-900">20.00 AI3</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-sm text-neutral-600">Transaction Fee</span>
@@ -513,12 +444,8 @@
           </div>
           <hr class="border-neutral-200" />
           <div class="flex justify-between items-center">
-            <span class="text-sm font-semibold text-neutral-900"
-              >Total Required</span
-            >
-            <span class="font-mono font-bold text-neutral-900 text-lg"
-              >120.01 AI3</span
-            >
+            <span class="text-sm font-semibold text-neutral-900">Total Required</span>
+            <span class="font-mono font-bold text-neutral-900 text-lg">120.01 AI3</span>
           </div>
         </div>
       </div>
@@ -573,21 +500,21 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: "#f0f9ff",
-          500: "#0ea5e9",
-          600: "#0284c7",
+          50: '#f0f9ff',
+          500: '#0ea5e9',
+          600: '#0284c7',
           // ... full scale
         },
         success: {
-          50: "#f0fdf4",
-          500: "#22c55e",
-          600: "#16a34a",
+          50: '#f0fdf4',
+          500: '#22c55e',
+          600: '#16a34a',
           // ... full scale
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "Consolas", "monospace"],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
       },
     },
   },
@@ -599,21 +526,21 @@ module.exports = {
 ```typescript
 // Button variants for shadcn/ui
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
+  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors',
   {
     variants: {
       variant: {
-        default: "bg-primary-500 text-white hover:bg-primary-600",
-        secondary: "bg-white border border-neutral-300 hover:bg-neutral-50",
-        success: "bg-success-500 text-white hover:bg-success-600",
+        default: 'bg-primary-500 text-white hover:bg-primary-600',
+        secondary: 'bg-white border border-neutral-300 hover:bg-neutral-50',
+        success: 'bg-success-500 text-white hover:bg-success-600',
       },
       size: {
-        sm: "h-8 px-3 text-xs",
-        default: "h-10 px-6",
-        lg: "h-12 px-8 text-base",
+        sm: 'h-8 px-3 text-xs',
+        default: 'h-10 px-6',
+        lg: 'h-12 px-8 text-base',
       },
     },
-  }
+  },
 );
 ```
 

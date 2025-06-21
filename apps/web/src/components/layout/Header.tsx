@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { WalletModal } from "@/components/wallet/wallet-modal";
-import { useWallet } from "@/hooks/use-wallet";
-import { shortenAddress } from "@/lib/utils";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { WalletModal } from '@/components/wallet/wallet-modal';
+import { useWallet } from '@/hooks/use-wallet';
+import { shortenAddress } from '@/lib/utils';
 
 interface HeaderProps {
   className?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
+export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const { isConnected, account, disconnect } = useWallet();
   const [open, setOpen] = useState(false);
 
@@ -27,11 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3">
-              <img
-                src="/autonomys-icon-dark.svg"
-                alt="Autonomys"
-                className="h-8 w-8"
-              />
+              <img src="/autonomys-icon-dark.svg" alt="Autonomys" className="h-8 w-8" />
               <span className="text-xl font-serif font-semibold text-foreground">
                 Autonomys Staking
               </span>
@@ -63,9 +59,7 @@ export const Header: React.FC<HeaderProps> = ({ className = "" }) => {
           {/* Wallet Connection */}
           <div className="flex items-center space-x-4">
             <Button className="font-sans" onClick={handleButton}>
-              {isConnected
-                ? shortenAddress(account?.address)
-                : "Connect Wallet"}
+              {isConnected ? shortenAddress(account?.address) : 'Connect Wallet'}
             </Button>
           </div>
         </div>

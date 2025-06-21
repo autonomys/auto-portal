@@ -93,7 +93,7 @@ A thin wrapper to access the store:
 
 ```ts
 export const useWallet = () =>
-  useWalletStore((s) => ({
+  useWalletStore(s => ({
     isConnected: s.isConnected,
     account: s.account,
     connect: s.connect,

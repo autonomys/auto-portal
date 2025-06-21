@@ -187,15 +187,12 @@ interface StakingStore {
 
 ```typescript
 // services/blockchain.ts
-import { AutoConsensus } from "@autonomys/auto-consensus";
+import { AutoConsensus } from '@autonomys/auto-consensus';
 
 const createBlockchainService = (rpcUrl: string) => {
   const consensus = new AutoConsensus(rpcUrl);
 
-  const nominateOperator = async (
-    operatorId: string,
-    amount: string
-  ): Promise<string> => {
+  const nominateOperator = async (operatorId: string, amount: string): Promise<string> => {
     return consensus.tx.domains.nominateOperator(operatorId, amount);
   };
 
@@ -221,7 +218,7 @@ const createBlockchainService = (rpcUrl: string) => {
 ```typescript
 interface TransactionState {
   hash?: string;
-  status: "pending" | "confirmed" | "failed";
+  status: 'pending' | 'confirmed' | 'failed';
   error?: string;
   timestamp: number;
 }
@@ -230,13 +227,13 @@ const useTransaction = () => {
   const [state, setState] = useState<TransactionState>();
 
   const execute = useCallback(async (extrinsic: () => Promise<string>) => {
-    setState({ status: "pending", timestamp: Date.now() });
+    setState({ status: 'pending', timestamp: Date.now() });
     try {
       const hash = await extrinsic();
-      setState({ hash, status: "confirmed", timestamp: Date.now() });
+      setState({ hash, status: 'confirmed', timestamp: Date.now() });
     } catch (error) {
       setState({
-        status: "failed",
+        status: 'failed',
         error: error.message,
         timestamp: Date.now(),
       });
@@ -264,20 +261,20 @@ export interface Operator {
   nominationTax: number;
   currentDomainId: string;
   nextDomainId: string;
-  status: "active" | "inactive" | "slashed";
+  status: 'active' | 'inactive' | 'slashed';
 }
 
 export interface Nomination {
   operatorId: string;
   shares: string;
-  status: "active" | "pending" | "withdrawing";
+  status: 'active' | 'pending' | 'withdrawing';
 }
 
 export interface Withdrawal {
   operatorId: string;
   shares: string;
   unlockAt: number;
-  status: "pending" | "ready" | "unlocked";
+  status: 'pending' | 'ready' | 'unlocked';
 }
 ```
 
@@ -291,9 +288,7 @@ export const createIndexerService = (baseUrl: string) => {
     return response.json();
   };
 
-  const getNominatorHistory = async (
-    account: string
-  ): Promise<NominationEvent[]> => {
+  const getNominatorHistory = async (account: string): Promise<NominationEvent[]> => {
     const response = await fetch(`${baseUrl}/nominators/${account}/history`);
     return response.json();
   };
@@ -334,7 +329,7 @@ const StakingFlow = lazy(() => import("./pages/StakingFlow"));
 // Expensive calculations
 const useOperatorStats = (operators: Operator[]) => {
   return useMemo(() => {
-    return operators.map((op) => ({
+    return operators.map(op => ({
       ...op,
       apy: calculateAPY(op),
       riskScore: calculateRisk(op),
@@ -415,7 +410,7 @@ const useRetryableQuery = <T>(queryFn: () => Promise<T>, retries = 3) => {
         setLoading(false);
       }
     },
-    [queryFn, retries]
+    [queryFn, retries],
   );
 
   return { data, error, loading, retry: () => execute(0) };
@@ -485,9 +480,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ["react", "react-dom"],
-          blockchain: ["@autonomys/auto-consensus", "@polkadot/api"],
-          ui: ["@radix-ui/react-dialog", "lucide-react"],
+          vendor: ['react', 'react-dom'],
+          blockchain: ['@autonomys/auto-consensus', '@polkadot/api'],
+          ui: ['@radix-ui/react-dialog', 'lucide-react'],
         },
       },
     },

@@ -1,14 +1,8 @@
-import React from "react";
-import { Layout } from "./components/layout";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import "./App.css";
+import React from 'react';
+import { Layout } from './components/layout';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import './App.css';
 
 const App: React.FC = () => {
   return (
@@ -17,9 +11,7 @@ const App: React.FC = () => {
         {/* Page Header */}
         <div className="border-b border-border pb-8 text-center">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl font-serif font-bold text-foreground mb-3">
-              Dashboard
-            </h1>
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-3">Dashboard</h1>
             <p className="text-lg text-muted-foreground font-sans leading-relaxed">
               Manage your staking positions and discover operators
             </p>
@@ -30,45 +22,31 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">
-                Total Staked
-              </CardTitle>
+              <CardTitle className="text-sm font-medium font-sans">Total Staked</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono">0 AI3</div>
-              <p className="text-xs text-muted-foreground font-sans">
-                Across all positions
-              </p>
+              <p className="text-xs text-muted-foreground font-sans">Across all positions</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">
-                Total Earned
-              </CardTitle>
+              <CardTitle className="text-sm font-medium font-sans">Total Earned</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success-600 font-mono">
-                0 AI3
-              </div>
-              <p className="text-xs text-muted-foreground font-sans">
-                Lifetime rewards
-              </p>
+              <div className="text-2xl font-bold text-success-600 font-mono">0 AI3</div>
+              <p className="text-xs text-muted-foreground font-sans">Lifetime rewards</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">
-                Active Positions
-              </CardTitle>
+              <CardTitle className="text-sm font-medium font-sans">Active Positions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono">0</div>
-              <p className="text-xs text-muted-foreground font-sans">
-                Staking positions
-              </p>
+              <p className="text-xs text-muted-foreground font-sans">Staking positions</p>
             </CardContent>
           </Card>
         </div>

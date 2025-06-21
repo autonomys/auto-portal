@@ -79,20 +79,17 @@ When a user withdraws a portion of their position, we reduce the cost basis prop
 ```typescript
 const calculateWithdrawal = (
   position: StakingPosition,
-  withdrawalAmount: string
+  withdrawalAmount: string,
 ): WithdrawalCalculation => {
-  const currentValue =
-    parseFloat(position.sharesOwned) * parseFloat(position.currentSharePrice);
+  const currentValue = parseFloat(position.sharesOwned) * parseFloat(position.currentSharePrice);
   const withdrawalPercentage = parseFloat(withdrawalAmount) / currentValue;
 
   // Proportional cost basis reduction
-  const costBasisReduction =
-    parseFloat(position.totalCostBasis) * withdrawalPercentage;
+  const costBasisReduction = parseFloat(position.totalCostBasis) * withdrawalPercentage;
   const realizedGains = parseFloat(withdrawalAmount) - costBasisReduction;
 
   // Remaining position after withdrawal
-  const remainingCostBasis =
-    parseFloat(position.totalCostBasis) - costBasisReduction;
+  const remainingCostBasis = parseFloat(position.totalCostBasis) - costBasisReduction;
   const remainingValue = currentValue - parseFloat(withdrawalAmount);
   const remainingGains = remainingValue - remainingCostBasis;
 
@@ -144,7 +141,7 @@ When users make multiple stakes to the same operator, we maintain a running tota
 const addStake = (
   existingPosition: StakingPosition,
   newStakeAmount: string,
-  sharePrice: string
+  sharePrice: string,
 ): StakingPosition => {
   const newShares = parseFloat(newStakeAmount) / parseFloat(sharePrice);
 
@@ -153,9 +150,7 @@ const addStake = (
     totalCostBasis: (
       parseFloat(existingPosition.totalCostBasis) + parseFloat(newStakeAmount)
     ).toString(),
-    sharesOwned: (
-      parseFloat(existingPosition.sharesOwned) + newShares
-    ).toString(),
+    sharesOwned: (parseFloat(existingPosition.sharesOwned) + newShares).toString(),
   };
 };
 ```
@@ -270,7 +265,7 @@ interface StoredPosition {
 
 interface StakeEvent {
   timestamp: number;
-  type: "stake" | "withdraw";
+  type: 'stake' | 'withdraw';
   aiAmount: string;
   sharePrice: string;
   transactionHash: string;
@@ -313,20 +308,20 @@ interface StakeEvent {
 **Test Scenarios:**
 
 ```typescript
-describe("Position Calculations", () => {
-  test("single stake position display", () => {
+describe('Position Calculations', () => {
+  test('single stake position display', () => {
     // Test basic position value calculation
   });
 
-  test("multiple stakes aggregation", () => {
+  test('multiple stakes aggregation', () => {
     // Test cost basis aggregation across multiple stakes
   });
 
-  test("partial withdrawal calculations", () => {
+  test('partial withdrawal calculations', () => {
     // Test proportional cost basis reduction
   });
 
-  test("precision handling", () => {
+  test('precision handling', () => {
     // Test rounding and precision edge cases
   });
 });

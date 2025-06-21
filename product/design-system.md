@@ -154,14 +154,12 @@
 
 ```css
 /* Primary fonts from Autonomys Brand Kit */
---font-serif: "Roboto Serif", Georgia, serif; /* Official brand serif */
---font-sans: "Libre Franklin", Inter, system-ui, sans-serif; /* Official brand sans */
---font-mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+--font-serif: 'Roboto Serif', Georgia, serif; /* Official brand serif */
+--font-sans: 'Libre Franklin', Inter, system-ui, sans-serif; /* Official brand sans */
+--font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 
 /* Font usage guidelines */
---font-heading: var(
-  --font-serif
-); /* Use for main headings and brand elements */
+--font-heading: var(--font-serif); /* Use for main headings and brand elements */
 --font-body: var(--font-sans); /* Use for body text and UI elements */
 --font-ui: var(--font-sans); /* Use for buttons, labels, and interface */
 ```
@@ -306,7 +304,9 @@
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   background: var(--color-neutral-0);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .input-base:focus {
@@ -612,7 +612,9 @@
 }
 
 .transition-colors {
-  transition: color 0.2s var(--ease-out), background-color 0.2s var(--ease-out),
+  transition:
+    color 0.2s var(--ease-out),
+    background-color 0.2s var(--ease-out),
     border-color 0.2s var(--ease-out);
 }
 

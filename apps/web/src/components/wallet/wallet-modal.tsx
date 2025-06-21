@@ -1,13 +1,8 @@
-import React, { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useWallet } from "@/hooks/use-wallet";
-import { web3Enable } from "@polkadot/extension-dapp";
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useWallet } from '@/hooks/use-wallet';
+import { web3Enable } from '@polkadot/extension-dapp';
 
 interface WalletInfo {
   name: string;
@@ -25,8 +20,8 @@ export const WalletModal: React.FC<{
   useEffect(() => {
     if (open) {
       (async () => {
-        const injected = await web3Enable("Autonomys Staking");
-        const detected = injected.map((ext) => ({
+        const injected = await web3Enable('Autonomys Staking');
+        const detected = injected.map(ext => ({
           name: ext.name,
           title: ext.name,
         }));
@@ -48,11 +43,9 @@ export const WalletModal: React.FC<{
         </DialogHeader>
         <div className="space-y-4">
           {wallets.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No compatible wallets detected.
-            </p>
+            <p className="text-sm text-muted-foreground">No compatible wallets detected.</p>
           )}
-          {wallets.map((w) => (
+          {wallets.map(w => (
             <Button
               key={w.name}
               variant="outline"
@@ -62,9 +55,7 @@ export const WalletModal: React.FC<{
               {w.title}
             </Button>
           ))}
-          {error && (
-            <p className="text-sm text-destructive-foreground">{error}</p>
-          )}
+          {error && <p className="text-sm text-destructive-foreground">{error}</p>}
         </div>
       </DialogContent>
     </Dialog>
