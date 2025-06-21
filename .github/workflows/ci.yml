@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - name: Install dependencies (Yarn v4)
+        run: |
+          corepack enable
+          yarn install --immutable
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Prettier format check
+        run: yarn format:check
+
+      - name: Type check
+        run: yarn workspace @auto-portal/web type-check
+
+      - name: Build
+        run: yarn build

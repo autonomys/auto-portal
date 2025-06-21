@@ -15,6 +15,7 @@
     "test": "yarn workspaces foreach -pt run test",
     "lint": "yarn workspace @auto-portal/web lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "yarn workspaces foreach -pt run type-check",
     "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
   },
