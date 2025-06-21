@@ -12,15 +12,15 @@ import "./App.css";
 
 const App: React.FC = () => {
   return (
-    <Layout>
-      <div className="space-y-8">
+    <Layout className="py-12">
+      <div className="space-y-12">
         {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-serif font-bold text-foreground">
+        <div className="border-b border-border pb-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="text-4xl font-serif font-bold text-foreground mb-3">
               Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1 font-sans">
+            <p className="text-lg text-muted-foreground font-sans leading-relaxed">
               Manage your staking positions and discover operators
             </p>
           </div>
