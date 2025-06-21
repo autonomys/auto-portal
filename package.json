@@ -13,12 +13,17 @@
     "dev:all": "concurrently \"yarn dev:indexer\" \"yarn dev\"",
     "build": "yarn workspaces foreach -pt run build",
     "test": "yarn workspaces foreach -pt run test",
-    "lint": "yarn workspaces foreach -pt run lint",
+    "lint": "yarn workspace @auto-portal/web lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "yarn workspaces foreach -pt run type-check",
     "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.0",
+    "prettier": "^3.5.3",
     "typescript": "^5.3.3"
   },
   "packageManager": "yarn@4.9.2",
