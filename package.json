@@ -1,0 +1,29 @@
+{
+  "name": "auto-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomys Network staking portal - monorepo with web frontend and indexer backend",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspace @auto-portal/web dev",
+    "dev:indexer": "yarn workspace @auto-portal/indexer dev",
+    "dev:all": "concurrently \"yarn dev:indexer\" \"yarn dev\"",
+    "build": "yarn workspaces foreach -pt run build",
+    "test": "yarn workspaces foreach -pt run test",
+    "lint": "yarn workspaces foreach -pt run lint",
+    "type-check": "yarn workspaces foreach -pt run type-check",
+    "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=4.0.0"
+  }
+}
