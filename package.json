@@ -11,13 +11,13 @@
     "dev": "yarn workspace @auto-portal/web dev",
     "dev:indexer": "yarn workspace @auto-portal/indexer dev",
     "dev:all": "concurrently \"yarn dev:indexer\" \"yarn dev\"",
-    "build": "yarn workspaces foreach -pt run build",
-    "test": "yarn workspaces foreach -pt run test",
+    "build": "yarn workspaces foreach -Apt run build",
+    "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspace @auto-portal/web lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "type-check": "yarn workspaces foreach -pt run type-check",
-    "clean": "yarn workspaces foreach -pt run clean && rm -rf node_modules"
+    "type-check": "yarn workspaces foreach -Apt run type-check",
+    "clean": "yarn workspaces foreach -Apt run clean && rm -rf node_modules"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
