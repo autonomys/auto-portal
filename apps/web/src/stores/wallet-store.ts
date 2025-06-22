@@ -49,18 +49,52 @@ export const useWalletStore = create<WalletState>()(
             );
           }
 
+          console.log(`Attempting to connect to ${wallet.title}...`);
+
           // This WILL trigger popup if wallet not previously authorized
           // This is the KEY REQUIREMENT from the specifications
-          await wallet.enable(DAPP_NAME);
+          try {
+            await wallet.enable(DAPP_NAME);
+            console.log(`${wallet.title} authorization successful`);
+          } catch (enableError) {
+            console.error(`${wallet.title} authorization failed:`, enableError);
+
+            // Handle specific authorization errors
+            if (enableError instanceof Error) {
+              if (
+                enableError.message.includes('not authorised') ||
+                enableError.message.includes('rejected')
+              ) {
+                throw new Error(
+                  `Please authorize this application in your ${wallet.title} wallet. Check your wallet extension and approve the connection request.`,
+                );
+              } else if (enableError.message.includes('No accounts')) {
+                throw new Error(
+                  `No accounts found in ${wallet.title}. Please create an account in your wallet first, then try connecting again.`,
+                );
+              }
+            }
+
+            // Re-throw the original error if we can't handle it specifically
+            throw enableError;
+          }
 
           if (!wallet.extension) {
             throw new Error(`Extension not available for ${extensionName}`);
           }
 
           const accounts = await wallet.getAccounts();
+          console.log(`Found ${accounts?.length || 0} accounts in ${wallet.title}`);
+
           if (!accounts || accounts.length === 0) {
             throw new Error(
-              `No accounts found in ${wallet.title}. Please create an account first.`,
+              `No accounts available in ${wallet.title}. This might mean:
+              
+1. You need to authorize this application in your wallet
+2. You need to create an account in your wallet first
+3. Try opening your ${wallet.title} extension and check your account status
+
+Please open your ${wallet.title} wallet, ensure you have accounts created, and try connecting again.`,
             );
           }
 
@@ -73,8 +107,14 @@ export const useWalletStore = create<WalletState>()(
             injector: wallet.extension,
             connectionError: null,
           });
+
+          console.log(
+            `Successfully connected to ${wallet.title} with account:`,
+            accounts[0].address,
+          );
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Connection failed';
+          console.error('Wallet connection error:', error);
           set({
             isConnecting: false,
             connectionError: errorMessage,

@@ -17,11 +17,23 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   const handleConnect = async (extensionName: string) => {
     try {
       clearError();
+      console.log(`User clicked to connect ${extensionName}`);
       await connectWallet(extensionName);
+      console.log(`Successfully connected to ${extensionName}, closing modal`);
       onOpenChange(false);
     } catch (error) {
-      // Error is already handled by the store
-      console.error('Connection failed:', error);
+      // Error is already handled by the store, but let's add some additional context
+      console.error('Connection failed in modal:', error);
+
+      // Don't close the modal on error so user can see the error message and try again
+      if (error instanceof Error) {
+        // If it's an authorization error, provide additional guidance
+        if (error.message.includes('not authorised') || error.message.includes('authorize')) {
+          console.log(
+            'Authorization error detected - user should see popup or check wallet extension',
+          );
+        }
+      }
     }
   };
 
@@ -48,17 +60,48 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
 
         <div className="space-y-4">
           {connectionError && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+            <div className="p-3 text-sm bg-red-50 border border-red-200 rounded-lg">
               <div className="flex justify-between items-start">
-                <span>{connectionError}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearError}
-                  className="h-auto p-0 text-red-600 hover:text-red-700"
-                >
-                  ×
-                </Button>
+                <div className="flex-1">
+                  <div className="font-medium text-red-800 mb-1">Connection Failed</div>
+                  <div className="text-red-700 whitespace-pre-line">{connectionError}</div>
+                  {(connectionError.includes('authorize') ||
+                    connectionError.includes('not authorised')) && (
+                    <div className="mt-2 text-xs text-red-600">
+                      💡 Make sure to approve the connection request in your wallet extension popup
+                    </div>
+                  )}
+                </div>
+                <div className="flex space-x-1 ml-2">
+                  {(connectionError.includes('authorize') ||
+                    connectionError.includes('not authorised')) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        clearError();
+                        // Find the wallet that failed and retry
+                        const failedWallet = availableWallets.find(w =>
+                          connectionError.includes(w.title),
+                        );
+                        if (failedWallet) {
+                          handleConnect(failedWallet.extensionName);
+                        }
+                      }}
+                      className="h-auto px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-100"
+                    >
+                      Retry
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearError}
+                    className="h-auto p-0 text-red-600 hover:text-red-700"
+                  >
+                    ×
+                  </Button>
+                </div>
               </div>
             </div>
           )}
