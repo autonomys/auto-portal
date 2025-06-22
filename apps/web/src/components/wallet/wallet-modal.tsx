@@ -11,13 +11,8 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) => {
-  const { 
-    availableWallets, 
-    connectWallet, 
-    isConnecting, 
-    connectionError,
-    clearError 
-  } = useWallet();
+  const { availableWallets, connectWallet, isConnecting, connectionError, clearError } =
+    useWallet();
 
   const handleConnect = async (extensionName: string) => {
     try {
@@ -34,12 +29,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   const walletOptions = availableWallets.map(wallet => ({
     extensionName: wallet.extensionName,
     title: wallet.title,
-    logo: wallet.logo ? {
-      src: wallet.logo.src,
-      alt: wallet.logo.alt || wallet.title
-    } : undefined,
+    logo: wallet.logo
+      ? {
+          src: wallet.logo.src,
+          alt: wallet.logo.alt || wallet.title,
+        }
+      : undefined,
     installed: wallet.installed,
-    installUrl: WALLET_INSTALL_URLS[wallet.extensionName as keyof typeof WALLET_INSTALL_URLS]
+    installUrl: WALLET_INSTALL_URLS[wallet.extensionName as keyof typeof WALLET_INSTALL_URLS],
   }));
 
   return (
@@ -69,18 +66,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
           {walletOptions.length === 0 && (
             <div className="text-center text-gray-500 py-8">
               <p className="mb-4">No compatible wallets detected.</p>
-              <p className="text-sm">
-                Please install one of the supported wallet extensions:
-              </p>
+              <p className="text-sm">Please install one of the supported wallet extensions:</p>
               <div className="mt-4 space-y-2">
                 {Object.entries(WALLET_INSTALL_URLS).map(([name, url]) => (
-                  <Button 
-                    key={name} 
-                    variant="outline" 
-                    size="sm" 
-                    asChild
-                    className="block"
-                  >
+                  <Button key={name} variant="outline" size="sm" asChild className="block">
                     <a href={url} target="_blank" rel="noopener noreferrer">
                       Install {name.charAt(0).toUpperCase() + name.slice(1)}
                     </a>
@@ -90,7 +79,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
             </div>
           )}
 
-          {walletOptions.map((wallet) => (
+          {walletOptions.map(wallet => (
             <WalletOption
               key={wallet.extensionName}
               wallet={wallet}
@@ -102,8 +91,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
           {walletOptions.length > 0 && (
             <div className="pt-4 border-t">
               <p className="text-xs text-muted-foreground text-center">
-                By connecting a wallet, you agree to the Terms of Service and acknowledge 
-                that you have read and understand the Privacy Policy.
+                By connecting a wallet, you agree to the Terms of Service and acknowledge that you
+                have read and understand the Privacy Policy.
               </p>
             </div>
           )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useWalletStore, useLegacyWalletStore } from '@/stores/wallet-store';
+import type { LegacyWalletState } from '@/types/wallet';
 
 export const useWallet = () => {
   const store = useWalletStore();
@@ -8,7 +9,7 @@ export const useWallet = () => {
   React.useEffect(() => {
     store.detectWallets();
     store.initializeConnection();
-  }, []);
+  }, [store]);
 
   return {
     // State
@@ -41,7 +42,7 @@ export const useWallet = () => {
 
 // Legacy hook for backward compatibility
 export const useLegacyWallet = () => {
-  return useLegacyWalletStore((state: any) => ({
+  return useLegacyWalletStore((state: LegacyWalletState) => ({
     isConnected: state.isConnected,
     account: state.account,
     connect: state.connect,

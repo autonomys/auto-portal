@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@/hooks/use-wallet';
 import { shortenAddress } from '@/lib/utils';
+import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
-  accounts: any[];
-  selectedAccount: any;
+  accounts: WalletAccount[];
+  selectedAccount: WalletAccount;
   onSelectAccount: (address: string) => void;
   onDisconnect: () => void;
 }
@@ -14,12 +15,12 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   accounts,
   selectedAccount,
   onSelectAccount,
-  onDisconnect
+  onDisconnect,
 }) => (
   <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
     <div className="p-2">
       <div className="text-xs text-gray-500 mb-2">Select Account</div>
-      {accounts.map((account: any) => (
+      {accounts.map((account: WalletAccount) => (
         <button
           key={account.address}
           onClick={() => onSelectAccount(account.address)}
@@ -49,15 +50,9 @@ interface WalletButtonProps {
 }
 
 export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
-  const { 
-    isConnected, 
-    isConnecting,
-    selectedAccount, 
-    accounts,
-    selectAccount,
-    disconnectWallet 
-  } = useWallet();
-  
+  const { isConnected, isConnecting, selectedAccount, accounts, selectAccount, disconnectWallet } =
+    useWallet();
+
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleDisconnect = () => {
@@ -90,25 +85,20 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
           className="flex items-center space-x-2"
         >
           <div className="w-2 h-2 bg-green-500 rounded-full" />
-          <span>
-            {selectedAccount.name || shortenAddress(selectedAccount.address)}
-          </span>
-          <svg 
+          <span>{selectedAccount.name || shortenAddress(selectedAccount.address)}</span>
+          <svg
             className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
-            fill="none" 
-            stroke="currentColor" 
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </Button>
-        
+
         {showDropdown && (
           <>
-            <div 
-              className="fixed inset-0 z-40" 
-              onClick={() => setShowDropdown(false)}
-            />
+            <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
             <AccountDropdown
               accounts={accounts}
               selectedAccount={selectedAccount}
@@ -121,9 +111,5 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
     );
   }
 
-  return (
-    <Button onClick={onOpenModal}>
-      Connect Wallet
-    </Button>
-  );
+  return <Button onClick={onOpenModal}>Connect Wallet</Button>;
 };

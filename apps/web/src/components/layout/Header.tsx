@@ -51,10 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
         </div>
       </div>
 
-      <WalletModal
-        open={walletModalOpen}
-        onOpenChange={setWalletModalOpen}
-      />
+      <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </header>
   );
 };
