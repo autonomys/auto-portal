@@ -1,7 +1,47 @@
-import { useWalletStore } from '@/stores/wallet-store';
+import React from 'react';
+import { useWalletStore, useLegacyWalletStore } from '@/stores/wallet-store';
 
 export const useWallet = () => {
-  return useWalletStore(state => ({
+  const store = useWalletStore();
+
+  // Auto-detect wallets and initialize connection on hook mount
+  React.useEffect(() => {
+    store.detectWallets();
+    store.initializeConnection();
+  }, []);
+
+  return {
+    // State
+    isConnected: store.isConnected,
+    isConnecting: store.isConnecting,
+    connectionError: store.connectionError,
+    selectedWallet: store.selectedWallet,
+    selectedAccount: store.selectedAccount,
+    accounts: store.accounts,
+    availableWallets: store.availableWallets,
+    injector: store.injector,
+
+    // Actions
+    connectWallet: store.connectWallet,
+    disconnectWallet: store.disconnectWallet,
+    selectAccount: store.selectAccount,
+    clearError: store.clearError,
+
+    // Computed
+    hasWallets: store.availableWallets.length > 0,
+    selectedAddress: store.selectedAccount?.address || null,
+
+    // Legacy compatibility
+    account: store.selectedAccount,
+    connect: store.connectWallet,
+    disconnect: store.disconnectWallet,
+    error: store.connectionError,
+  };
+};
+
+// Legacy hook for backward compatibility
+export const useLegacyWallet = () => {
+  return useLegacyWalletStore((state: any) => ({
     isConnected: state.isConnected,
     account: state.account,
     connect: state.connect,
