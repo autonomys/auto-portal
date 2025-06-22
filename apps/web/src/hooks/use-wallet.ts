@@ -7,9 +7,10 @@ export const useWallet = () => {
 
   // Auto-detect wallets and initialize connection on hook mount
   React.useEffect(() => {
-    store.detectWallets();
-    store.initializeConnection();
-  }, [store]);
+    const { detectWallets, initializeConnection } = useWalletStore.getState();
+    detectWallets();
+    initializeConnection();
+  }, []);
 
   return {
     // State
