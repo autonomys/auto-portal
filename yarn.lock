@@ -91,7 +91,7 @@ __metadata:
     "@polkadot/extension-inject": "npm:^0.60.1"
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-slot": "npm:^1.2.3"
-    "@talismn/connect-wallets": "npm:^1.0.2"
+    "@talismn/connect-wallets": "npm:^1.2.8"
     "@types/react": "npm:^18.2.43"
     "@types/react-dom": "npm:^18.2.17"
     "@typescript-eslint/eslint-plugin": "npm:^6.14.0"
@@ -2679,7 +2679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/connect-wallets@npm:^1.0.2":
+"@talismn/connect-wallets@npm:^1.2.8":
   version: 1.2.8
   resolution: "@talismn/connect-wallets@npm:1.2.8"
   peerDependencies:
