@@ -98,19 +98,21 @@ export const operatorService = {
     return mockOperators;
   },
 
-  async getOperatorById(_: string): Promise<OperatorDetails | null> {
+  async getOperatorById(operatorId: string): Promise<OperatorDetails | null> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    // For now, return the first operator details as mock
-    return mockOperatorDetails['op-1'] || null;
+    // Return the specific operator details if found, otherwise null
+    return mockOperatorDetails[operatorId] || null;
   },
 
   async getOperatorStats(): Promise<OperatorStats> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const totalStaked = mockOperators.reduce((sum, op) => sum + parseFloat(op.totalStaked), 0).toString();
-    
+
+    const totalStaked = mockOperators
+      .reduce((sum, op) => sum + parseFloat(op.totalStaked), 0)
+      .toString();
+
     return {
       sharePrice: '1.0000',
       totalShares: totalStaked,

@@ -1,13 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  formatNumber,
-  formatPercentage,
-  getAPYColor,
-  getUptimeColor,
-  truncateAddress,
-} from '@/lib/formatting';
+import { formatNumber, formatPercentage, getAPYColor, getUptimeColor } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorTableProps {
