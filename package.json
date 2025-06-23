@@ -12,6 +12,7 @@
     "dev:indexer": "yarn workspace @auto-portal/indexer dev",
     "dev:all": "concurrently \"yarn dev:indexer\" \"yarn dev\"",
     "build": "yarn workspaces foreach -Apt run build",
+    "build:web": "cd apps/web && npm run build",
     "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspace @auto-portal/web lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
