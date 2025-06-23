@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import './App.css';
 
 const App: React.FC = () => {
+  const appName = import.meta.env.VITE_APP_NAME || 'Autonomys Staking';
+  const networkName = import.meta.env.VITE_NETWORK_NAME || 'taurus';
+  const isDev = import.meta.env.VITE_DEV_MODE === 'true';
+
   return (
     <Layout className="py-12">
       <div className="space-y-12">
@@ -15,6 +19,11 @@ const App: React.FC = () => {
             <p className="text-lg text-muted-foreground font-sans leading-relaxed">
               Manage your staking positions and discover operators
             </p>
+            {isDev && (
+              <div className="mt-4 text-xs text-muted-foreground">
+                {appName} • Network: {networkName} • {import.meta.env.MODE}
+              </div>
+            )}
           </div>
         </div>
 
