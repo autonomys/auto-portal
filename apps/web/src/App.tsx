@@ -76,21 +76,11 @@ const App: React.FC = () => {
             <div className="text-center">
               <CardTitle className="mb-2 font-serif">Start Staking</CardTitle>
               <CardDescription className="mb-4 font-sans">
-                Connect your wallet to begin staking with Autonomys operators
+                Browse available operators and choose the best fit for your staking strategy
               </CardDescription>
-              <div className="space-x-4">
-                <Button size="lg" className="font-sans">
-                  Connect Wallet
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="font-sans"
-                  onClick={() => setCurrentPage('operators')}
-                >
-                  Browse Operators
-                </Button>
-              </div>
+              <Button size="lg" className="font-sans" onClick={() => setCurrentPage('operators')}>
+                Browse Operators
+              </Button>
             </div>
           </CardContent>
         </Card>
