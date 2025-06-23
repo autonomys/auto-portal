@@ -1,87 +1,171 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { InjectedAccountWithMeta, InjectedExtension } from '@polkadot/extension-inject/types';
-import type { Signer } from '@polkadot/api/types';
-import { web3Enable, web3Accounts, web3FromSource } from '@polkadot/extension-dapp';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-
-declare global {
-  interface Window {
-    _autonomysApi?: ApiPromise;
-  }
-}
-
-interface WalletState {
-  isConnected: boolean;
-  account: InjectedAccountWithMeta | null;
-  extension: InjectedExtension | null;
-  signer: Signer | null;
-  error?: string;
-
-  connect: (source: string) => Promise<void>;
-  disconnect: () => void;
-}
+import { getWallets, getWalletBySource } from '@talismn/connect-wallets';
+import type { WalletState } from '@/types/wallet';
+import { SUPPORTED_WALLET_EXTENSIONS, DAPP_NAME, WALLET_STORAGE_KEY } from '@/constants/wallets';
+import type { Wallet } from '@talismn/connect-wallets';
 
 export const useWalletStore = create<WalletState>()(
   persist(
-    set => ({
+    (set, get) => ({
+      // State
       isConnected: false,
-      account: null,
-      extension: null,
-      signer: null,
-      error: undefined,
+      isConnecting: false,
+      connectionError: null,
+      selectedWallet: null,
+      selectedAccount: null,
+      accounts: [],
+      injector: null,
+      availableWallets: [],
 
-      connect: async (source: string) => {
+      // Actions
+      detectWallets: () => {
         try {
-          const extensions = await web3Enable('Autonomys Staking');
-          const ext = extensions.find(e => e.name === source);
-          if (!ext) {
-            set({ error: `Extension ${source} not found` });
-            return;
-          }
-          const accounts = await web3Accounts();
-          if (!accounts.length) {
-            set({ error: 'No accounts found' });
-            return;
-          }
-          const account = accounts[0];
-          const injector = await web3FromSource(account.meta.source);
-
-          if (!window._autonomysApi) {
-            const provider = new WsProvider('wss://rpc.autonomys.network');
-            window._autonomysApi = await ApiPromise.create({ provider });
-          }
-
-          const signer = injector.signer as Signer;
-
-          set({
-            isConnected: true,
-            account,
-            extension: ext,
-            signer,
-            error: undefined,
-          });
-        } catch (err: unknown) {
-          console.error(err);
-          set({ error: (err as Error).message });
+          const allWallets = getWallets();
+          const supportedWallets = allWallets
+            .filter((wallet: Wallet) => {
+              // Exclude Nova wallet (same as Polkadot.js)
+              if (wallet.title?.toLowerCase().includes('nova')) return false;
+              return SUPPORTED_WALLET_EXTENSIONS.includes(
+                wallet.extensionName as (typeof SUPPORTED_WALLET_EXTENSIONS)[number],
+              );
+            })
+            // Remove duplicates by extension name
+            .filter(
+              (wallet, index, arr) =>
+                arr.findIndex(w => w.extensionName === wallet.extensionName) === index,
+            );
+          set({ availableWallets: supportedWallets });
+        } catch {
+          set({ availableWallets: [] });
         }
       },
 
-      disconnect: () =>
+      connectWallet: async (extensionName: string) => {
+        set({ isConnecting: true, connectionError: null });
+
+        try {
+          const wallet = getWalletBySource(extensionName);
+          if (!wallet) {
+            throw new Error(`Wallet not found: ${extensionName}`);
+          }
+
+          if (!wallet.installed) {
+            throw new Error(
+              `${wallet.title} is not installed. Please install the extension first.`,
+            );
+          }
+
+          // Enable wallet (triggers popup if not authorized)
+          await wallet.enable(DAPP_NAME);
+
+          if (!wallet.extension) {
+            throw new Error(`Extension not available for ${extensionName}`);
+          }
+
+          const accounts = await wallet.getAccounts();
+          if (!accounts || accounts.length === 0) {
+            throw new Error(
+              `No accounts found in ${wallet.title}. Please create an account first.`,
+            );
+          }
+
+          set({
+            isConnected: true,
+            isConnecting: false,
+            selectedWallet: extensionName,
+            selectedAccount: accounts[0],
+            accounts: accounts,
+            injector: wallet.extension,
+            connectionError: null,
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Connection failed';
+          set({
+            isConnecting: false,
+            connectionError: errorMessage,
+          });
+          throw error;
+        }
+      },
+
+      initializeConnection: async () => {
+        const { selectedWallet, selectedAccount, isConnected } = get();
+
+        // Skip if no persisted data or already connected
+        if (!selectedWallet || !selectedAccount || isConnected) {
+          return;
+        }
+
+        try {
+          const wallet = getWalletBySource(selectedWallet);
+          if (!wallet?.installed) {
+            // Clear invalid persisted data
+            set({ selectedWallet: null, selectedAccount: null, isConnected: false });
+            return;
+          }
+
+          // Silent reconnection
+          await wallet.enable(DAPP_NAME);
+
+          if (wallet.extension) {
+            const accounts = await wallet.getAccounts();
+            const targetAccount = accounts.find(acc => acc.address === selectedAccount.address);
+
+            if (targetAccount) {
+              set({
+                isConnected: true,
+                accounts: accounts,
+                injector: wallet.extension,
+                connectionError: null,
+              });
+            } else {
+              // Account no longer exists, clear data
+              set({ selectedWallet: null, selectedAccount: null, isConnected: false });
+            }
+          }
+        } catch {
+          // Silent fail - user may need to authorize again
+        }
+      },
+
+      disconnectWallet: () => {
         set({
           isConnected: false,
-          account: null,
-          extension: null,
-          signer: null,
-          error: undefined,
-        }),
+          isConnecting: false,
+          selectedWallet: null,
+          selectedAccount: null,
+          accounts: [],
+          injector: null,
+          connectionError: null,
+        });
+      },
+
+      selectAccount: (address: string) => {
+        const { accounts } = get();
+        const account = accounts.find(acc => acc.address === address);
+        if (account) {
+          set({ selectedAccount: account });
+        }
+      },
+
+      clearError: () => {
+        set({ connectionError: null });
+      },
     }),
     {
-      name: 'wallet-storage',
+      name: WALLET_STORAGE_KEY,
       partialize: state => ({
+        selectedWallet: state.selectedWallet,
+        selectedAccount: state.selectedAccount,
         isConnected: state.isConnected,
-        account: state.account,
       }),
+      onRehydrateStorage: () => state => {
+        if (state?.selectedWallet && state?.selectedAccount) {
+          // Auto-initialize connection after rehydration
+          setTimeout(() => state.initializeConnection(), 500);
+        }
+      },
     },
   ),
 );

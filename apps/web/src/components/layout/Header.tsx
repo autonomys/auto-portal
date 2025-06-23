@@ -1,24 +1,12 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { WalletModal } from '@/components/wallet/wallet-modal';
-import { useWallet } from '@/hooks/use-wallet';
-import { shortenAddress } from '@/lib/utils';
+import { WalletButton, WalletModal } from '@/components/wallet';
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
-  const { isConnected, account, disconnect } = useWallet();
-  const [open, setOpen] = useState(false);
-
-  const handleButton = () => {
-    if (isConnected) {
-      disconnect();
-    } else {
-      setOpen(true);
-    }
-  };
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   return (
     <header className={`bg-background border-b border-border ${className}`}>
@@ -58,13 +46,12 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
 
           {/* Wallet Connection */}
           <div className="flex items-center space-x-4">
-            <Button className="font-sans" onClick={handleButton}>
-              {isConnected ? shortenAddress(account?.address) : 'Connect Wallet'}
-            </Button>
+            <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
         </div>
       </div>
-      <WalletModal open={open} onOpenChange={setOpen} />
+
+      <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </header>
   );
 };
