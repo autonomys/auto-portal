@@ -3,10 +3,18 @@ import { WalletButton, WalletModal } from '@/components/wallet';
 
 interface HeaderProps {
   className?: string;
+  onNavigate?: (page: 'dashboard' | 'operators') => void;
+  currentPage?: 'dashboard' | 'operators';
 }
 
-export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
+export const Header: React.FC<HeaderProps> = ({ className = '', onNavigate, currentPage }) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+
+  const handleNavClick = (page: 'dashboard' | 'operators') => {
+    if (onNavigate) {
+      onNavigate(page);
+    }
+  };
 
   return (
     <header className={`bg-background border-b border-border ${className}`}>
@@ -24,24 +32,32 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="#dashboard"
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
+            <button
+              onClick={() => handleNavClick('dashboard')}
+              className={`px-3 py-2 text-sm font-medium transition-colors font-sans ${
+                currentPage === 'dashboard'
+                  ? 'text-foreground border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               Dashboard
-            </a>
-            <a
-              href="#operators"
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
+            </button>
+            <button
+              onClick={() => handleNavClick('operators')}
+              className={`px-3 py-2 text-sm font-medium transition-colors font-sans ${
+                currentPage === 'operators'
+                  ? 'text-foreground border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               Operators
-            </a>
-            <a
-              href="#portfolio"
+            </button>
+            <button
+              onClick={() => handleNavClick('dashboard')}
               className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
             >
               Portfolio
-            </a>
+            </button>
           </nav>
 
           {/* Wallet Connection */}

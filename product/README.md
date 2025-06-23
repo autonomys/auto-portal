@@ -23,14 +23,14 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### Core Documents
 
-- **`rough-description.txt`** - Initial project brief and requirements
-- **`kickoff-workshop.md`** - Workshop notes with shared terminology and decisions
 - **`staking-prd.md`** - Complete Product Requirements Document with functional specs
+- **`next-steps-operator-discovery.md`** - **[CURRENT]** Detailed implementation plan for operator marketplace
 - **`wireframes.md`** - Screen layouts and user interface design patterns (markdown format)
 - **`technical-architecture.md`** - Component structure, data flow, and implementation plan (functional programming)
 - **`technical-specifications.md`** - Detailed calculations, business logic, and implementation decisions
 - **`design-system.md`** - Visual design tokens, component specifications, and styling guidelines
 - **`visual-mockups.md`** - High-fidelity screen designs with interactive preview links
+- **`kickoff-workshop.md`** - Workshop notes with shared terminology and decisions
 - **`mockups/`** - Interactive HTML previews and brand assets
   - `dashboard-preview.html` - Portfolio overview with metrics and active positions
   - `operator-discovery.html` - Browse and compare operators with filtering and search
@@ -95,13 +95,15 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [x] Full TypeScript type system with comprehensive staking domain models
 - [x] Development servers verified and working
 
-### 🔄 Phase 4: Implementation (Next)
+### 🔄 Phase 4: Implementation (Current)
 
-- [x] Core UI components and layout system (dashboard layout implemented; operator components next)
-- [ ] Wallet connection and account management
-- [ ] Operator discovery and comparison interface
+- [x] Core UI components and layout system (dashboard layout implemented)
+- [x] Wallet connection and account management (completed)
+- [ ] **Operator discovery and comparison interface** ← **CURRENT FOCUS**
 - [ ] Staking flow implementation
 - [ ] Portfolio and withdrawal management
+
+**📋 Current Milestone:** See detailed plan in [next-steps-operator-discovery.md](./next-steps-operator-discovery.md)
 
 ### 🧪 Phase 5: Testing & Launch (Future)
 
