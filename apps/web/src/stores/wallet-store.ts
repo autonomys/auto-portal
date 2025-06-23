@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getWallets, getWalletBySource } from '@talismn/connect-wallets';
-import type { WalletState, StoredPreferences, LegacyWalletState } from '@/types/wallet';
+import type { WalletState } from '@/types/wallet';
 import { SUPPORTED_WALLET_EXTENSIONS, DAPP_NAME, WALLET_STORAGE_KEY } from '@/constants/wallets';
 import type { Wallet } from '@talismn/connect-wallets';
 
 export const useWalletStore = create<WalletState>()(
   persist(
     (set, get) => ({
-      // Initial state
+      // State
       isConnected: false,
       isConnecting: false,
       connectionError: null,
@@ -22,14 +22,21 @@ export const useWalletStore = create<WalletState>()(
       detectWallets: () => {
         try {
           const allWallets = getWallets();
-          const supportedWallets = allWallets.filter((wallet: Wallet) =>
-            SUPPORTED_WALLET_EXTENSIONS.includes(
-              wallet.extensionName as (typeof SUPPORTED_WALLET_EXTENSIONS)[number],
-            ),
-          );
+          const supportedWallets = allWallets
+            .filter((wallet: Wallet) => {
+              // Exclude Nova wallet (same as Polkadot.js)
+              if (wallet.title?.toLowerCase().includes('nova')) return false;
+              return SUPPORTED_WALLET_EXTENSIONS.includes(
+                wallet.extensionName as (typeof SUPPORTED_WALLET_EXTENSIONS)[number],
+              );
+            })
+            // Remove duplicates by extension name
+            .filter(
+              (wallet, index, arr) =>
+                arr.findIndex(w => w.extensionName === wallet.extensionName) === index,
+            );
           set({ availableWallets: supportedWallets });
-        } catch (error) {
-          console.warn('Wallet detection failed:', error);
+        } catch {
           set({ availableWallets: [] });
         }
       },
@@ -49,52 +56,17 @@ export const useWalletStore = create<WalletState>()(
             );
           }
 
-          console.log(`Attempting to connect to ${wallet.title}...`);
-
-          // This WILL trigger popup if wallet not previously authorized
-          // This is the KEY REQUIREMENT from the specifications
-          try {
-            await wallet.enable(DAPP_NAME);
-            console.log(`${wallet.title} authorization successful`);
-          } catch (enableError) {
-            console.error(`${wallet.title} authorization failed:`, enableError);
-
-            // Handle specific authorization errors
-            if (enableError instanceof Error) {
-              if (
-                enableError.message.includes('not authorised') ||
-                enableError.message.includes('rejected')
-              ) {
-                throw new Error(
-                  `Please authorize this application in your ${wallet.title} wallet. Check your wallet extension and approve the connection request.`,
-                );
-              } else if (enableError.message.includes('No accounts')) {
-                throw new Error(
-                  `No accounts found in ${wallet.title}. Please create an account in your wallet first, then try connecting again.`,
-                );
-              }
-            }
-
-            // Re-throw the original error if we can't handle it specifically
-            throw enableError;
-          }
+          // Enable wallet (triggers popup if not authorized)
+          await wallet.enable(DAPP_NAME);
 
           if (!wallet.extension) {
             throw new Error(`Extension not available for ${extensionName}`);
           }
 
           const accounts = await wallet.getAccounts();
-          console.log(`Found ${accounts?.length || 0} accounts in ${wallet.title}`);
-
           if (!accounts || accounts.length === 0) {
             throw new Error(
-              `No accounts available in ${wallet.title}. This might mean:
-              
-1. You need to authorize this application in your wallet
-2. You need to create an account in your wallet first
-3. Try opening your ${wallet.title} extension and check your account status
-
-Please open your ${wallet.title} wallet, ensure you have accounts created, and try connecting again.`,
+              `No accounts found in ${wallet.title}. Please create an account first.`,
             );
           }
 
@@ -107,72 +79,53 @@ Please open your ${wallet.title} wallet, ensure you have accounts created, and t
             injector: wallet.extension,
             connectionError: null,
           });
-
-          console.log(
-            `Successfully connected to ${wallet.title} with account:`,
-            accounts[0].address,
-          );
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Connection failed';
-          console.error('Wallet connection error:', error);
           set({
             isConnecting: false,
             connectionError: errorMessage,
           });
-          throw error; // Re-throw for component error handling
+          throw error;
         }
       },
 
       initializeConnection: async () => {
-        // Get stored preferences from persistence
-        const storedData = localStorage.getItem(WALLET_STORAGE_KEY);
-        if (!storedData) return;
+        const { selectedWallet, selectedAccount, isConnected } = get();
+
+        // Skip if no persisted data or already connected
+        if (!selectedWallet || !selectedAccount || isConnected) {
+          return;
+        }
 
         try {
-          const preferences: StoredPreferences = JSON.parse(storedData);
+          const wallet = getWalletBySource(selectedWallet);
+          if (!wallet?.installed) {
+            // Clear invalid persisted data
+            set({ selectedWallet: null, selectedAccount: null, isConnected: false });
+            return;
+          }
 
-          if (preferences.preferredWallet && preferences.preferredAccount) {
-            const wallet = getWalletBySource(preferences.preferredWallet);
-            if (!wallet || !wallet.installed) {
-              // Clean up invalid preferences
-              localStorage.removeItem(WALLET_STORAGE_KEY);
-              return;
-            }
+          // Silent reconnection
+          await wallet.enable(DAPP_NAME);
 
-            try {
-              // Attempt silent reconnection - won't trigger popup if already authorized
-              await wallet.enable(DAPP_NAME);
+          if (wallet.extension) {
+            const accounts = await wallet.getAccounts();
+            const targetAccount = accounts.find(acc => acc.address === selectedAccount.address);
 
-              if (wallet.extension) {
-                const accounts = await wallet.getAccounts();
-
-                // Verify saved account still exists
-                const targetAccount = accounts.find(
-                  acc => acc.address === preferences.preferredAccount,
-                );
-
-                if (targetAccount) {
-                  set({
-                    isConnected: true,
-                    selectedWallet: preferences.preferredWallet,
-                    selectedAccount: targetAccount,
-                    accounts: accounts,
-                    injector: wallet.extension,
-                    connectionError: null,
-                  });
-                } else {
-                  localStorage.removeItem(WALLET_STORAGE_KEY);
-                }
-              }
-            } catch (error) {
-              // Silent fail for auto-reconnection
-              console.warn('Auto-reconnection failed:', error);
-              localStorage.removeItem(WALLET_STORAGE_KEY);
+            if (targetAccount) {
+              set({
+                isConnected: true,
+                accounts: accounts,
+                injector: wallet.extension,
+                connectionError: null,
+              });
+            } else {
+              // Account no longer exists, clear data
+              set({ selectedWallet: null, selectedAccount: null, isConnected: false });
             }
           }
-        } catch (error) {
-          console.warn('Failed to parse stored preferences:', error);
-          localStorage.removeItem(WALLET_STORAGE_KEY);
+        } catch {
+          // Silent fail - user may need to authorize again
         }
       },
 
@@ -202,53 +155,17 @@ Please open your ${wallet.title} wallet, ensure you have accounts created, and t
     }),
     {
       name: WALLET_STORAGE_KEY,
-      partialize: state =>
-        ({
-          preferredWallet: state.selectedWallet,
-          preferredAccount: state.selectedAccount?.address || null,
-        }) as StoredPreferences,
+      partialize: state => ({
+        selectedWallet: state.selectedWallet,
+        selectedAccount: state.selectedAccount,
+        isConnected: state.isConnected,
+      }),
+      onRehydrateStorage: () => state => {
+        if (state?.selectedWallet && state?.selectedAccount) {
+          // Auto-initialize connection after rehydration
+          setTimeout(() => state.initializeConnection(), 500);
+        }
+      },
     },
   ),
 );
-
-// Legacy compatibility layer for existing components
-export const useLegacyWalletStore = create<LegacyWalletState>(() => ({
-  isConnected: false,
-  account: null,
-  error: undefined,
-
-  connect: async (source: string) => {
-    const mainStore = useWalletStore.getState();
-    try {
-      await mainStore.connectWallet(source);
-      const state = useWalletStore.getState();
-      useLegacyWalletStore.setState({
-        isConnected: state.isConnected,
-        account: state.selectedAccount,
-        error: undefined,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Connection failed';
-      useLegacyWalletStore.setState({ error: errorMessage });
-    }
-  },
-
-  disconnect: () => {
-    const mainStore = useWalletStore.getState();
-    mainStore.disconnectWallet();
-    useLegacyWalletStore.setState({
-      isConnected: false,
-      account: null,
-      error: undefined,
-    });
-  },
-}));
-
-// Sync legacy store with main store
-useWalletStore.subscribe(state => {
-  useLegacyWalletStore.setState({
-    isConnected: state.isConnected,
-    account: state.selectedAccount,
-    error: state.connectionError || undefined,
-  });
-});

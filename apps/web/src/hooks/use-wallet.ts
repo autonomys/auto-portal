@@ -1,15 +1,14 @@
 import React from 'react';
-import { useWalletStore, useLegacyWalletStore } from '@/stores/wallet-store';
-import type { LegacyWalletState } from '@/types/wallet';
+import { useWalletStore } from '@/stores/wallet-store';
 
 export const useWallet = () => {
   const store = useWalletStore();
 
-  // Auto-detect wallets and initialize connection on hook mount
+  // Auto-detect wallets on hook mount
+  // Connection initialization is handled by store rehydration
   React.useEffect(() => {
-    const { detectWallets, initializeConnection } = useWalletStore.getState();
+    const { detectWallets } = useWalletStore.getState();
     detectWallets();
-    initializeConnection();
   }, []);
 
   return {
@@ -32,22 +31,5 @@ export const useWallet = () => {
     // Computed
     hasWallets: store.availableWallets.length > 0,
     selectedAddress: store.selectedAccount?.address || null,
-
-    // Legacy compatibility
-    account: store.selectedAccount,
-    connect: store.connectWallet,
-    disconnect: store.disconnectWallet,
-    error: store.connectionError,
   };
-};
-
-// Legacy hook for backward compatibility
-export const useLegacyWallet = () => {
-  return useLegacyWalletStore((state: LegacyWalletState) => ({
-    isConnected: state.isConnected,
-    account: state.account,
-    connect: state.connect,
-    disconnect: state.disconnect,
-    error: state.error,
-  }));
 };
