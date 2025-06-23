@@ -65,7 +65,6 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 #### 3.1.1 Operator Journey
 
 - [ ] **Operator Registration**
-
   - Register as operator on specific domain
   - Set nomination tax rate and minimum nominator stake
   - Provide signing key and operator config
@@ -80,14 +79,12 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 #### 3.1.2 Nominator Journey
 
 - [ ] **Staking Flow**
-
   - Browse and compare operators (APY, tax rate, uptime)
   - Stake to selected operator with amount validation
   - Automatic storage fund deduction (20%)
   - Transaction confirmation and status tracking
 
 - [ ] **Portfolio Management**
-
   - View staked positions across operators
   - Monitor rewards accumulation (real-time + historical)
   - Add additional stake to existing positions
@@ -101,7 +98,6 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 #### 3.1.3 Shared Features
 
 - [ ] **Dashboard & Analytics**
-
   - Portfolio overview (staked, pending, withdrawing)
   - Reward history and projections
   - Epoch countdown and status
