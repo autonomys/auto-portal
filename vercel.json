@@ -1,8 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "rootDirectory": "apps/web",
   "rewrites": [
     {
       "source": "/(.*)",
