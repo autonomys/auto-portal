@@ -22,7 +22,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const operators = await operatorService.getOperators();
+      const operators = await operatorService.getAllOperators();
       set({ operators, loading: false });
 
       // Apply current filters
@@ -72,11 +72,6 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       filtered = filtered.filter(op => op.currentAPY <= filters.maxAPY!);
     }
 
-    // Uptime filter
-    if (filters.minUptime !== undefined) {
-      filtered = filtered.filter(op => op.uptime >= filters.minUptime!);
-    }
-
     // Sorting
     filtered.sort((a, b) => {
       let aValue: number;
@@ -90,10 +85,6 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         case 'totalStaked':
           aValue = parseFloat(a.totalStaked);
           bValue = parseFloat(b.totalStaked);
-          break;
-        case 'uptime':
-          aValue = a.uptime;
-          bValue = b.uptime;
           break;
         case 'tax':
           aValue = a.nominationTax;
@@ -115,8 +106,8 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
   refreshOperatorData: async (operatorId: string) => {
     try {
-      await operatorService.refreshOperatorData(operatorId);
-      // Refresh all operators to get updated data
+      // For mock data, just refresh all operators (operatorId is ignored in mock)
+      void operatorId;
       await get().fetchOperators();
     } catch (error) {
       const errorMessage =

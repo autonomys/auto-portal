@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor, getUptimeColor } from '@/lib/formatting';
+import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorCardProps {
@@ -15,13 +15,13 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
   const getStatusVariant = (status: Operator['status']) => {
     switch (status) {
       case 'active':
-        return 'default'; // Green badge
+        return 'default';
       case 'degraded':
-        return 'secondary'; // Yellow/warning badge
+        return 'secondary';
       case 'inactive':
-        return 'outline'; // Gray badge
+        return 'outline';
       case 'slashed':
-        return 'destructive'; // Red badge
+        return 'destructive';
       default:
         return 'outline';
     }
@@ -67,27 +67,27 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
         {/* Key Metrics */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="text-center">
-            <div className={`text-2xl font-bold ${getAPYColor(operator.currentAPY)}`}>
+            <div className={`text-2xl font-bold font-mono ${getAPYColor(operator.currentAPY)}`}>
               {formatPercentage(operator.currentAPY)}
             </div>
-            <div className="text-sm font-medium text-muted-foreground">APY</div>
+            <div className="text-xs text-muted-foreground">APY</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">
+            <div className="text-2xl font-bold font-mono">
               {formatPercentage(operator.nominationTax)}
             </div>
-            <div className="text-sm font-medium text-muted-foreground">Tax</div>
+            <div className="text-xs text-muted-foreground">Tax</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold font-mono text-foreground">
+            <div className="text-2xl font-bold font-mono">
               {formatNumber(operator.minimumNominatorStake)}
             </div>
-            <div className="text-sm font-medium text-muted-foreground">Min Stake</div>
+            <div className="text-xs text-muted-foreground">Min Stake</div>
           </div>
         </div>
 
         {/* Pool Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-muted/50 rounded-lg">
+        <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-muted rounded-lg">
           <div>
             <div className="text-sm font-medium text-foreground font-mono">
               {formatNumber(operator.totalStaked)} AI3
@@ -97,28 +97,6 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
           <div>
             <div className="text-sm font-medium text-foreground">{operator.nominatorCount}</div>
             <div className="text-xs text-muted-foreground">Nominators</div>
-          </div>
-        </div>
-
-        {/* Performance */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-muted-foreground">Uptime</span>
-            <span className={`text-sm font-mono ${getUptimeColor(operator.uptime)}`}>
-              {formatPercentage(operator.uptime)}
-            </span>
-          </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all duration-500 ${
-                operator.uptime >= 98
-                  ? 'bg-success-500'
-                  : operator.uptime >= 95
-                    ? 'bg-warning-500'
-                    : 'bg-destructive-500'
-              }`}
-              style={{ width: `${operator.uptime}%` }}
-            />
           </div>
         </div>
 

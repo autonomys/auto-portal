@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor, getUptimeColor } from '@/lib/formatting';
+import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorTableProps {
@@ -46,7 +46,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
               <th className="text-left p-4 font-medium text-muted-foreground">APY</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Uptime</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
             </tr>
@@ -71,9 +70,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 </td>
                 <td className="p-4">
                   <div className="h-4 bg-muted rounded w-20" />
-                </td>
-                <td className="p-4">
-                  <div className="h-4 bg-muted rounded w-12" />
                 </td>
                 <td className="p-4">
                   <div className="h-6 bg-muted rounded w-16" />
@@ -127,7 +123,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
             <th className="text-left p-4 font-medium text-muted-foreground">APY</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">Uptime</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
           </tr>
@@ -179,11 +174,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     {operator.nominatorCount} nominators
                   </div>
                 </div>
-              </td>
-              <td className="p-4">
-                <span className={`font-mono ${getUptimeColor(operator.uptime)}`}>
-                  {formatPercentage(operator.uptime)}
-                </span>
               </td>
               <td className="p-4">
                 <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>

@@ -2,7 +2,7 @@ export interface Operator {
   id: string;
   name: string; // Display name or default to ID
   domainId: string;
-  domainName: string; // "Auto EVM", "Auto Consensus"
+  domainName: string; // "Auto EVM" (currently only domain)
   ownerAccount: string;
 
   // Pool Configuration
@@ -16,7 +16,6 @@ export interface Operator {
 
   // Performance Metrics (calculated from RPC)
   currentAPY: number; // Current annualized percentage yield
-  uptime: number; // Percentage uptime (recent average)
 
   // Calculated/Derived
   poolCapacity: number; // Percentage of max capacity
@@ -45,21 +44,15 @@ export interface OperatorDetails extends Operator {
     apy: number;
     timestamp: number;
   }>;
-  uptimeHistory: Array<{
-    epoch: number;
-    uptime: number;
-    timestamp: number;
-  }>;
 }
 
 export type FilterState = {
   searchQuery: string;
   domainFilter: string;
-  sortBy: 'apy' | 'totalStaked' | 'uptime' | 'tax';
+  sortBy: 'apy' | 'totalStaked' | 'tax';
   sortOrder: 'asc' | 'desc';
   minAPY?: number;
   maxAPY?: number;
-  minUptime?: number;
   statusFilter?: Operator['status'][];
 };
 

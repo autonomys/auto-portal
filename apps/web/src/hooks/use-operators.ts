@@ -93,7 +93,6 @@ export const useOperatorFilters = () => {
       sortOrder: 'desc',
       minAPY: undefined,
       maxAPY: undefined,
-      minUptime: undefined,
       statusFilter: undefined,
     });
   };

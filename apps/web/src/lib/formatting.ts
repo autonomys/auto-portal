@@ -72,13 +72,6 @@ export const getAPYColor = (apy: number) => {
 };
 
 /**
- * Get color class for uptime values
- */
-export const getUptimeColor = (uptime: number) => {
-  return getPercentageColor(uptime, { good: 98, warning: 95 });
-};
-
-/**
  * Truncate address for display
  */
 export const truncateAddress = (
