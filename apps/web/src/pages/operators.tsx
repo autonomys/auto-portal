@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Layout } from '@/components/layout';
 import { OperatorFilters, OperatorGrid, OperatorTable } from '@/components/operators';
 import { useOperators, useOperatorFilters } from '@/hooks/use-operators';
 
@@ -8,9 +9,17 @@ interface OperatorsPageProps {
   onBack?: () => void;
   onStake?: (operatorId: string) => void;
   onViewDetails?: (operatorId: string) => void;
+  onNavigate?: (page: 'dashboard' | 'operators') => void;
+  currentPage?: 'dashboard' | 'operators';
 }
 
-export const OperatorsPage: React.FC<OperatorsPageProps> = ({ onBack, onStake, onViewDetails }) => {
+export const OperatorsPage: React.FC<OperatorsPageProps> = ({
+  onBack,
+  onStake,
+  onViewDetails,
+  onNavigate,
+  currentPage,
+}) => {
   const { operators, loading, error, operatorCount, averageAPY, clearError } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -34,29 +43,22 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({ onBack, onStake, o
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-background border-b border-border sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              {onBack && (
-                <Button variant="ghost" onClick={onBack} className="p-2">
-                  <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back
-                </Button>
-              )}
-              <div className="h-6 w-px bg-border" />
-              <h1 className="text-xl font-semibold text-foreground">Choose Operator</h1>
-            </div>
-            <div className="flex items-center space-x-3">
-              {/* TODO: Add logo or additional header elements */}
-            </div>
+    <Layout onNavigate={onNavigate} currentPage={currentPage}>
+      <div className="py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center space-x-4">
+            {onBack && (
+              <Button variant="ghost" onClick={onBack} className="p-2">
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Back
+              </Button>
+            )}
+            <div className="h-6 w-px bg-border" />
+            <h1 className="text-2xl font-semibold text-foreground">Choose Operator</h1>
           </div>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error State */}
         {error && (
           <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -155,6 +157,6 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({ onBack, onStake, o
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 };

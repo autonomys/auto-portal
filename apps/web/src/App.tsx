@@ -12,6 +12,8 @@ const App: React.FC = () => {
     return (
       <OperatorsPage
         onBack={() => setCurrentPage('dashboard')}
+        onNavigate={setCurrentPage}
+        currentPage={currentPage}
         onStake={operatorId => {
           console.log('Navigate to staking flow for operator:', operatorId);
           // TODO: Navigate to staking flow
@@ -25,7 +27,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout className="py-12">
+    <Layout className="py-12" onNavigate={setCurrentPage} currentPage={currentPage}>
       <div className="space-y-12">
         {/* Page Header */}
         <div className="border-b border-border pb-8 text-center">
