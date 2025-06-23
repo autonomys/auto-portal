@@ -1,4 +1,6 @@
 {
+  "buildCommand": "yarn workspace @auto-portal/web build",
+  "outputDirectory": "apps/web/dist",
   "rewrites": [
     {
       "source": "/(.*)",
