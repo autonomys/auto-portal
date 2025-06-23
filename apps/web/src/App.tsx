@@ -12,11 +12,11 @@ const App: React.FC = () => {
     return (
       <OperatorsPage
         onBack={() => setCurrentPage('dashboard')}
-        onStake={(operatorId) => {
+        onStake={operatorId => {
           console.log('Navigate to staking flow for operator:', operatorId);
           // TODO: Navigate to staking flow
         }}
-        onViewDetails={(operatorId) => {
+        onViewDetails={operatorId => {
           console.log('View details for operator:', operatorId);
           // TODO: Navigate to operator details
         }}
@@ -82,9 +82,9 @@ const App: React.FC = () => {
                 <Button size="lg" className="font-sans">
                   Connect Wallet
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="font-sans"
                   onClick={() => setCurrentPage('operators')}
                 >

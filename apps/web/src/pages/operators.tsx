@@ -10,11 +10,7 @@ interface OperatorsPageProps {
   onViewDetails?: (operatorId: string) => void;
 }
 
-export const OperatorsPage: React.FC<OperatorsPageProps> = ({
-  onBack,
-  onStake,
-  onViewDetails,
-}) => {
+export const OperatorsPage: React.FC<OperatorsPageProps> = ({ onBack, onStake, onViewDetails }) => {
   const { operators, loading, error, operatorCount, averageAPY, clearError } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
@@ -51,9 +47,7 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
                 </Button>
               )}
               <div className="h-6 w-px bg-border" />
-              <h1 className="text-xl font-semibold text-foreground">
-                Choose Operator
-              </h1>
+              <h1 className="text-xl font-semibold text-foreground">Choose Operator</h1>
             </div>
             <div className="flex items-center space-x-3">
               {/* TODO: Add logo or additional header elements */}
@@ -87,7 +81,7 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
               totalResults={operatorCount}
               loading={loading}
             />
-            
+
             {/* View Toggle (Desktop Only) */}
             <div className="hidden lg:flex items-center space-x-2 bg-muted rounded-lg p-1">
               <Button
@@ -116,14 +110,11 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
         {!loading && operators.length > 0 && (
           <div className="mb-6">
             <p className="text-muted-foreground">
-              Showing{' '}
-              <span className="font-medium text-foreground">{operatorCount} operators</span>
+              Showing <span className="font-medium text-foreground">{operatorCount} operators</span>
               {averageAPY > 0 && (
                 <>
                   {' • '}Average APY:{' '}
-                  <span className="font-medium text-success-600">
-                    {averageAPY.toFixed(1)}%
-                  </span>
+                  <span className="font-medium text-success-600">{averageAPY.toFixed(1)}%</span>
                 </>
               )}
             </p>
@@ -152,12 +143,7 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
           <div className="mt-8 text-center">
             <Button variant="outline">
               Load More Operators
-              <svg
-                className="w-4 h-4 ml-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"

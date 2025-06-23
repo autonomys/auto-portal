@@ -120,7 +120,7 @@ export class OperatorService {
     }
 
     const operator = MOCK_OPERATORS.find(op => op.id === operatorId);
-    
+
     if (!operator) {
       throw new Error(`Operator ${operatorId} not found`);
     }

@@ -35,9 +35,10 @@ export const useOperators = () => {
 
     // Computed values
     operatorCount: filteredOperators.length,
-    averageAPY: filteredOperators.length > 0 
-      ? filteredOperators.reduce((sum, op) => sum + op.currentAPY, 0) / filteredOperators.length 
-      : 0,
+    averageAPY:
+      filteredOperators.length > 0
+        ? filteredOperators.reduce((sum, op) => sum + op.currentAPY, 0) / filteredOperators.length
+        : 0,
 
     // Actions
     refetch: fetchOperators,
@@ -52,7 +53,7 @@ export const useOperators = () => {
  */
 export const useOperator = (operatorId: string) => {
   const { operators, loading, error, refreshOperatorData } = useOperatorStore();
-  
+
   const operator = operators.find(op => op.id === operatorId);
 
   return {
@@ -78,9 +79,9 @@ export const useOperatorFilters = () => {
   };
 
   const updateSort = (sortBy: FilterState['sortBy'], sortOrder?: FilterState['sortOrder']) => {
-    setFilters({ 
-      sortBy, 
-      ...(sortOrder && { sortOrder })
+    setFilters({
+      sortBy,
+      ...(sortOrder && { sortOrder }),
     });
   };
 

@@ -20,11 +20,11 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
   // Actions
   fetchOperators: async () => {
     set({ loading: true, error: null });
-    
+
     try {
       const operators = await operatorService.getOperators();
       set({ operators, loading: false });
-      
+
       // Apply current filters
       get().applyFilters();
     } catch (error) {
@@ -46,10 +46,11 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     // Search filter
     if (filters.searchQuery.trim()) {
       const query = filters.searchQuery.toLowerCase();
-      filtered = filtered.filter(op => 
-        op.name.toLowerCase().includes(query) ||
-        op.id.toLowerCase().includes(query) ||
-        op.domainName.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        op =>
+          op.name.toLowerCase().includes(query) ||
+          op.id.toLowerCase().includes(query) ||
+          op.domainName.toLowerCase().includes(query),
       );
     }
 
@@ -118,7 +119,8 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       // Refresh all operators to get updated data
       await get().fetchOperators();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to refresh operator data';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to refresh operator data';
       set({ error: errorMessage });
     }
   },

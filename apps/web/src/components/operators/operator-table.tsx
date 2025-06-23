@@ -1,7 +1,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor, getUptimeColor, truncateAddress } from '@/lib/formatting';
+import {
+  formatNumber,
+  formatPercentage,
+  getAPYColor,
+  getUptimeColor,
+  truncateAddress,
+} from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorTableProps {
@@ -63,11 +69,21 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     </div>
                   </div>
                 </td>
-                <td className="p-4"><div className="h-4 bg-muted rounded w-12" /></td>
-                <td className="p-4"><div className="h-4 bg-muted rounded w-8" /></td>
-                <td className="p-4"><div className="h-4 bg-muted rounded w-20" /></td>
-                <td className="p-4"><div className="h-4 bg-muted rounded w-12" /></td>
-                <td className="p-4"><div className="h-6 bg-muted rounded w-16" /></td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-12" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-8" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-20" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-12" />
+                </td>
+                <td className="p-4">
+                  <div className="h-6 bg-muted rounded w-16" />
+                </td>
                 <td className="p-4">
                   <div className="flex space-x-2">
                     <div className="h-8 bg-muted rounded w-16" />
@@ -124,8 +140,8 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
         </thead>
         <tbody>
           {operators.map((operator, index) => (
-            <tr 
-              key={operator.id} 
+            <tr
+              key={operator.id}
               className={`
                 border-t border-border hover:bg-muted/50 transition-colors
                 ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}
@@ -139,15 +155,11 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <div className="font-medium text-foreground truncate">
-                      {operator.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {operator.domainName}
-                    </div>
+                    <div className="font-medium text-foreground truncate">{operator.name}</div>
+                    <div className="text-sm text-muted-foreground">{operator.domainName}</div>
                     {operator.isRecommended && (
-                      <Badge 
-                        variant="secondary" 
+                      <Badge
+                        variant="secondary"
                         className="bg-accent-100 text-accent-700 border-accent-300 text-xs mt-1"
                       >
                         Recommended
@@ -162,9 +174,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 </span>
               </td>
               <td className="p-4">
-                <span className="font-mono">
-                  {formatPercentage(operator.nominationTax)}
-                </span>
+                <span className="font-mono">{formatPercentage(operator.nominationTax)}</span>
               </td>
               <td className="p-4">
                 <div>
@@ -182,23 +192,14 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 </span>
               </td>
               <td className="p-4">
-                <Badge variant={getStatusVariant(operator.status)}>
-                  {operator.status}
-                </Badge>
+                <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
               </td>
               <td className="p-4">
                 <div className="flex space-x-2">
-                  <Button 
-                    size="sm" 
-                    onClick={() => onStake(operator.id)}
-                  >
+                  <Button size="sm" onClick={() => onStake(operator.id)}>
                     Stake
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => onViewDetails(operator.id)}
-                  >
+                  <Button size="sm" variant="outline" onClick={() => onViewDetails(operator.id)}>
                     Details
                   </Button>
                 </div>

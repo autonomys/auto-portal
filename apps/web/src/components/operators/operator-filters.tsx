@@ -26,7 +26,10 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const [sortBy, sortOrder] = e.target.value.split('-') as [FilterState['sortBy'], FilterState['sortOrder']];
+    const [sortBy, sortOrder] = e.target.value.split('-') as [
+      FilterState['sortBy'],
+      FilterState['sortOrder'],
+    ];
     onFiltersChange({ sortBy, sortOrder });
   };
 
@@ -88,12 +91,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
 
           {/* Reset Button */}
           {hasActiveFilters() && (
-            <Button
-              variant="outline"
-              onClick={resetFilters}
-              disabled={loading}
-              className="text-sm"
-            >
+            <Button variant="outline" onClick={resetFilters} disabled={loading} className="text-sm">
               Reset
             </Button>
           )}
@@ -118,17 +116,10 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <p>
-          Showing{' '}
-          <span className="font-medium text-foreground">{totalResults} operators</span>
-          {filters.searchQuery && (
-            <>
-              {' '}matching "{filters.searchQuery}"
-            </>
-          )}
+          Showing <span className="font-medium text-foreground">{totalResults} operators</span>
+          {filters.searchQuery && <> matching "{filters.searchQuery}"</>}
           {filters.domainFilter !== 'all' && (
-            <>
-              {' '}in {filters.domainFilter === '0' ? 'Auto EVM' : 'Auto Consensus'}
-            </>
+            <> in {filters.domainFilter === '0' ? 'Auto EVM' : 'Auto Consensus'}</>
           )}
         </p>
 

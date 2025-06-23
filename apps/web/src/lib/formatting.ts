@@ -3,9 +3,9 @@
  */
 export const formatNumber = (value: string | number, decimals: number = 0): string => {
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  
+
   if (isNaN(num)) return '0';
-  
+
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -32,9 +32,9 @@ export const formatPercentage = (value: number, decimals: number = 1): string =>
  */
 export const formatCompactNumber = (value: string | number): string => {
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  
+
   if (isNaN(num)) return '0';
-  
+
   if (num >= 1_000_000_000) {
     return `${(num / 1_000_000_000).toFixed(1)}B`;
   }
@@ -44,14 +44,17 @@ export const formatCompactNumber = (value: string | number): string => {
   if (num >= 1_000) {
     return `${(num / 1_000).toFixed(1)}K`;
   }
-  
+
   return formatNumber(num);
 };
 
 /**
  * Get color class for percentage values
  */
-export const getPercentageColor = (percentage: number, thresholds: { good: number; warning: number }) => {
+export const getPercentageColor = (
+  percentage: number,
+  thresholds: { good: number; warning: number },
+) => {
   if (percentage >= thresholds.good) {
     return 'text-success-600';
   }
@@ -78,11 +81,15 @@ export const getUptimeColor = (uptime: number) => {
 /**
  * Truncate address for display
  */
-export const truncateAddress = (address: string, startLength: number = 6, endLength: number = 4): string => {
+export const truncateAddress = (
+  address: string,
+  startLength: number = 6,
+  endLength: number = 4,
+): string => {
   if (address.length <= startLength + endLength) {
     return address;
   }
-  
+
   return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
 };
 
@@ -92,12 +99,12 @@ export const truncateAddress = (address: string, startLength: number = 6, endLen
 export const formatTimeAgo = (timestamp: number): string => {
   const now = Date.now();
   const diff = now - timestamp;
-  
+
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  
+
   if (days > 0) {
     return `${days}d ago`;
   }

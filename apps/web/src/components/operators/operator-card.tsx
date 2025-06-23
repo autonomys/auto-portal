@@ -11,11 +11,7 @@ interface OperatorCardProps {
   onViewDetails: (operatorId: string) => void;
 }
 
-export const OperatorCard: React.FC<OperatorCardProps> = ({
-  operator,
-  onStake,
-  onViewDetails,
-}) => {
+export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, onViewDetails }) => {
   const getStatusVariant = (status: Operator['status']) => {
     switch (status) {
       case 'active':
@@ -58,18 +54,12 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
               </span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
-                {operator.name}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {operator.domainName}
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{operator.name}</h3>
+              <p className="text-sm text-muted-foreground">{operator.domainName}</p>
             </div>
           </div>
           <div className="flex flex-col items-end space-y-2">
-            <Badge variant={getStatusVariant(operator.status)}>
-              {operator.status}
-            </Badge>
+            <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
             {getRecommendedBadge()}
           </div>
         </div>
@@ -105,9 +95,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
             <div className="text-xs text-muted-foreground">Total Staked</div>
           </div>
           <div>
-            <div className="text-sm font-medium text-foreground">
-              {operator.nominatorCount}
-            </div>
+            <div className="text-sm font-medium text-foreground">{operator.nominatorCount}</div>
             <div className="text-xs text-muted-foreground">Nominators</div>
           </div>
         </div>
@@ -121,10 +109,13 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
-            <div 
+            <div
               className={`h-2 rounded-full transition-all duration-500 ${
-                operator.uptime >= 98 ? 'bg-success-500' : 
-                operator.uptime >= 95 ? 'bg-warning-500' : 'bg-destructive-500'
+                operator.uptime >= 98
+                  ? 'bg-success-500'
+                  : operator.uptime >= 95
+                    ? 'bg-warning-500'
+                    : 'bg-destructive-500'
               }`}
               style={{ width: `${operator.uptime}%` }}
             />
@@ -133,16 +124,10 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button 
-            className="flex-1" 
-            onClick={() => onStake(operator.id)}
-          >
+          <Button className="flex-1" onClick={() => onStake(operator.id)}>
             Stake
           </Button>
-          <Button 
-            variant="secondary" 
-            onClick={() => onViewDetails(operator.id)}
-          >
+          <Button variant="secondary" onClick={() => onViewDetails(operator.id)}>
             Details
           </Button>
         </div>
