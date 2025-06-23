@@ -69,7 +69,6 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
           >
             <option value="all">All Domains</option>
             <option value="0">Auto EVM</option>
-            <option value="1">Auto Consensus</option>
           </select>
 
           {/* Sort Options */}
@@ -83,8 +82,6 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
             <option value="apy-asc">Sort: APY (Low to High)</option>
             <option value="totalStaked-desc">Sort: Total Staked (High to Low)</option>
             <option value="totalStaked-asc">Sort: Total Staked (Low to High)</option>
-            <option value="uptime-desc">Sort: Uptime (High to Low)</option>
-            <option value="uptime-asc">Sort: Uptime (Low to High)</option>
             <option value="tax-asc">Sort: Tax (Low to High)</option>
             <option value="tax-desc">Sort: Tax (High to Low)</option>
           </select>
@@ -118,9 +115,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
         <p>
           Showing <span className="font-medium text-foreground">{totalResults} operators</span>
           {filters.searchQuery && <> matching "{filters.searchQuery}"</>}
-          {filters.domainFilter !== 'all' && (
-            <> in {filters.domainFilter === '0' ? 'Auto EVM' : 'Auto Consensus'}</>
-          )}
+          {filters.domainFilter !== 'all' && <> in Auto EVM</>}
         </p>
 
         {loading && (

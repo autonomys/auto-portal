@@ -20,8 +20,8 @@ const mockOperators: Operator[] = [
   {
     id: 'op-2',
     name: 'Auto-Domain-Op-2',
-    domainId: '1',
-    domainName: 'Auto Consensus',
+    domainId: '0',
+    domainName: 'Auto EVM',
     ownerAccount: '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty',
     nominationTax: 8,
     minimumNominatorStake: '500',
@@ -50,8 +50,8 @@ const mockOperators: Operator[] = [
   {
     id: 'op-4',
     name: 'Secure-Node-Alpha',
-    domainId: '1',
-    domainName: 'Auto Consensus',
+    domainId: '0',
+    domainName: 'Auto EVM',
     ownerAccount: '5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY',
     nominationTax: 10,
     minimumNominatorStake: '1500',
@@ -61,6 +61,21 @@ const mockOperators: Operator[] = [
     currentAPY: 14.1,
     poolCapacity: 90,
     isRecommended: false,
+  },
+  {
+    id: 'op-5',
+    name: 'EVM-Operator-Pro',
+    domainId: '0',
+    domainName: 'Auto EVM',
+    ownerAccount: '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y',
+    nominationTax: 7,
+    minimumNominatorStake: '800',
+    status: 'active',
+    totalStaked: '4200000',
+    nominatorCount: 31,
+    currentAPY: 17.3,
+    poolCapacity: 68,
+    isRecommended: true,
   },
 ];
 
