@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { formatNumber, formatPercentage, getAPYColor, getUptimeColor } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorCardProps {
@@ -34,9 +35,15 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
     return name.charAt(0).toUpperCase();
   };
 
-  const formatNumber = (value: string | number) => {
-    const num = typeof value === 'string' ? parseFloat(value) : value;
-    return new Intl.NumberFormat('en-US').format(num);
+  const getRecommendedBadge = () => {
+    if (operator.isRecommended) {
+      return (
+        <Badge variant="secondary" className="bg-accent-100 text-accent-700 border-accent-300">
+          Recommended
+        </Badge>
+      );
+    }
+    return null;
   };
 
   return (
@@ -59,22 +66,25 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
               </p>
             </div>
           </div>
-          <Badge variant={getStatusVariant(operator.status)}>
-            {operator.status}
-          </Badge>
+          <div className="flex flex-col items-end space-y-2">
+            <Badge variant={getStatusVariant(operator.status)}>
+              {operator.status}
+            </Badge>
+            {getRecommendedBadge()}
+          </div>
         </div>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-primary-600">
-              {operator.currentAPY.toFixed(1)}%
+            <div className={`text-2xl font-bold ${getAPYColor(operator.currentAPY)}`}>
+              {formatPercentage(operator.currentAPY)}
             </div>
             <div className="text-sm font-medium text-muted-foreground">APY</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-foreground">
-              {operator.nominationTax}%
+              {formatPercentage(operator.nominationTax)}
             </div>
             <div className="text-sm font-medium text-muted-foreground">Tax</div>
           </div>
@@ -106,13 +116,16 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-muted-foreground">Uptime</span>
-            <span className="text-sm font-mono text-success-600">
-              {operator.uptime.toFixed(1)}%
+            <span className={`text-sm font-mono ${getUptimeColor(operator.uptime)}`}>
+              {formatPercentage(operator.uptime)}
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <div 
-              className="bg-success-500 h-2 rounded-full transition-all duration-500"
+              className={`h-2 rounded-full transition-all duration-500 ${
+                operator.uptime >= 98 ? 'bg-success-500' : 
+                operator.uptime >= 95 ? 'bg-warning-500' : 'bg-destructive-500'
+              }`}
               style={{ width: `${operator.uptime}%` }}
             />
           </div>

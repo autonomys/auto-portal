@@ -1,7 +1,7 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { OperatorFilters, OperatorGrid } from '@/components/operators';
+import { OperatorFilters, OperatorGrid, OperatorTable } from '@/components/operators';
 import { useOperators, useOperatorFilters } from '@/hooks/use-operators';
 
 interface OperatorsPageProps {
@@ -17,6 +17,7 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
 }) => {
   const { operators, loading, error, operatorCount, averageAPY, clearError } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const handleStake = (operatorId: string) => {
     if (onStake) {
@@ -79,12 +80,36 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
 
         {/* Filters & Search */}
         <div className="mb-8">
-          <OperatorFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            totalResults={operatorCount}
-            loading={loading}
-          />
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between mb-4">
+            <OperatorFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              totalResults={operatorCount}
+              loading={loading}
+            />
+            
+            {/* View Toggle (Desktop Only) */}
+            <div className="hidden lg:flex items-center space-x-2 bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className="h-8 px-3"
+              >
+                <Grid className="w-4 h-4 mr-1" />
+                Grid
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('table')}
+                className="h-8 px-3"
+              >
+                <List className="w-4 h-4 mr-1" />
+                Table
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Summary Stats (when data is loaded) */}
@@ -105,13 +130,22 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
           </div>
         )}
 
-        {/* Operator Grid */}
-        <OperatorGrid
-          operators={operators}
-          loading={loading}
-          onStake={handleStake}
-          onViewDetails={handleViewDetails}
-        />
+        {/* Operator Display */}
+        {viewMode === 'grid' ? (
+          <OperatorGrid
+            operators={operators}
+            loading={loading}
+            onStake={handleStake}
+            onViewDetails={handleViewDetails}
+          />
+        ) : (
+          <OperatorTable
+            operators={operators}
+            loading={loading}
+            onStake={handleStake}
+            onViewDetails={handleViewDetails}
+          />
+        )}
 
         {/* Load More (placeholder for future pagination) */}
         {!loading && operators.length > 0 && operators.length >= 10 && (
