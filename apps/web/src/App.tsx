@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout } from './components/layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { OperatorsPage } from './pages/operators';
 import './App.css';
 
 const App: React.FC = () => {
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'operators'>('dashboard');
+
+  if (currentPage === 'operators') {
+    return (
+      <OperatorsPage
+        onBack={() => setCurrentPage('dashboard')}
+        onStake={(operatorId) => {
+          console.log('Navigate to staking flow for operator:', operatorId);
+          // TODO: Navigate to staking flow
+        }}
+        onViewDetails={(operatorId) => {
+          console.log('View details for operator:', operatorId);
+          // TODO: Navigate to operator details
+        }}
+      />
+    );
+  }
+
   return (
     <Layout className="py-12">
       <div className="space-y-12">
@@ -59,9 +78,19 @@ const App: React.FC = () => {
               <CardDescription className="mb-4 font-sans">
                 Connect your wallet to begin staking with Autonomys operators
               </CardDescription>
-              <Button size="lg" className="font-sans">
-                Connect Wallet
-              </Button>
+              <div className="space-x-4">
+                <Button size="lg" className="font-sans">
+                  Connect Wallet
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="font-sans"
+                  onClick={() => setCurrentPage('operators')}
+                >
+                  Browse Operators
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
