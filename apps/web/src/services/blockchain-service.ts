@@ -15,6 +15,49 @@ import { CACHE_DURATION } from '@/types/blockchain';
 // Target operators as specified in the requirements
 const TARGET_OPERATORS = ['0', '1', '3'];
 
+// Helper functions for safe type conversion
+const safeToBigInt = (value: any, defaultValue: bigint = 0n): bigint => {
+  if (value === null || value === undefined) {
+    return defaultValue;
+  }
+  
+  if (typeof value === 'bigint') {
+    return value;
+  }
+  
+  if (typeof value === 'string' || typeof value === 'number') {
+    try {
+      return BigInt(value);
+    } catch (error) {
+      console.warn('Failed to convert to BigInt:', value, error);
+      return defaultValue;
+    }
+  }
+  
+  console.warn('Unexpected type for BigInt conversion:', typeof value, value);
+  return defaultValue;
+};
+
+const safeToString = (value: any): string => {
+  if (value === null || value === undefined) {
+    return 'inactive';
+  }
+  
+  if (typeof value === 'string') {
+    return value;
+  }
+  
+  if (Array.isArray(value) && value.length > 0) {
+    return String(value[0]);
+  }
+  
+  if (typeof value === 'object' && value.toString) {
+    return value.toString();
+  }
+  
+  return String(value);
+};
+
 // Simple in-memory cache
 const cache: BlockchainCache = {
   operators: new Map(),
@@ -35,28 +78,33 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
       try {
         console.log(`Fetching operator ${id} from blockchain`);
-        const operatorData = await operator(api, id);
+        const operatorData = await operator(api as any, id);
         
-        // Check if operatorData is null, undefined, or missing required fields
-        if (!operatorData || 
-            !operatorData.signingKey ||
-            operatorData.currentTotalStake === undefined ||
-            operatorData.minimumNominatorStake === undefined ||
-            operatorData.nominationTax === undefined) {
-          console.warn(`Operator ${id} not found or has invalid data`);
+        // Check if operatorData is null or undefined
+        if (!operatorData) {
+          console.warn(`Operator ${id} returned null/undefined from API`);
           return null;
         }
 
-        // Additional validation for required fields
-        const validatedData = {
-          signingKey: operatorData.signingKey,
-          currentTotalStake: operatorData.currentTotalStake,
-          minimumNominatorStake: operatorData.minimumNominatorStake,
-          nominationTax: operatorData.nominationTax,
-          status: operatorData.status || 'inactive',
-          currentEpochRewards: operatorData.currentEpochRewards || 0n,
-          currentTotalShares: operatorData.currentTotalShares || 0n,
+        // Log the actual data structure for debugging
+        console.log(`Operator ${id} raw data:`, operatorData);
+
+        // Safely extract and validate fields with proper type conversion
+        const validatedData: OperatorRpcData = {
+          signingKey: operatorData.signingKey || '',
+          currentTotalStake: safeToBigInt(operatorData.currentTotalStake),
+          minimumNominatorStake: safeToBigInt(operatorData.minimumNominatorStake),
+          nominationTax: safeToBigInt(operatorData.nominationTax),
+          status: safeToString(operatorData.status),
+          currentEpochRewards: safeToBigInt(operatorData.currentEpochRewards, 0n),
+          currentTotalShares: safeToBigInt(operatorData.currentTotalShares, 0n),
         };
+
+        // Validate required fields after conversion
+        if (!validatedData.signingKey) {
+          console.warn(`Operator ${id} missing signingKey`);
+          return null;
+        }
 
         // Cache the result
         cache.operators.set(id, {
@@ -94,20 +142,41 @@ export const fetchOperatorById = async (operatorId: string): Promise<OperatorDet
     }
 
     console.log(`Fetching operator ${operatorId} details from blockchain`);
-    const operatorData = await operator(api, operatorId);
+    const operatorData = await operator(api as any, operatorId);
     
+    // Check if operatorData is null or undefined
     if (!operatorData) {
-      console.warn(`Operator ${operatorId} not found`);
+      console.warn(`Operator ${operatorId} returned null/undefined from API`);
+      return null;
+    }
+
+    // Log the actual data structure for debugging
+    console.log(`Operator ${operatorId} raw data:`, operatorData);
+
+    // Safely extract and validate fields with proper type conversion
+    const validatedData: OperatorRpcData = {
+      signingKey: operatorData.signingKey || '',
+      currentTotalStake: safeToBigInt(operatorData.currentTotalStake),
+      minimumNominatorStake: safeToBigInt(operatorData.minimumNominatorStake),
+      nominationTax: safeToBigInt(operatorData.nominationTax),
+      status: safeToString(operatorData.status),
+      currentEpochRewards: safeToBigInt(operatorData.currentEpochRewards, 0n),
+      currentTotalShares: safeToBigInt(operatorData.currentTotalShares, 0n),
+    };
+
+    // Validate required fields after conversion
+    if (!validatedData.signingKey) {
+      console.warn(`Operator ${operatorId} missing signingKey`);
       return null;
     }
 
     // Cache the result
     cache.operators.set(operatorId, {
-      data: operatorData as OperatorRpcData,
+      data: validatedData,
       timestamp: Date.now(),
     });
 
-    return mapRpcOperatorToDetails(operatorData as OperatorRpcData, operatorId);
+    return mapRpcOperatorToDetails(validatedData, operatorId);
   } catch (error) {
     const sdkError = handleSdkError(error, 'fetch_operator_details');
     console.error(`Failed to fetch operator ${operatorId}:`, sdkError);
@@ -120,13 +189,13 @@ export const fetchUserBalance = async (address: string): Promise<string> => {
     // Check cache first
     const cached = cache.balances.get(address);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION.BALANCES) {
-      return formatAi3(cached.data.free);
+      return formatAi3(cached.data.free.toString());
     }
 
     const api = await getApiConnection();
     console.log(`Fetching balance for address ${address}`);
     
-    const balanceData = await balance(api, address);
+    const balanceData = await balance(api as any, address);
     
     if (!balanceData) {
       console.warn(`Balance not found for address ${address}`);
@@ -157,7 +226,7 @@ export const fetchDomains = async (): Promise<DomainRpcData[]> => {
     const api = await getApiConnection();
     console.log('Fetching domains from blockchain');
     
-    const domainsData = await domains(api);
+    const domainsData = await domains(api as any);
     
     if (!domainsData) {
       console.warn('No domains found');
