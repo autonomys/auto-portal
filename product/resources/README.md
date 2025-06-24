@@ -74,6 +74,27 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Creating appropriate messaging
 - Setting correct user expectations
 
+### `auto-sdk-integration.md`
+
+**Purpose:** Comprehensive guide for integrating Auto SDK with the staking interface  
+**Contents:**
+
+- Auto SDK package overview and installation
+- Key staking functions and operations
+- Data structures and type definitions
+- Real data integration requirements
+- Unit conversion utilities (Shannon ↔ AI3)
+- Error handling patterns
+- Performance considerations and caching
+- Security guidelines
+
+**Use Cases:**
+
+- Implementing real blockchain data integration
+- Replacing mock data with Auto SDK calls
+- Understanding RPC connection patterns
+- Following integration best practices
+
 ---
 
 ## How to Use These Resources
@@ -83,18 +104,21 @@ This folder contains research findings, UX patterns, and insights gathered durin
 1. **Reference pain points** from `polkadot-apps-analysis.md` to avoid similar issues
 2. **Apply patterns** from `lido-ux-patterns.md` and `keplr-validator-selection.md`
 3. **Check protocol constraints** in `protocol-insights.md` before finalizing designs
+4. **Follow integration patterns** from `auto-sdk-integration.md` for development
 
 ### For Product Requirements
 
 - Use insights to validate feature requirements
 - Ensure technical feasibility with protocol mechanics
 - Incorporate best practices into user stories
+- Plan Auto SDK integration architecture
 
 ### For Development Planning
 
 - Understand data requirements from protocol insights
 - Plan component architecture based on UX patterns
 - Anticipate technical challenges from current state analysis
+- Follow Auto SDK integration guidelines for real data
 
 ---
 
@@ -105,6 +129,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - **Interface Analysis:** Direct examination of live applications
 - **Documentation Review:** Official protocol specifications and guides
 - **Pattern Identification:** Common UX approaches across platforms
+- **SDK Research:** Comprehensive Auto SDK documentation review
 
 ### Analysis Framework
 
@@ -112,6 +137,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - **Best Practices:** Proven patterns from successful applications
 - **Protocol Reality:** Technical constraints and opportunities
 - **Design Implications:** How findings inform our decisions
+- **Integration Patterns:** Technical implementation guidelines
 
 ---
 
@@ -123,6 +149,8 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Protocol specifications change
 - User feedback reveals new insights
 - Design patterns evolve
+- Auto SDK updates or changes
+- New integration patterns discovered
 
 ### How to Update
 
@@ -130,6 +158,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 2. Update existing files with new findings
 3. Cross-reference insights across documents
 4. Update this README with new file descriptions
+5. Maintain integration guidelines current with Auto SDK versions
 
 ---
 
@@ -141,12 +170,19 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - `staking-prd.md` - Product requirements informed by these resources
 - `competitive-audit.md` - High-level competitive analysis summary
 
+### In User Stories Directory
+
+- `../user-stories/staking-form-mockup.md` - UI implementation story
+- `../user-stories/auto-sdk-integration.md` - Real data integration story
+
 ### External References
 
 - [Autonomys Staking Documentation](https://docs.autonomys.xyz/staking/operator/polkadot)
 - [Protocol Staking Specification](https://github.com/subspace/protocol-specs/blob/main/docs/decex/staking.md)
-- [Auto SDK Consensus Package](https://github.com/autonomys/auto-sdk/tree/main/packages/auto-consensus)
+- [Auto SDK Documentation](https://develop.autonomys.xyz/sdk/auto-consensus)
+- [Auto SDK GitHub Repository](https://github.com/autonomys/auto-sdk)
+- [Taurus Testnet RPC](wss://rpc.taurus.autonomys.xyz/ws)
 
 ---
 
-_These resources are living documents that should be updated as we learn more about user needs and technical capabilities._
+_These resources are living documents that should be updated as we learn more about user needs, technical capabilities, and integration patterns._
