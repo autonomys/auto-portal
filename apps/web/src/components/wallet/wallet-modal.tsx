@@ -14,7 +14,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   const {
     availableWallets,
     connectWallet,
-    isLoading,
     isInitializing,
     connectionError,
     clearError,
