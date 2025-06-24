@@ -4,7 +4,7 @@
  */
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { ConnectionError, handleSdkError } from '@/utils/error-handling';
+import { ConnectionError } from '@/utils/error-handling';
 import type { ApiConnection, BlockchainConfig } from '@/types/blockchain';
 
 const DEFAULT_CONFIG: BlockchainConfig = {
@@ -15,7 +15,9 @@ const DEFAULT_CONFIG: BlockchainConfig = {
 
 let apiInstance: ApiConnection | null = null;
 
-export const getApiConnection = async (config: Partial<BlockchainConfig> = {}): Promise<ApiPromise> => {
+export const getApiConnection = async (
+  config: Partial<BlockchainConfig> = {},
+): Promise<ApiPromise> => {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
   // Return existing connection if still valid
@@ -25,7 +27,7 @@ export const getApiConnection = async (config: Partial<BlockchainConfig> = {}): 
 
   try {
     console.log(`Connecting to Autonomys RPC at ${finalConfig.rpcEndpoint}`);
-    
+
     const provider = new WsProvider(finalConfig.rpcEndpoint);
     const api = await ApiPromise.create({ provider });
 
@@ -42,7 +44,10 @@ export const getApiConnection = async (config: Partial<BlockchainConfig> = {}): 
     console.log('Successfully connected to Autonomys RPC');
     return api;
   } catch (error) {
-    const connectionError = new ConnectionError(finalConfig.rpcEndpoint, error instanceof Error ? error : undefined);
+    const connectionError = new ConnectionError(
+      finalConfig.rpcEndpoint,
+      error instanceof Error ? error : undefined,
+    );
     console.error('Failed to connect to Autonomys RPC:', connectionError);
     throw connectionError;
   }
@@ -60,7 +65,11 @@ export const disconnectApi = async (): Promise<void> => {
   apiInstance = null;
 };
 
-export const getConnectionStatus = (): { connected: boolean; endpoint?: string; connectedAt?: Date } => {
+export const getConnectionStatus = (): {
+  connected: boolean;
+  endpoint?: string;
+  connectedAt?: Date;
+} => {
   if (!apiInstance) {
     return { connected: false };
   }

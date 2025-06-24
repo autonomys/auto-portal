@@ -48,6 +48,6 @@ export interface BlockchainCache {
 
 export const CACHE_DURATION = {
   OPERATORS: 30 * 1000, // 30 seconds
-  BALANCES: 10 * 1000,  // 10 seconds
+  BALANCES: 10 * 1000, // 10 seconds
   DOMAINS: 5 * 60 * 1000, // 5 minutes
 } as const;

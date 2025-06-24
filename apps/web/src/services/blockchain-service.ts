@@ -3,11 +3,11 @@
  * Fetches real data from Autonomys blockchain
  */
 
-import { operators, operator, balance, domains } from '@autonomys/auto-consensus';
+import { operator, balance, domains } from '@autonomys/auto-consensus';
 import { getApiConnection } from './connection-service';
 import { mapRpcOperatorToUi, mapRpcOperatorToDetails } from './operator-mapper-service';
 import { formatAi3 } from '@/utils/unit-conversion';
-import { OperatorNotFoundError, handleSdkError } from '@/utils/error-handling';
+import { handleSdkError } from '@/utils/error-handling';
 import type { Operator, OperatorDetails } from '@/types/operator';
 import type { OperatorRpcData, DomainRpcData, BlockchainCache } from '@/types/blockchain';
 import { CACHE_DURATION } from '@/types/blockchain';
@@ -16,15 +16,15 @@ import { CACHE_DURATION } from '@/types/blockchain';
 const TARGET_OPERATORS = ['0', '1', '3'];
 
 // Helper functions for safe type conversion
-const safeToBigInt = (value: any, defaultValue: bigint = 0n): bigint => {
+const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
   if (value === null || value === undefined) {
     return defaultValue;
   }
-  
+
   if (typeof value === 'bigint') {
     return value;
   }
-  
+
   if (typeof value === 'string' || typeof value === 'number') {
     try {
       return BigInt(value);
@@ -33,28 +33,28 @@ const safeToBigInt = (value: any, defaultValue: bigint = 0n): bigint => {
       return defaultValue;
     }
   }
-  
+
   console.warn('Unexpected type for BigInt conversion:', typeof value, value);
   return defaultValue;
 };
 
-const safeToString = (value: any): string => {
+const safeToString = (value: unknown): string => {
   if (value === null || value === undefined) {
     return 'inactive';
   }
-  
+
   if (typeof value === 'string') {
     return value;
   }
-  
+
   if (Array.isArray(value) && value.length > 0) {
     return String(value[0]);
   }
-  
+
   if (typeof value === 'object' && value.toString) {
     return value.toString();
   }
-  
+
   return String(value);
 };
 
@@ -68,8 +68,8 @@ const cache: BlockchainCache = {
 export const fetchOperators = async (): Promise<Operator[]> => {
   try {
     const api = await getApiConnection();
-    
-    const operatorPromises = TARGET_OPERATORS.map(async (id) => {
+
+    const operatorPromises = TARGET_OPERATORS.map(async id => {
       // Check cache first
       const cached = cache.operators.get(id);
       if (cached && Date.now() - cached.timestamp < CACHE_DURATION.OPERATORS) {
@@ -78,8 +78,9 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
       try {
         console.log(`Fetching operator ${id} from blockchain`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const operatorData = await operator(api as any, id);
-        
+
         // Check if operatorData is null or undefined
         if (!operatorData) {
           console.warn(`Operator ${id} returned null/undefined from API`);
@@ -121,7 +122,7 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
     const results = await Promise.all(operatorPromises);
     const validOperators = results.filter(Boolean) as Operator[];
-    
+
     console.log(`Successfully fetched ${validOperators.length} operators`);
     return validOperators;
   } catch (error) {
@@ -134,7 +135,7 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 export const fetchOperatorById = async (operatorId: string): Promise<OperatorDetails | null> => {
   try {
     const api = await getApiConnection();
-    
+
     // Check cache first
     const cached = cache.operators.get(operatorId);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION.OPERATORS) {
@@ -142,8 +143,9 @@ export const fetchOperatorById = async (operatorId: string): Promise<OperatorDet
     }
 
     console.log(`Fetching operator ${operatorId} details from blockchain`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const operatorData = await operator(api as any, operatorId);
-    
+
     // Check if operatorData is null or undefined
     if (!operatorData) {
       console.warn(`Operator ${operatorId} returned null/undefined from API`);
@@ -194,9 +196,10 @@ export const fetchUserBalance = async (address: string): Promise<string> => {
 
     const api = await getApiConnection();
     console.log(`Fetching balance for address ${address}`);
-    
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const balanceData = await balance(api as any, address);
-    
+
     if (!balanceData) {
       console.warn(`Balance not found for address ${address}`);
       return '0';
@@ -225,9 +228,10 @@ export const fetchDomains = async (): Promise<DomainRpcData[]> => {
 
     const api = await getApiConnection();
     console.log('Fetching domains from blockchain');
-    
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const domainsData = await domains(api as any);
-    
+
     if (!domainsData) {
       console.warn('No domains found');
       return [];
@@ -235,10 +239,12 @@ export const fetchDomains = async (): Promise<DomainRpcData[]> => {
 
     // Cache the result - store as unknown first, then cast as needed
     cache.domains = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: domainsData as any,
       timestamp: Date.now(),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return domainsData as any;
   } catch (error) {
     const sdkError = handleSdkError(error, 'fetch_domains');

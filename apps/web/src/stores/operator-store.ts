@@ -24,8 +24,8 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
     try {
       const operators = await operatorService.getAllOperators();
-      set({ 
-        operators, 
+      set({
+        operators,
         loading: false,
         lastUpdated: new Date(),
       });

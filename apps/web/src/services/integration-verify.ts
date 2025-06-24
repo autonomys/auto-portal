@@ -1,7 +1,7 @@
 /**
  * Integration Verification Script for Blockchain Service
  * Run this manually to verify Auto SDK integration works
- * 
+ *
  * Usage: Import and call verifyIntegration() in console or component
  */
 
@@ -14,7 +14,7 @@ export const verifyIntegration = async (): Promise<void> => {
   try {
     // 1. Test RPC Connection
     console.log('1. Testing RPC Connection...');
-    const api = await getApiConnection();
+    await getApiConnection();
     const connectionStatus = getConnectionStatus();
     console.log('✅ Connected to:', connectionStatus.endpoint);
     console.log('✅ Connection status:', connectionStatus.connected);
@@ -23,10 +23,10 @@ export const verifyIntegration = async (): Promise<void> => {
     // 2. Test Operator Fetching
     console.log('\n2. Testing Operator Fetching...');
     clearCache(); // Start fresh
-    
+
     const operators = await fetchOperators();
     console.log(`✅ Fetched ${operators.length} operators successfully`);
-    
+
     if (operators.length > 0) {
       console.log('✅ Sample operator data:');
       operators.forEach((op, index) => {
@@ -40,18 +40,20 @@ export const verifyIntegration = async (): Promise<void> => {
         });
       });
     } else {
-      console.log('⚠️ No operators found. This might be expected if operators 0, 1, 3 are not active on testnet.');
+      console.log(
+        '⚠️ No operators found. This might be expected if operators 0, 1, 3 are not active on testnet.',
+      );
     }
 
     // 3. Test Individual Operator Fetching
     console.log('\n3. Testing Individual Operator Fetching...');
     const targetOperators = ['0', '1', '3'];
-    
+
     for (const operatorId of targetOperators) {
       try {
         console.log(`\n  Testing operator ${operatorId}...`);
         const operatorDetails = await fetchOperatorById(operatorId);
-        
+
         if (operatorDetails) {
           console.log(`  ✅ Operator ${operatorId} found:`, {
             id: operatorDetails.id,
@@ -70,19 +72,19 @@ export const verifyIntegration = async (): Promise<void> => {
 
     // 4. Test Caching
     console.log('\n4. Testing Caching Performance...');
-    
+
     const start1 = Date.now();
     await fetchOperators();
     const time1 = Date.now() - start1;
-    
+
     const start2 = Date.now();
     await fetchOperators(); // Should use cache
     const time2 = Date.now() - start2;
-    
+
     console.log(`✅ First call: ${time1}ms`);
     console.log(`✅ Cached call: ${time2}ms`);
     console.log(`✅ Cache speedup: ${Math.round((time1 / time2) * 100) / 100}x faster`);
-    
+
     const cacheStats = getCacheStats();
     console.log('✅ Cache stats:', cacheStats);
 
@@ -106,7 +108,6 @@ export const verifyIntegration = async (): Promise<void> => {
     console.log(`  - Individual Fetching: ✅ Working`);
     console.log(`  - Caching: ✅ Working (${Math.round((time1 / time2) * 100) / 100}x speedup)`);
     console.log(`  - Error Handling: ✅ Working`);
-
   } catch (error) {
     console.error('❌ Integration verification failed:', error);
     throw error;
@@ -129,7 +130,9 @@ export const runVerification = async (): Promise<boolean> => {
 };
 
 // Export for easy console usage
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (globalThis as any).verifyAutoSDK = verifyIntegration;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (globalThis as any).runAutoSDKVerification = runVerification;
 
 console.log('🔧 Integration verification functions available:');
