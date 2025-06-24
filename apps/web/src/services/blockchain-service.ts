@@ -17,29 +17,57 @@ const TARGET_OPERATORS = ['0', '1', '3'];
 
 // Helper functions for safe type conversion
 const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
-  if (value === null || value === undefined) {
+  // More aggressive null/undefined checking
+  if (value === null || value === undefined || value === '') {
+    console.log('safeToBigInt: null/undefined/empty value, using default:', defaultValue);
     return defaultValue;
   }
-
+  
+  // Already a BigInt
   if (typeof value === 'bigint') {
     return value;
   }
-
+  
+  // Handle string and number types
   if (typeof value === 'string' || typeof value === 'number') {
+    // Additional check for empty strings or NaN
+    if (value === '' || (typeof value === 'number' && isNaN(value))) {
+      console.log('safeToBigInt: empty string or NaN, using default:', defaultValue);
+      return defaultValue;
+    }
+    
     try {
-      return BigInt(value);
+      const result = BigInt(value);
+      console.log('safeToBigInt: converted', value, 'to', result);
+      return result;
     } catch (error) {
-      console.warn('Failed to convert to BigInt:', value, error);
+      console.warn('safeToBigInt: Failed to convert to BigInt:', value, error);
       return defaultValue;
     }
   }
-
-  console.warn('Unexpected type for BigInt conversion:', typeof value, value);
+  
+  // Handle objects that might have toString or valueOf methods
+  if (typeof value === 'object' && value !== null) {
+    console.log('safeToBigInt: object value, trying toString:', value);
+    
+    try {
+      // Try to convert object to string first
+      const stringValue = String(value);
+      if (stringValue && stringValue !== '[object Object]') {
+        return BigInt(stringValue);
+      }
+    } catch (error) {
+      console.warn('safeToBigInt: Failed to convert object to BigInt:', value, error);
+    }
+  }
+  
+  console.warn('safeToBigInt: Unexpected type for BigInt conversion:', typeof value, value, 'using default:', defaultValue);
   return defaultValue;
 };
 
 const safeToString = (value: unknown): string => {
   if (value === null || value === undefined) {
+    console.log('safeToString: null/undefined value, using default: inactive');
     return 'inactive';
   }
 
@@ -47,15 +75,30 @@ const safeToString = (value: unknown): string => {
     return value;
   }
 
-  if (Array.isArray(value) && value.length > 0) {
-    return String(value[0]);
+  if (Array.isArray(value)) {
+    if (value.length > 0) {
+      console.log('safeToString: array value, using first element:', value[0]);
+      return String(value[0]);
+    } else {
+      console.log('safeToString: empty array, using default: inactive');
+      return 'inactive';
+    }
   }
 
-  if (typeof value === 'object' && value.toString) {
-    return value.toString();
+  if (typeof value === 'object' && value !== null) {
+    try {
+      const stringValue = String(value);
+      console.log('safeToString: object value converted to:', stringValue);
+      return stringValue;
+    } catch (error) {
+      console.warn('safeToString: Failed to convert object to string:', value, error);
+      return 'inactive';
+    }
   }
 
-  return String(value);
+  const result = String(value);
+  console.log('safeToString: converted', value, 'to', result);
+  return result;
 };
 
 // Simple in-memory cache
@@ -89,6 +132,26 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
         // Log the actual data structure for debugging
         console.log(`Operator ${id} raw data:`, operatorData);
+        console.log(`Operator ${id} data type:`, typeof operatorData);
+        console.log(`Operator ${id} is null:`, operatorData === null);
+        console.log(`Operator ${id} is undefined:`, operatorData === undefined);
+        
+        if (operatorData && typeof operatorData === 'object') {
+          console.log(`Operator ${id} keys:`, Object.keys(operatorData));
+          
+          // Log each field with detailed type info
+          const expectedFields = ['signingKey', 'currentTotalStake', 'minimumNominatorStake', 'nominationTax', 'status'];
+          expectedFields.forEach(field => {
+            const value = (operatorData as any)[field];
+            console.log(`Operator ${id} ${field}:`, {
+              value,
+              type: typeof value,
+              constructor: value?.constructor?.name,
+              isNull: value === null,
+              isUndefined: value === undefined,
+            });
+          });
+        }
 
         // Safely extract and validate fields with proper type conversion
         const validatedData: OperatorRpcData = {
