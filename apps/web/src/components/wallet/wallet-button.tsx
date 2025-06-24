@@ -50,8 +50,15 @@ interface WalletButtonProps {
 }
 
 export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
-  const { isConnected, isConnecting, selectedAccount, accounts, selectAccount, disconnectWallet } =
-    useWallet();
+  const {
+    isConnected,
+    isLoading,
+    loadingType,
+    selectedAccount,
+    accounts,
+    selectAccount,
+    disconnectWallet,
+  } = useWallet();
 
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -65,12 +72,14 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
     setShowDropdown(false);
   };
 
-  if (isConnecting) {
+  // Show loading state
+  if (isLoading) {
+    const loadingText = loadingType === 'initializing' ? 'Reconnecting...' : 'Connecting...';
     return (
       <Button disabled className="relative">
         <div className="flex items-center space-x-2">
           <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <span>Connecting...</span>
+          <span>{loadingText}</span>
         </div>
       </Button>
     );

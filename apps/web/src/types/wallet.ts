@@ -1,10 +1,13 @@
 import type { Wallet, WalletAccount } from '@talismn/connect-wallets';
 import type { InjectedExtension } from '@polkadot/extension-inject/types';
 
+export type LoadingType = 'connecting' | 'initializing' | null;
+
 export interface WalletState {
   // Connection state
   isConnected: boolean;
-  isConnecting: boolean;
+  isLoading: boolean;
+  loadingType: LoadingType;
   connectionError: string | null;
 
   // Wallet data
@@ -30,7 +33,12 @@ export interface StoredPreferences {
   preferredAccount: string | null;
 }
 
-export type WalletConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type WalletConnectionStatus =
+  | 'disconnected'
+  | 'connecting'
+  | 'initializing'
+  | 'connected'
+  | 'error';
 
 // Legacy interfaces for backward compatibility
 export interface LegacyWalletState {
