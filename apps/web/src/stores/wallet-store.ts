@@ -10,13 +10,8 @@ import {
 } from '@/constants/wallets';
 import type { Wallet } from '@talismn/connect-wallets';
 
-interface ExtendedWalletState extends WalletState {
-  isInitializing: boolean;
-  lastConnectionAttempt: number | null;
-}
-
 // Enhanced wallet store with improved state management and error handling
-export const useWalletStore = create<ExtendedWalletState>()(
+export const useWalletStore = create<WalletState>()(
   persist(
     (set, get) => ({
       // State
@@ -29,7 +24,6 @@ export const useWalletStore = create<ExtendedWalletState>()(
       accounts: [],
       injector: null,
       availableWallets: [],
-      lastConnectionAttempt: null,
 
       // Actions
       detectWallets: () => {
@@ -67,7 +61,6 @@ export const useWalletStore = create<ExtendedWalletState>()(
         set({
           isConnecting: true,
           connectionError: null,
-          lastConnectionAttempt: Date.now(),
         });
 
         // Set up connection timeout
@@ -222,7 +215,6 @@ export const useWalletStore = create<ExtendedWalletState>()(
           accounts: [],
           injector: null,
           connectionError: null,
-          lastConnectionAttempt: null,
         });
       },
 
