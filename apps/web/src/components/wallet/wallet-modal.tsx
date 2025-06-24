@@ -169,7 +169,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
               wallet={wallet}
               onConnect={handleConnect}
               isConnecting={connectingWallet === wallet.extensionName}
-              disabled={isInitializing || (connectingWallet !== null && connectingWallet !== wallet.extensionName)}
+              disabled={
+                isInitializing ||
+                (connectingWallet !== null && connectingWallet !== wallet.extensionName)
+              }
             />
           ))}
 
