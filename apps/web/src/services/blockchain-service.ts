@@ -37,23 +37,37 @@ export const fetchOperators = async (): Promise<Operator[]> => {
         console.log(`Fetching operator ${id} from blockchain`);
         const operatorData = await operator(api, id);
         
-        if (!operatorData) {
-          throw new OperatorNotFoundError(id);
+        // Check if operatorData is null, undefined, or missing required fields
+        if (!operatorData || 
+            !operatorData.signingKey ||
+            operatorData.currentTotalStake === undefined ||
+            operatorData.minimumNominatorStake === undefined ||
+            operatorData.nominationTax === undefined) {
+          console.warn(`Operator ${id} not found or has invalid data`);
+          return null;
         }
+
+        // Additional validation for required fields
+        const validatedData = {
+          signingKey: operatorData.signingKey,
+          currentTotalStake: operatorData.currentTotalStake,
+          minimumNominatorStake: operatorData.minimumNominatorStake,
+          nominationTax: operatorData.nominationTax,
+          status: operatorData.status || 'inactive',
+          currentEpochRewards: operatorData.currentEpochRewards || 0n,
+          currentTotalShares: operatorData.currentTotalShares || 0n,
+        };
 
         // Cache the result
         cache.operators.set(id, {
-          data: operatorData as OperatorRpcData,
+          data: validatedData,
           timestamp: Date.now(),
         });
 
-        return mapRpcOperatorToUi(operatorData as OperatorRpcData, id);
+        return mapRpcOperatorToUi(validatedData, id);
       } catch (error) {
-        if (error instanceof OperatorNotFoundError) {
-          console.warn(`Operator ${id} not found or inactive`);
-          return null;
-        }
-        throw error;
+        console.warn(`Failed to fetch operator ${id}:`, error);
+        return null;
       }
     });
 
