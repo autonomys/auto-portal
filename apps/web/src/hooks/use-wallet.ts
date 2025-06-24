@@ -15,6 +15,7 @@ export const useWallet = () => {
     // State
     isConnected: store.isConnected,
     isConnecting: store.isConnecting,
+    isInitializing: store.isInitializing,
     connectionError: store.connectionError,
     selectedWallet: store.selectedWallet,
     selectedAccount: store.selectedAccount,
@@ -31,5 +32,7 @@ export const useWallet = () => {
     // Computed
     hasWallets: store.availableWallets.length > 0,
     selectedAddress: store.selectedAccount?.address || null,
+    isLoading: store.isConnecting || store.isInitializing,
+    canConnect: !store.isConnecting && !store.isInitializing && !store.isConnected,
   };
 };

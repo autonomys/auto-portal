@@ -5,6 +5,7 @@ export interface WalletState {
   // Connection state
   isConnected: boolean;
   isConnecting: boolean;
+  isInitializing: boolean;
   connectionError: string | null;
 
   // Wallet data
@@ -30,7 +31,7 @@ export interface StoredPreferences {
   preferredAccount: string | null;
 }
 
-export type WalletConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type WalletConnectionStatus = 'disconnected' | 'connecting' | 'initializing' | 'connected' | 'error';
 
 // Legacy interfaces for backward compatibility
 export interface LegacyWalletState {

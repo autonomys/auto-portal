@@ -16,9 +16,15 @@ interface WalletOptionProps {
   wallet: WalletInfo;
   onConnect: (extensionName: string) => void;
   isConnecting: boolean;
+  disabled?: boolean;
 }
 
-export const WalletOption: React.FC<WalletOptionProps> = ({ wallet, onConnect, isConnecting }) => {
+export const WalletOption: React.FC<WalletOptionProps> = ({ 
+  wallet, 
+  onConnect, 
+  isConnecting, 
+  disabled = false 
+}) => {
   if (!wallet.installed) {
     return (
       <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -53,20 +59,26 @@ export const WalletOption: React.FC<WalletOptionProps> = ({ wallet, onConnect, i
     );
   }
 
+  const isDisabled = isConnecting || disabled;
+
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+    <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+      isDisabled ? 'opacity-50' : 'hover:bg-accent/50'
+    }`}>
       <div className="flex items-center space-x-3">
         {wallet.logo && (
           <img src={wallet.logo.src} alt={wallet.logo.alt || wallet.title} className="w-8 h-8" />
         )}
         <div>
           <span className="font-medium">{wallet.title}</span>
-          <p className="text-sm text-muted-foreground">Ready to connect</p>
+          <p className="text-sm text-muted-foreground">
+            {disabled ? 'Please wait...' : 'Ready to connect'}
+          </p>
         </div>
       </div>
       <Button
         onClick={() => onConnect(wallet.extensionName)}
-        disabled={isConnecting}
+        disabled={isDisabled}
         className="min-w-[80px]"
       >
         {isConnecting ? 'Connecting...' : 'Connect'}
