@@ -3,21 +3,51 @@ import { Layout } from './components/layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OperatorsPage } from './pages/operators';
+import { StakingPage } from './pages/StakingPage';
 import './App.css';
 
+type Page = 'dashboard' | 'operators' | 'staking';
+
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'operators'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [selectedOperatorId, setSelectedOperatorId] = useState<string | null>(null);
+
+  const handleStakeOperator = (operatorId: string) => {
+    setSelectedOperatorId(operatorId);
+    setCurrentPage('staking');
+  };
+
+  const handleBackFromStaking = () => {
+    setCurrentPage('operators');
+  };
+
+  const handleNavigate = (page: 'dashboard' | 'operators') => {
+    setCurrentPage(page);
+  };
+
+  // Map internal page state to what Layout expects
+  const getLayoutCurrentPage = (): 'dashboard' | 'operators' => {
+    return currentPage === 'staking' ? 'operators' : currentPage;
+  };
+
+  if (currentPage === 'staking' && selectedOperatorId) {
+    return (
+      <StakingPage
+        operatorId={selectedOperatorId}
+        onBack={handleBackFromStaking}
+        onNavigate={handleNavigate}
+        currentPage="operators"
+      />
+    );
+  }
 
   if (currentPage === 'operators') {
     return (
       <OperatorsPage
         onBack={() => setCurrentPage('dashboard')}
-        onNavigate={setCurrentPage}
+        onNavigate={handleNavigate}
         currentPage={currentPage}
-        onStake={operatorId => {
-          console.log('Navigate to staking flow for operator:', operatorId);
-          // TODO: Navigate to staking flow
-        }}
+        onStake={handleStakeOperator}
         onViewDetails={operatorId => {
           console.log('View details for operator:', operatorId);
           // TODO: Navigate to operator details
@@ -27,7 +57,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout className="py-12" onNavigate={setCurrentPage} currentPage={currentPage}>
+    <Layout className="py-12" onNavigate={handleNavigate} currentPage={getLayoutCurrentPage()}>
       <div className="space-y-12">
         {/* Page Header */}
         <div className="border-b border-border pb-8 text-center">
