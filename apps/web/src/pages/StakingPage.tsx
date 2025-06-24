@@ -85,7 +85,11 @@ export const StakingPage: React.FC<StakingPageProps> = ({
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-destructive font-sans">Error: {error}</p>
-                <Button variant="outline" onClick={() => fetchOperators()} className="mt-4 font-sans">
+                <Button
+                  variant="outline"
+                  onClick={() => fetchOperators()}
+                  className="mt-4 font-sans"
+                >
                   Try Again
                 </Button>
               </div>
@@ -123,7 +127,7 @@ export const StakingPage: React.FC<StakingPageProps> = ({
               </h2>
               <p className="text-muted-foreground font-sans mb-6">
                 You have successfully staked {stakedAmount} AI3 to {operator.name}. Your stake will
-                become active after the next epoch (~4 hours).
+                become active after the next epoch (~10 minutes).
               </p>
               <div className="flex gap-4 justify-center">
                 <Button variant="outline" onClick={onBack} className="font-sans">
@@ -160,11 +164,7 @@ export const StakingPage: React.FC<StakingPageProps> = ({
         <OperatorSummary operator={operator} />
 
         {/* Staking Form */}
-        <StakingForm
-          operator={operator}
-          onCancel={onBack}
-          onSubmit={handleStakingSubmit}
-        />
+        <StakingForm operator={operator} onCancel={onBack} onSubmit={handleStakingSubmit} />
       </div>
     </Layout>
   );

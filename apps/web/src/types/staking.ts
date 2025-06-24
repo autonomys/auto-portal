@@ -7,7 +7,7 @@ export interface StakingFormState {
 }
 
 export interface StakingCalculations {
-  storageFound: number; // 20% included in amount
+  storageFund: number; // 20% included in amount
   netStaking: number; // 80% goes to actual staking
   transactionFee: number; // Transaction fee
   totalRequired: number; // Amount + fee

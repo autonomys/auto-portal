@@ -38,12 +38,8 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
             </span>
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-serif font-semibold text-foreground">
-              {operator.name}
-            </h2>
-            <p className="text-muted-foreground font-sans">
-              Domain: {operator.domainName}
-            </p>
+            <h2 className="text-xl font-serif font-semibold text-foreground">{operator.name}</h2>
+            <p className="text-muted-foreground font-sans">Domain: {operator.domainName}</p>
           </div>
           <Badge variant={getStatusBadgeVariant(operator.status)} className="font-sans">
             {operator.status}

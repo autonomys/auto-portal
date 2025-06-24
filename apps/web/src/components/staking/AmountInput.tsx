@@ -30,9 +30,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-foreground font-sans">
-        Amount to Stake
-      </label>
+      <label className="block text-sm font-medium text-foreground font-sans">Amount to Stake</label>
       <div className="relative">
         <Input
           type="text"
@@ -40,9 +38,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           onChange={handleInputChange}
           placeholder="0.00"
           disabled={disabled}
-          className={`font-mono text-lg pr-20 ${
-            errors.length > 0 ? 'border-destructive' : ''
-          }`}
+          className={`font-mono text-lg pr-20 ${errors.length > 0 ? 'border-destructive' : ''}`}
         />
         <div className="absolute inset-y-0 right-0 flex items-center space-x-2 pr-3">
           <Button

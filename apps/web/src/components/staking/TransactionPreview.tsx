@@ -29,7 +29,7 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
               <InfoIcon className="w-4 h-4 text-muted-foreground" />
             </div>
             <span className="font-mono font-medium text-foreground">
-              {formatAI3Amount(calculations.storageFound)} AI3
+              {formatAI3Amount(calculations.storageFund)} AI3
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -70,13 +70,11 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
       {/* Important Notes */}
       <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-4">
-          <h4 className="text-sm font-semibold text-primary font-sans mb-2">
-            Important Notes
-          </h4>
+          <h4 className="text-sm font-semibold text-primary font-sans mb-2">Important Notes</h4>
           <ul className="text-xs text-primary/80 space-y-1 font-sans">
             <li>• Storage fund is refunded when you withdraw</li>
             <li>• Rewards are automatically compounded</li>
-            <li>• Stake will be active after next epoch (~4 hours)</li>
+            <li>• Stake will be active after next epoch (~10 minutes)</li>
           </ul>
         </CardContent>
       </Card>
