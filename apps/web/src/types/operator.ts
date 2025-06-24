@@ -62,12 +62,14 @@ export interface OperatorStore {
   filteredOperators: Operator[];
   loading: boolean;
   error: string | null;
+  lastUpdated: Date | null;
 
   // Filters
   filters: FilterState;
 
   // Actions
   fetchOperators: () => Promise<void>;
+  refreshOperators: () => Promise<void>;
   setFilters: (filters: Partial<FilterState>) => void;
   applyFilters: () => void;
   refreshOperatorData: (operatorId: string) => Promise<void>;

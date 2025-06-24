@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { OperatorStore, FilterState } from '@/types/operator';
-import { operatorService } from '@/services/operatorService';
+import { operatorService } from '@/services/operator-service';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
@@ -15,6 +15,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
   filteredOperators: [],
   loading: false,
   error: null,
+  lastUpdated: null,
   filters: DEFAULT_FILTERS,
 
   // Actions
@@ -23,7 +24,11 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
     try {
       const operators = await operatorService.getAllOperators();
-      set({ operators, loading: false });
+      set({ 
+        operators, 
+        loading: false,
+        lastUpdated: new Date(),
+      });
 
       // Apply current filters
       get().applyFilters();
@@ -104,10 +109,14 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     set({ filteredOperators: filtered });
   },
 
+  refreshOperators: async () => {
+    await get().fetchOperators();
+  },
+
   refreshOperatorData: async (operatorId: string) => {
     try {
-      // For mock data, just refresh all operators (operatorId is ignored in mock)
-      void operatorId;
+      // Refresh specific operator or all operators
+      void operatorId; // For now, refresh all operators
       await get().fetchOperators();
     } catch (error) {
       const errorMessage =
