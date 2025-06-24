@@ -12,7 +12,9 @@ export const useOperators = () => {
     loading,
     error,
     filters,
+    lastUpdated,
     fetchOperators,
+    refreshOperators,
     setFilters,
     refreshOperatorData,
     clearError,
@@ -25,6 +27,17 @@ export const useOperators = () => {
     }
   }, [operators.length, loading, error, fetchOperators]);
 
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading) {
+        refreshOperators();
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [loading, refreshOperators]);
+
   return {
     // State
     operators: filteredOperators, // Return filtered operators by default
@@ -32,6 +45,7 @@ export const useOperators = () => {
     loading,
     error,
     filters,
+    lastUpdated,
 
     // Computed values
     operatorCount: filteredOperators.length,
@@ -42,6 +56,7 @@ export const useOperators = () => {
 
     // Actions
     refetch: fetchOperators,
+    refresh: refreshOperators,
     updateFilters: setFilters,
     refreshOperator: refreshOperatorData,
     clearError,
