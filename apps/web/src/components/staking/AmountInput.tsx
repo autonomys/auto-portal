@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { formatAI3Amount, DEFAULT_BALANCE } from '@/lib/staking-utils';
+import { formatAI3Amount, DEFAULT_BALANCE, TRANSACTION_FEE } from '@/lib/staking-utils';
 
 interface AmountInputProps {
   amount: string;
@@ -17,7 +17,9 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   disabled = false,
 }) => {
   const handleMaxClick = () => {
-    onAmountChange(formatAI3Amount(DEFAULT_BALANCE));
+    // Calculate maximum stakeable amount by subtracting transaction fee from available balance
+    const maxStakeableAmount = DEFAULT_BALANCE - TRANSACTION_FEE;
+    onAmountChange(formatAI3Amount(maxStakeableAmount));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
