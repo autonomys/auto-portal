@@ -50,14 +50,14 @@ interface WalletButtonProps {
 }
 
 export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
-  const { 
-    isConnected, 
-    isLoading, 
+  const {
+    isConnected,
+    isLoading,
     isInitializing,
-    selectedAccount, 
-    accounts, 
-    selectAccount, 
-    disconnectWallet 
+    selectedAccount,
+    accounts,
+    selectAccount,
+    disconnectWallet,
   } = useWallet();
 
   const [showDropdown, setShowDropdown] = useState(false);

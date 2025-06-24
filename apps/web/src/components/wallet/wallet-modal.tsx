@@ -11,12 +11,12 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) => {
-  const { 
-    availableWallets, 
-    connectWallet, 
-    isLoading, 
+  const {
+    availableWallets,
+    connectWallet,
+    isLoading,
     isInitializing,
-    connectionError, 
+    connectionError,
     clearError,
     selectedWallet,
   } = useWallet();
@@ -71,7 +71,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
             <div className="p-3 text-sm bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span className="font-medium text-blue-800">Reconnecting to {selectedWallet}...</span>
+                <span className="font-medium text-blue-800">
+                  Reconnecting to {selectedWallet}...
+                </span>
               </div>
               <div className="text-blue-700 text-xs mt-1">
                 Attempting to restore your previous wallet connection
@@ -89,10 +91,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
                     connectionError.includes('not authorised') ||
                     connectionError.includes('timeout')) && (
                     <div className="mt-2 text-xs text-red-600">
-                      {connectionError.includes('timeout') 
+                      {connectionError.includes('timeout')
                         ? '⏱️ Connection timed out. Please try again and approve the request quickly.'
-                        : '💡 Make sure to approve the connection request in your wallet extension popup'
-                      }
+                        : '💡 Make sure to approve the connection request in your wallet extension popup'}
                     </div>
                   )}
                 </div>
@@ -106,9 +107,10 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
                       onClick={() => {
                         clearError();
                         // Find the wallet that failed and retry
-                        const failedWallet = availableWallets.find(w =>
-                          connectionError.includes(w.title) || 
-                          connectionError.includes('timeout')
+                        const failedWallet = availableWallets.find(
+                          w =>
+                            connectionError.includes(w.title) ||
+                            connectionError.includes('timeout'),
                         );
                         if (failedWallet) {
                           handleConnect(failedWallet.extensionName);

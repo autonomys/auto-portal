@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getWallets, getWalletBySource } from '@talismn/connect-wallets';
 import type { WalletState } from '@/types/wallet';
-import { SUPPORTED_WALLET_EXTENSIONS, DAPP_NAME, WALLET_STORAGE_KEY, CONNECTION_TIMEOUT } from '@/constants/wallets';
+import {
+  SUPPORTED_WALLET_EXTENSIONS,
+  DAPP_NAME,
+  WALLET_STORAGE_KEY,
+  CONNECTION_TIMEOUT,
+} from '@/constants/wallets';
 import type { Wallet } from '@talismn/connect-wallets';
 
 interface ExtendedWalletState extends WalletState {
@@ -51,17 +56,17 @@ export const useWalletStore = create<ExtendedWalletState>()(
 
       connectWallet: async (extensionName: string) => {
         const { isConnecting, isInitializing } = get();
-        
+
         // Prevent multiple simultaneous connection attempts
         if (isConnecting || isInitializing) {
           console.warn('Connection already in progress, ignoring new attempt');
           return;
         }
 
-        set({ 
-          isConnecting: true, 
+        set({
+          isConnecting: true,
           connectionError: null,
-          lastConnectionAttempt: Date.now()
+          lastConnectionAttempt: Date.now(),
         });
 
         // Set up connection timeout
@@ -117,7 +122,7 @@ export const useWalletStore = create<ExtendedWalletState>()(
           clearTimeout(timeoutId);
           const errorMessage = error instanceof Error ? error.message : 'Connection failed';
           console.error('Wallet connection failed:', error);
-          
+
           set({
             isConnecting: false,
             connectionError: errorMessage,
@@ -128,7 +133,8 @@ export const useWalletStore = create<ExtendedWalletState>()(
       },
 
       initializeConnection: async () => {
-        const { selectedWallet, selectedAccount, isConnected, isInitializing, isConnecting } = get();
+        const { selectedWallet, selectedAccount, isConnected, isInitializing, isConnecting } =
+          get();
 
         // Prevent multiple simultaneous initialization attempts
         if (isInitializing || isConnecting) {
@@ -147,11 +153,11 @@ export const useWalletStore = create<ExtendedWalletState>()(
           if (!wallet?.installed) {
             // Clear invalid persisted data
             console.log('Wallet no longer installed, clearing persisted data');
-            set({ 
-              selectedWallet: null, 
-              selectedAccount: null, 
+            set({
+              selectedWallet: null,
+              selectedAccount: null,
               isConnected: false,
-              isInitializing: false 
+              isInitializing: false,
             });
             return;
           }
@@ -180,9 +186,9 @@ export const useWalletStore = create<ExtendedWalletState>()(
             } else {
               // Account no longer exists, clear data
               console.log('Account no longer exists, clearing persisted data');
-              set({ 
-                selectedWallet: null, 
-                selectedAccount: null, 
+              set({
+                selectedWallet: null,
+                selectedAccount: null,
                 isConnected: false,
                 isInitializing: false,
                 accounts: [],
@@ -225,7 +231,7 @@ export const useWalletStore = create<ExtendedWalletState>()(
           console.warn('Cannot select account when wallet is not connected');
           return;
         }
-        
+
         const account = accounts.find(acc => acc.address === address);
         if (account) {
           set({ selectedAccount: account });

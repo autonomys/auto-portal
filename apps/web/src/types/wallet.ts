@@ -31,7 +31,12 @@ export interface StoredPreferences {
   preferredAccount: string | null;
 }
 
-export type WalletConnectionStatus = 'disconnected' | 'connecting' | 'initializing' | 'connected' | 'error';
+export type WalletConnectionStatus =
+  | 'disconnected'
+  | 'connecting'
+  | 'initializing'
+  | 'connected'
+  | 'error';
 
 // Legacy interfaces for backward compatibility
 export interface LegacyWalletState {

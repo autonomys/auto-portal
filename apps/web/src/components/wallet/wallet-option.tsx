@@ -19,11 +19,11 @@ interface WalletOptionProps {
   disabled?: boolean;
 }
 
-export const WalletOption: React.FC<WalletOptionProps> = ({ 
-  wallet, 
-  onConnect, 
-  isConnecting, 
-  disabled = false 
+export const WalletOption: React.FC<WalletOptionProps> = ({
+  wallet,
+  onConnect,
+  isConnecting,
+  disabled = false,
 }) => {
   if (!wallet.installed) {
     return (
@@ -62,9 +62,11 @@ export const WalletOption: React.FC<WalletOptionProps> = ({
   const isDisabled = isConnecting || disabled;
 
   return (
-    <div className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-      isDisabled ? 'opacity-50' : 'hover:bg-accent/50'
-    }`}>
+    <div
+      className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+        isDisabled ? 'opacity-50' : 'hover:bg-accent/50'
+      }`}
+    >
       <div className="flex items-center space-x-3">
         {wallet.logo && (
           <img src={wallet.logo.src} alt={wallet.logo.alt || wallet.title} className="w-8 h-8" />
