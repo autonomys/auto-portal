@@ -22,12 +22,12 @@ const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
     console.log('safeToBigInt: null/undefined/empty value, using default:', defaultValue);
     return defaultValue;
   }
-  
+
   // Already a BigInt
   if (typeof value === 'bigint') {
     return value;
   }
-  
+
   // Handle string and number types
   if (typeof value === 'string' || typeof value === 'number') {
     // Additional check for empty strings or NaN
@@ -35,7 +35,7 @@ const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
       console.log('safeToBigInt: empty string or NaN, using default:', defaultValue);
       return defaultValue;
     }
-    
+
     try {
       const result = BigInt(value);
       console.log('safeToBigInt: converted', value, 'to', result);
@@ -45,11 +45,11 @@ const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
       return defaultValue;
     }
   }
-  
+
   // Handle objects that might have toString or valueOf methods
   if (typeof value === 'object' && value !== null) {
     console.log('safeToBigInt: object value, trying toString:', value);
-    
+
     try {
       // Try to convert object to string first
       const stringValue = String(value);
@@ -60,8 +60,14 @@ const safeToBigInt = (value: unknown, defaultValue: bigint = 0n): bigint => {
       console.warn('safeToBigInt: Failed to convert object to BigInt:', value, error);
     }
   }
-  
-  console.warn('safeToBigInt: Unexpected type for BigInt conversion:', typeof value, value, 'using default:', defaultValue);
+
+  console.warn(
+    'safeToBigInt: Unexpected type for BigInt conversion:',
+    typeof value,
+    value,
+    'using default:',
+    defaultValue,
+  );
   return defaultValue;
 };
 
@@ -121,7 +127,7 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
       try {
         console.log(`Fetching operator ${id} from blockchain`);
-        
+
         let operatorData;
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -129,13 +135,13 @@ export const fetchOperators = async (): Promise<Operator[]> => {
         } catch (sdkError) {
           // Auto SDK throws errors for non-existent operators instead of returning null
           console.warn(`Auto SDK error for operator ${id}:`, sdkError);
-          
+
           // Check if this is a "null signingKey" error (operator doesn't exist)
           if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
             console.warn(`Operator ${id} does not exist on testnet`);
             return null;
           }
-          
+
           // Re-throw other SDK errors
           throw sdkError;
         }
@@ -151,13 +157,20 @@ export const fetchOperators = async (): Promise<Operator[]> => {
         console.log(`Operator ${id} data type:`, typeof operatorData);
         console.log(`Operator ${id} is null:`, operatorData === null);
         console.log(`Operator ${id} is undefined:`, operatorData === undefined);
-        
+
         if (operatorData && typeof operatorData === 'object') {
           console.log(`Operator ${id} keys:`, Object.keys(operatorData));
-          
+
           // Log each field with detailed type info
-          const expectedFields = ['signingKey', 'currentTotalStake', 'minimumNominatorStake', 'nominationTax', 'status'];
+          const expectedFields = [
+            'signingKey',
+            'currentTotalStake',
+            'minimumNominatorStake',
+            'nominationTax',
+            'status',
+          ];
           expectedFields.forEach(field => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const value = (operatorData as any)[field];
             console.log(`Operator ${id} ${field}:`, {
               value,
@@ -222,7 +235,7 @@ export const fetchOperatorById = async (operatorId: string): Promise<OperatorDet
     }
 
     console.log(`Fetching operator ${operatorId} details from blockchain`);
-    
+
     let operatorData;
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -230,13 +243,13 @@ export const fetchOperatorById = async (operatorId: string): Promise<OperatorDet
     } catch (sdkError) {
       // Auto SDK throws errors for non-existent operators instead of returning null
       console.warn(`Auto SDK error for operator ${operatorId}:`, sdkError);
-      
+
       // Check if this is a "null signingKey" error (operator doesn't exist)
       if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
         console.warn(`Operator ${operatorId} does not exist on testnet`);
         return null;
       }
-      
+
       // Re-throw other SDK errors
       throw sdkError;
     }

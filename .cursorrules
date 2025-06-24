@@ -57,3 +57,10 @@
 - Lazy load components and routes when appropriate
 - Optimize bundle size with tree shaking
 - Use React DevTools and performance profiling tools
+
+## Pull Requests
+
+- Ensure all tests pass
+- Fix all linting errors
+- Make sure all commits are atomic and have a clear message
+- Commits should tell a story about the changes made
