@@ -54,7 +54,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
           alt: wallet.logo.alt || wallet.title,
         }
       : undefined,
-    installed: wallet.installed,
+    installed: !!wallet.installed, // Ensure boolean type
     installUrl: WALLET_INSTALL_URLS[wallet.extensionName as keyof typeof WALLET_INSTALL_URLS],
   }));
 
