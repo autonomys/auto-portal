@@ -14,45 +14,23 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
   const {
     availableWallets,
     connectWallet,
+    isLoading,
     isInitializing,
     connectionError,
     clearError,
     selectedWallet,
   } = useWallet();
 
-  // Track which specific wallet is being connected
-  const [connectingWallet, setConnectingWallet] = React.useState<string | null>(null);
-
-  // Clear connecting state when modal closes
-  React.useEffect(() => {
-    if (!open) {
-      setConnectingWallet(null);
-    }
-  }, [open]);
-
   const handleConnect = async (extensionName: string) => {
     try {
-      setConnectingWallet(extensionName);
       clearError();
       console.log(`User clicked to connect ${extensionName}`);
       await connectWallet(extensionName);
       console.log(`Successfully connected to ${extensionName}, closing modal`);
       onOpenChange(false);
     } catch (error) {
-      // Error is already handled by the store, but let's add some additional context
       console.error('Connection failed in modal:', error);
-
-      // Don't close the modal on error so user can see the error message and try again
-      if (error instanceof Error) {
-        // If it's an authorization error, provide additional guidance
-        if (error.message.includes('not authorised') || error.message.includes('authorize')) {
-          console.log(
-            'Authorization error detected - user should see popup or check wallet extension',
-          );
-        }
-      }
-    } finally {
-      setConnectingWallet(null);
+      // Error is handled by the store, modal stays open to show error
     }
   };
 
@@ -66,9 +44,15 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
           alt: wallet.logo.alt || wallet.title,
         }
       : undefined,
-    installed: !!wallet.installed, // Ensure boolean type
+    installed: !!wallet.installed,
     installUrl: WALLET_INSTALL_URLS[wallet.extensionName as keyof typeof WALLET_INSTALL_URLS],
   }));
+
+  const isRetryableError =
+    connectionError &&
+    (connectionError.includes('authorize') ||
+      connectionError.includes('not authorised') ||
+      connectionError.includes('timeout'));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,15 +77,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
             </div>
           )}
 
+          {/* Connection error display */}
           {connectionError && (
             <div className="p-3 text-sm bg-red-50 border border-red-200 rounded-lg">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="font-medium text-red-800 mb-1">Connection Failed</div>
                   <div className="text-red-700 whitespace-pre-line">{connectionError}</div>
-                  {(connectionError.includes('authorize') ||
-                    connectionError.includes('not authorised') ||
-                    connectionError.includes('timeout')) && (
+                  {isRetryableError && (
                     <div className="mt-2 text-xs text-red-600">
                       {connectionError.includes('timeout')
                         ? '⏱️ Connection timed out. Please try again and approve the request quickly.'
@@ -110,15 +93,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
                   )}
                 </div>
                 <div className="flex space-x-1 ml-2">
-                  {(connectionError.includes('authorize') ||
-                    connectionError.includes('not authorised') ||
-                    connectionError.includes('timeout')) && (
+                  {isRetryableError && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
                         clearError();
-                        // Find the wallet that failed and retry
+                        // Find and retry the failed wallet
                         const failedWallet = availableWallets.find(
                           w =>
                             connectionError.includes(w.title) ||
@@ -128,7 +109,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
                           handleConnect(failedWallet.extensionName);
                         }
                       }}
-                      disabled={connectingWallet !== null}
+                      disabled={isLoading}
                       className="h-auto px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-100 disabled:opacity-50"
                     >
                       Retry
@@ -147,6 +128,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
             </div>
           )}
 
+          {/* No wallets message */}
           {walletOptions.length === 0 && !isInitializing && (
             <div className="text-center text-gray-500 py-8">
               <p className="mb-4">No compatible wallets detected.</p>
@@ -163,19 +145,17 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
             </div>
           )}
 
+          {/* Wallet options */}
           {walletOptions.map(wallet => (
             <WalletOption
               key={wallet.extensionName}
               wallet={wallet}
               onConnect={handleConnect}
-              isConnecting={connectingWallet === wallet.extensionName}
-              disabled={
-                isInitializing ||
-                (connectingWallet !== null && connectingWallet !== wallet.extensionName)
-              }
+              disabled={isLoading}
             />
           ))}
 
+          {/* Terms notice */}
           {walletOptions.length > 0 && (
             <div className="pt-4 border-t">
               <p className="text-xs text-muted-foreground text-center">

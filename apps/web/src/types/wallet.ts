@@ -1,11 +1,13 @@
 import type { Wallet, WalletAccount } from '@talismn/connect-wallets';
 import type { InjectedExtension } from '@polkadot/extension-inject/types';
 
+export type LoadingType = 'connecting' | 'initializing' | null;
+
 export interface WalletState {
   // Connection state
   isConnected: boolean;
-  isConnecting: boolean;
-  isInitializing: boolean;
+  isLoading: boolean;
+  loadingType: LoadingType;
   connectionError: string | null;
 
   // Wallet data

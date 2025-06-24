@@ -14,8 +14,8 @@ export const useWallet = () => {
   return {
     // State
     isConnected: store.isConnected,
-    isConnecting: store.isConnecting,
-    isInitializing: store.isInitializing,
+    isLoading: store.isLoading,
+    loadingType: store.loadingType,
     connectionError: store.connectionError,
     selectedWallet: store.selectedWallet,
     selectedAccount: store.selectedAccount,
@@ -29,10 +29,11 @@ export const useWallet = () => {
     selectAccount: store.selectAccount,
     clearError: store.clearError,
 
-    // Computed
+    // Computed - maintaining backward compatibility
     hasWallets: store.availableWallets.length > 0,
     selectedAddress: store.selectedAccount?.address || null,
-    isLoading: store.isConnecting || store.isInitializing,
-    canConnect: !store.isConnecting && !store.isInitializing && !store.isConnected,
+    isConnecting: store.isLoading && store.loadingType === 'connecting',
+    isInitializing: store.isLoading && store.loadingType === 'initializing',
+    canConnect: !store.isLoading && !store.isConnected,
   };
 };

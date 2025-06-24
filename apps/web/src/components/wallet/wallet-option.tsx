@@ -15,14 +15,12 @@ interface WalletInfo {
 interface WalletOptionProps {
   wallet: WalletInfo;
   onConnect: (extensionName: string) => void;
-  isConnecting: boolean;
   disabled?: boolean;
 }
 
 export const WalletOption: React.FC<WalletOptionProps> = ({
   wallet,
   onConnect,
-  isConnecting,
   disabled = false,
 }) => {
   if (!wallet.installed) {
@@ -37,34 +35,24 @@ export const WalletOption: React.FC<WalletOptionProps> = ({
             <p className="text-sm text-muted-foreground">Not installed</p>
           </div>
         </div>
-        <Button variant="secondary" asChild>
+        <Button variant="outline" size="sm" asChild>
           <a
             href={wallet.installUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1"
+            className="min-w-[80px]"
           >
-            <span>Install</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
+            Install
           </a>
         </Button>
       </div>
     );
   }
 
-  const isDisabled = isConnecting || disabled;
-
   return (
     <div
       className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-        isDisabled ? 'opacity-50' : 'hover:bg-accent/50'
+        disabled ? 'opacity-50' : 'hover:bg-accent/50'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -80,10 +68,10 @@ export const WalletOption: React.FC<WalletOptionProps> = ({
       </div>
       <Button
         onClick={() => onConnect(wallet.extensionName)}
-        disabled={isDisabled}
+        disabled={disabled}
         className="min-w-[80px]"
       >
-        {isConnecting ? 'Connecting...' : 'Connect'}
+        Connect
       </Button>
     </div>
   );

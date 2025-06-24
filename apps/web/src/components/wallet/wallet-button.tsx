@@ -53,7 +53,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
   const {
     isConnected,
     isLoading,
-    isInitializing,
+    loadingType,
     selectedAccount,
     accounts,
     selectAccount,
@@ -72,9 +72,9 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
     setShowDropdown(false);
   };
 
-  // Show loading state for both connecting and initializing
+  // Show loading state
   if (isLoading) {
-    const loadingText = isInitializing ? 'Reconnecting...' : 'Connecting...';
+    const loadingText = loadingType === 'initializing' ? 'Reconnecting...' : 'Connecting...';
     return (
       <Button disabled className="relative">
         <div className="flex items-center space-x-2">
