@@ -14,10 +14,23 @@ export const debugOperator = async (operatorId: string): Promise<void> => {
     const api = await getApiConnection();
     console.log('✅ DEBUG: API connection established');
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawResult = await operator(api as any, operatorId);
+    let rawResult;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rawResult = await operator(api as any, operatorId);
+      console.log(`🔍 DEBUG: Raw result for operator ${operatorId}:`, rawResult);
+    } catch (sdkError) {
+      console.log(`🔍 DEBUG: Auto SDK threw error for operator ${operatorId}:`, sdkError);
+      
+      if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
+        console.log(`✅ DEBUG: Operator ${operatorId} does not exist on testnet (expected for inactive operators)`);
+        return;
+      } else {
+        console.log(`❌ DEBUG: Unexpected SDK error:`, sdkError);
+        throw sdkError;
+      }
+    }
     
-    console.log(`🔍 DEBUG: Raw result for operator ${operatorId}:`, rawResult);
     console.log(`🔍 DEBUG: Type of result:`, typeof rawResult);
     console.log(`🔍 DEBUG: Is array:`, Array.isArray(rawResult));
     console.log(`🔍 DEBUG: Is null:`, rawResult === null);
@@ -66,6 +79,51 @@ export const debugAllOperators = async (): Promise<void> => {
   for (const operatorId of targetOperators) {
     await debugOperator(operatorId);
     console.log('---');
+  }
+};
+
+// Test a range of operator IDs to find which ones exist
+export const findExistingOperators = async (maxId: number = 10): Promise<void> => {
+  console.log(`🔍 DEBUG: Scanning for existing operators (0-${maxId})...`);
+  
+  const existingOperators: string[] = [];
+  
+  for (let i = 0; i <= maxId; i++) {
+    const operatorId = i.toString();
+    console.log(`Testing operator ${operatorId}...`);
+    
+    try {
+      const api = await getApiConnection();
+      
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rawResult = await operator(api as any, operatorId);
+        
+        if (rawResult) {
+          console.log(`✅ Operator ${operatorId} EXISTS`);
+          existingOperators.push(operatorId);
+        } else {
+          console.log(`⚠️ Operator ${operatorId} returned null`);
+        }
+      } catch (sdkError) {
+        if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
+          console.log(`❌ Operator ${operatorId} does not exist`);
+        } else {
+          console.log(`❌ Operator ${operatorId} error:`, sdkError);
+        }
+      }
+    } catch (error) {
+      console.error(`Connection error while testing operator ${operatorId}:`, error);
+      break;
+    }
+  }
+  
+  console.log(`\n📊 SCAN RESULTS:`);
+  console.log(`Found ${existingOperators.length} existing operators: [${existingOperators.join(', ')}]`);
+  
+  if (existingOperators.length > 0) {
+    console.log(`\n🔍 Testing first existing operator (${existingOperators[0]}) in detail:`);
+    await debugOperator(existingOperators[0]);
   }
 };
 
@@ -220,7 +278,10 @@ export const runFullDebugSuite = async (): Promise<void> => {
   console.log('\n=== TYPE CONVERSIONS ===');
   debugTypeConversions();
   
-  console.log('\n=== OPERATORS ===');
+  console.log('\n=== FIND EXISTING OPERATORS ===');
+  await findExistingOperators(5); // Scan operators 0-5
+  
+  console.log('\n=== TARGET OPERATORS ===');
   await debugAllOperators();
   
   console.log('\n=== DOMAINS ===');
@@ -237,6 +298,7 @@ export const runFullDebugSuite = async (): Promise<void> => {
 (globalThis as any).debugAutoSDK = {
   operator: debugOperator,
   allOperators: debugAllOperators,
+  findOperators: findExistingOperators,
   balance: debugBalance,
   domains: debugDomains,
   typeConversions: debugTypeConversions,
@@ -246,6 +308,7 @@ export const runFullDebugSuite = async (): Promise<void> => {
 console.log('🔧 DEBUG: Auto SDK debug functions available:');
 console.log('  - debugAutoSDK.operator(id) - Debug specific operator');
 console.log('  - debugAutoSDK.allOperators() - Debug all target operators');
+console.log('  - debugAutoSDK.findOperators(maxId) - Scan for existing operators');
 console.log('  - debugAutoSDK.balance(address) - Debug balance query');
 console.log('  - debugAutoSDK.domains() - Debug domains query');
 console.log('  - debugAutoSDK.typeConversions() - Test type conversion functions');

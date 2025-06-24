@@ -121,8 +121,24 @@ export const fetchOperators = async (): Promise<Operator[]> => {
 
       try {
         console.log(`Fetching operator ${id} from blockchain`);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const operatorData = await operator(api as any, id);
+        
+        let operatorData;
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          operatorData = await operator(api as any, id);
+        } catch (sdkError) {
+          // Auto SDK throws errors for non-existent operators instead of returning null
+          console.warn(`Auto SDK error for operator ${id}:`, sdkError);
+          
+          // Check if this is a "null signingKey" error (operator doesn't exist)
+          if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
+            console.warn(`Operator ${id} does not exist on testnet`);
+            return null;
+          }
+          
+          // Re-throw other SDK errors
+          throw sdkError;
+        }
 
         // Check if operatorData is null or undefined
         if (!operatorData) {
@@ -206,8 +222,24 @@ export const fetchOperatorById = async (operatorId: string): Promise<OperatorDet
     }
 
     console.log(`Fetching operator ${operatorId} details from blockchain`);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const operatorData = await operator(api as any, operatorId);
+    
+    let operatorData;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      operatorData = await operator(api as any, operatorId);
+    } catch (sdkError) {
+      // Auto SDK throws errors for non-existent operators instead of returning null
+      console.warn(`Auto SDK error for operator ${operatorId}:`, sdkError);
+      
+      // Check if this is a "null signingKey" error (operator doesn't exist)
+      if (sdkError instanceof Error && sdkError.message.includes('signingKey')) {
+        console.warn(`Operator ${operatorId} does not exist on testnet`);
+        return null;
+      }
+      
+      // Re-throw other SDK errors
+      throw sdkError;
+    }
 
     // Check if operatorData is null or undefined
     if (!operatorData) {
