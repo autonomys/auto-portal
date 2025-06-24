@@ -9,7 +9,7 @@ export interface StakingFormState {
 export interface StakingCalculations {
   storageFound: number; // 20% included in amount
   netStaking: number; // 80% goes to actual staking
-  transactionFee: number; // Fixed mock fee (0.01)
+  transactionFee: number; // Transaction fee
   totalRequired: number; // Amount + fee
   expectedRewards: number; // Annual estimate
 }
@@ -18,11 +18,11 @@ export interface StakingValidation {
   minimum: number; // AI3 (from operator.minimumNominatorStake)
   maximum: number; // AI3 (available balance)
   required: boolean;
-  decimals: number; // Maximum 2 decimal places
+  decimals: number; // Maximum decimal places
 }
 
-export interface MockBalance {
-  available: string; // "500.00" AI3 for mockup
+export interface UserBalance {
+  available: string; // Available AI3 for staking
   free: string;
   reserved: string;
   total: string;

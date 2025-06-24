@@ -1,8 +1,8 @@
 import type { StakingCalculations, StakingValidation } from '@/types/staking';
 import type { Operator } from '@/types/operator';
 
-export const MOCK_BALANCE = 500.0; // AI3
-export const MOCK_TRANSACTION_FEE = 0.01; // AI3
+export const DEFAULT_BALANCE = 500.0; // AI3
+export const TRANSACTION_FEE = 0.01; // AI3
 export const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
 
 export const calculateStakingAmounts = (amount: string, operatorAPY: number): StakingCalculations => {
@@ -11,8 +11,8 @@ export const calculateStakingAmounts = (amount: string, operatorAPY: number): St
   return {
     storageFound: amountValue * STORAGE_FUND_PERCENTAGE,
     netStaking: amountValue * (1 - STORAGE_FUND_PERCENTAGE),
-    transactionFee: MOCK_TRANSACTION_FEE,
-    totalRequired: amountValue + MOCK_TRANSACTION_FEE,
+    transactionFee: TRANSACTION_FEE,
+    totalRequired: amountValue + TRANSACTION_FEE,
     expectedRewards: (amountValue * (1 - STORAGE_FUND_PERCENTAGE)) * (operatorAPY / 100),
   };
 };
@@ -20,7 +20,7 @@ export const calculateStakingAmounts = (amount: string, operatorAPY: number): St
 export const getValidationRules = (operator: Operator): StakingValidation => {
   return {
     minimum: parseFloat(operator.minimumNominatorStake) / 1000000, // Convert from units to AI3
-    maximum: MOCK_BALANCE,
+    maximum: DEFAULT_BALANCE,
     required: true,
     decimals: 2,
   };
@@ -53,7 +53,7 @@ export const validateStakingAmount = (
   }
 
   // Check if amount + fee exceeds balance
-  if (numericAmount + MOCK_TRANSACTION_FEE > validation.maximum) {
+  if (numericAmount + TRANSACTION_FEE > validation.maximum) {
     errors.push('Insufficient balance for this amount plus transaction fees');
   }
 
