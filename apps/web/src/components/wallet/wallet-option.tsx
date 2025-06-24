@@ -15,12 +15,14 @@ interface WalletInfo {
 interface WalletOptionProps {
   wallet: WalletInfo;
   onConnect: (extensionName: string) => void;
+  isConnecting?: boolean;
   disabled?: boolean;
 }
 
 export const WalletOption: React.FC<WalletOptionProps> = ({
   wallet,
   onConnect,
+  isConnecting = false,
   disabled = false,
 }) => {
   if (!wallet.installed) {
@@ -49,10 +51,12 @@ export const WalletOption: React.FC<WalletOptionProps> = ({
     );
   }
 
+  const isDisabled = isConnecting || disabled;
+
   return (
     <div
       className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-        disabled ? 'opacity-50' : 'hover:bg-accent/50'
+        isDisabled ? 'opacity-50' : 'hover:bg-accent/50'
       }`}
     >
       <div className="flex items-center space-x-3">
@@ -62,16 +66,16 @@ export const WalletOption: React.FC<WalletOptionProps> = ({
         <div>
           <span className="font-medium">{wallet.title}</span>
           <p className="text-sm text-muted-foreground">
-            {disabled ? 'Please wait...' : 'Ready to connect'}
+            {isConnecting ? 'Connecting...' : disabled ? 'Please wait...' : 'Ready to connect'}
           </p>
         </div>
       </div>
       <Button
         onClick={() => onConnect(wallet.extensionName)}
-        disabled={disabled}
+        disabled={isDisabled}
         className="min-w-[80px]"
       >
-        Connect
+        {isConnecting ? 'Connecting...' : 'Connect'}
       </Button>
     </div>
   );
