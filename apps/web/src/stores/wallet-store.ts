@@ -15,6 +15,7 @@ interface ExtendedWalletState extends WalletState {
   lastConnectionAttempt: number | null;
 }
 
+// Enhanced wallet store with improved state management and error handling
 export const useWalletStore = create<ExtendedWalletState>()(
   persist(
     (set, get) => ({
