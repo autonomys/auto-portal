@@ -21,8 +21,19 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
     selectedWallet,
   } = useWallet();
 
+  // Track which specific wallet is being connected
+  const [connectingWallet, setConnectingWallet] = React.useState<string | null>(null);
+
+  // Clear connecting state when modal closes
+  React.useEffect(() => {
+    if (!open) {
+      setConnectingWallet(null);
+    }
+  }, [open]);
+
   const handleConnect = async (extensionName: string) => {
     try {
+      setConnectingWallet(extensionName);
       clearError();
       console.log(`User clicked to connect ${extensionName}`);
       await connectWallet(extensionName);
@@ -41,6 +52,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
           );
         }
       }
+    } finally {
+      setConnectingWallet(null);
     }
   };
 
@@ -116,7 +129,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
                           handleConnect(failedWallet.extensionName);
                         }
                       }}
-                      disabled={isLoading}
+                      disabled={connectingWallet !== null}
                       className="h-auto px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-100 disabled:opacity-50"
                     >
                       Retry
@@ -156,8 +169,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
               key={wallet.extensionName}
               wallet={wallet}
               onConnect={handleConnect}
-              isConnecting={isLoading}
-              disabled={isInitializing}
+              isConnecting={connectingWallet === wallet.extensionName}
+              disabled={isInitializing || (connectingWallet !== null && connectingWallet !== wallet.extensionName)}
             />
           ))}
 
