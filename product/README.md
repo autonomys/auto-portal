@@ -99,11 +99,12 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 - [x] Core UI components and layout system (dashboard layout implemented)
 - [x] Wallet connection and account management (completed)
-- [ ] **Operator discovery and comparison interface** ← **CURRENT FOCUS**
-- [ ] Staking flow implementation
+- [x] **Operator discovery and comparison interface** (completed)
+- [ ] **Wallet balance and position integration** ← **CURRENT FOCUS**
+- [ ] Staking flow implementation with real RPC data
 - [ ] Portfolio and withdrawal management
 
-**📋 Current Milestone:** See detailed plan in [next-steps-operator-discovery.md](./next-steps-operator-discovery.md)
+**📋 Current Milestone:** See implementation-ready user stories in [user-stories/](./user-stories/)
 
 ### 🧪 Phase 5: Testing & Launch (Future)
 
@@ -160,10 +161,12 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### Immediate Actions (Phase 4)
 
-1. **Wallet Integration**: Integrate SubWallet / Polkadot.js extension and create wallet store
-2. **Operator Discovery**: Build operator cards & comparison interface powered by mock data
-3. **State Stores**: Implement Zustand wallet & staking stores skeleton
-4. **Stake Flow Scaffolding**: Prepare staking route and stepper components
+Current implementation-ready user stories (see [user-stories/](./user-stories/) for details):
+
+1. **[Wallet Balance Integration](./user-stories/wallet-balance-integration.md)**: Real balance data + enhanced wallet UX
+2. **[Nominator Position Integration](./user-stories/nominator-position-integration.md)**: Portfolio tracking via Auto SDK positions
+3. **Future Staking Flow**: Real validation and transaction integration
+4. **Future Dashboard Analytics**: Historical data via indexer integration
 
 ---
 
