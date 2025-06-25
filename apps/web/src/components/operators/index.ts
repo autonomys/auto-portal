@@ -1,4 +1,4 @@
-export { OperatorCard } from './operator-card';
-export { OperatorFilters } from './operator-filters';
-export { OperatorGrid } from './operator-grid';
-export { OperatorTable } from './operator-table';
+export { OperatorCard } from './OperatorCard';
+export { OperatorFilters } from './OperatorFilters';
+export { OperatorGrid } from './OperatorGrid';
+export { OperatorTable } from './OperatorTable';
