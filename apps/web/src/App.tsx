@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { OperatorsPage } from './pages/operators';
 import { StakingPage } from './pages/StakingPage';
+import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
 import { useBalance } from '@/hooks/use-balance';
 import { formatAI3 } from '@/lib/formatting';
 import './App.css';
@@ -72,41 +73,52 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono">
-                {balance ? formatAI3(balance.free) : '---'}
-              </div>
-              <p className="text-xs text-muted-foreground font-sans">Ready to stake</p>
-            </CardContent>
-          </Card>
+        {/* Portfolio Summary */}
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-6">Portfolio Overview</h2>
+          <PositionSummary />
+        </div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Total Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono">
-                {balance ? formatAI3(balance.total) : '---'}
-              </div>
-              <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
-            </CardContent>
-          </Card>
+        {/* Balance Cards */}
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-6">Wallet Balance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">
+                  {balance ? formatAI3(balance.free) : '---'}
+                </div>
+                <p className="text-xs text-muted-foreground font-sans">Ready to stake</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Active Positions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono">0</div>
-              <p className="text-xs text-muted-foreground font-sans">Staking positions</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium font-sans">Total Balance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">
+                  {balance ? formatAI3(balance.total) : '---'}
+                </div>
+                <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Active Positions */}
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-6">Your Positions</h2>
+          <ActivePositionsTable />
+        </div>
+
+        {/* Pending Operations */}
+        <div>
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-6">Pending Operations</h2>
+          <PendingOperations />
         </div>
 
         {/* Call to Action */}
