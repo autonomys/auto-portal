@@ -37,16 +37,10 @@ export const positionService = async (networkId: string = 'taurus') => {
   }> => {
     const errors: PositionServiceError[] = [];
 
-    console.log(`Fetching positions for ${address} from network: ${networkId}`);
-
     // Check positions across target operators in parallel
     const positionPromises = TARGET_OPERATORS.map(async operatorId => {
       try {
-        console.log(`Checking position for operator ${operatorId}...`);
-
         const positionData = await nominatorPosition(api, operatorId, address);
-
-        console.log(`Position data for operator ${operatorId}:`, positionData);
 
         // Only include if user has a position (knownValue > 0)
         if (positionData.knownValue > 0n) {
@@ -73,17 +67,13 @@ export const positionService = async (networkId: string = 'taurus') => {
             lastUpdated: new Date(),
           };
 
-          console.log(`✅ Found position for operator ${operatorId}:`, position);
           return position;
-        } else {
-          console.log(
-            `No position found for operator ${operatorId} (knownValue: ${positionData.knownValue})`,
-          );
-          return null;
         }
+
+        return null;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.warn(`❌ Failed to fetch position for operator ${operatorId}:`, error);
+        console.warn(`Failed to fetch position for operator ${operatorId}:`, error);
 
         errors.push({
           operatorId,
@@ -97,8 +87,6 @@ export const positionService = async (networkId: string = 'taurus') => {
 
     const results = await Promise.all(positionPromises);
     const validPositions = results.filter(Boolean) as UserPosition[];
-
-    console.log(`Found ${validPositions.length} valid positions with ${errors.length} errors`);
 
     return {
       positions: validPositions,
@@ -126,7 +114,7 @@ export const positionService = async (networkId: string = 'taurus') => {
     return {
       totalValue,
       activePositions: positions.length,
-      totalEarned: 0, // Will need cost basis calculation later
+      totalEarned: 0, // Requires cost basis calculation
       pendingDeposits: totalPendingDeposits,
       pendingWithdrawals: totalPendingWithdrawals,
       totalStorageFee,
@@ -170,7 +158,7 @@ export const positionService = async (networkId: string = 'taurus') => {
 
       return null;
     } catch (error) {
-      console.warn(`❌ Failed to fetch position for operator ${operatorId}:`, error);
+      console.warn(`Failed to fetch position for operator ${operatorId}:`, error);
       return null;
     }
   };

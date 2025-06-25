@@ -73,8 +73,6 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
       setPortfolioSummary(summary);
       setServiceErrors(result.errors);
       setLastUpdated(new Date());
-
-      console.log(`✅ Fetched ${result.positions.length} positions for ${selectedAccount.address}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch positions';
       setError(errorMessage);
@@ -157,7 +155,6 @@ export const useOperatorPosition = (operatorId: string, options: UsePositionsOpt
       const result = await service.getPositionByOperator(selectedAccount.address, operatorId);
 
       setPosition(result);
-      console.log(`✅ Fetched position with operator ${operatorId}:`, result);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch position';
       setError(errorMessage);
