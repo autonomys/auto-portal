@@ -51,7 +51,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator.minimumNominatorStake]);
+  }, [formState.amount, operator]);
 
   const handleAmountChange = (amount: string) => {
     setFormState(prev => ({

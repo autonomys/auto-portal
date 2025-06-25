@@ -37,6 +37,7 @@ export interface OperatorStore {
   filteredOperators: Operator[];
   loading: boolean;
   error: string | null;
+  isInitialized: boolean;
 
   // Filters
   filters: FilterState;

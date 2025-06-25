@@ -16,10 +16,16 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
   loading: false,
   error: null,
   filters: DEFAULT_FILTERS,
+  isInitialized: false,
 
   // Actions
   fetchOperators: async () => {
-    set({ loading: true, error: null });
+    const { loading } = get();
+
+    // Prevent concurrent fetches
+    if (loading) return;
+
+    set({ loading: true, error: null, isInitialized: true });
 
     try {
       const opService = await operatorService('taurus');
