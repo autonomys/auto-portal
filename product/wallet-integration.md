@@ -1,8 +1,8 @@
 # Wallet Connection Architecture
 
-**Version:** 0.1 (Draft)
-**Last Updated:** <!-- YYYY-MM-DD -->
-**Status:** Phase 4 – Implementation Planning
+**Version:** 1.0 (Production)
+**Last Updated:** June 25, 2025
+**Status:** ✅ **IMPLEMENTED** - Production Ready with Balance Integration
 
 ---
 
@@ -129,13 +129,55 @@ Each step will be pushed as an individual `feat:` commit under Phase 4.
 
 ---
 
-## 8. Future Enhancements
+## 8. ✅ Completed Balance Integration (June 2025)
 
-- **QR-based WalletConnect** once SubWallet mobile supports it.
-- **Multi-account selector** for users with multiple accounts.
-- **Auto-reconnect** if extension reconnects after browser reload.
-- **Hardware wallets** (Ledger) once SDK exposes support.
+**Status:** ✅ **IMPLEMENTED** - See [PR #15](https://github.com/jfrank-summit/auto-portal/pull/15)
+
+### **Real Balance Display**
+
+- ✅ Dashboard shows actual wallet balance via RPC calls
+- ✅ Staking form displays real available balance instead of mock data
+- ✅ Balance auto-refreshes every 30 seconds when wallet connected
+- ✅ Proper unit conversion from shannons (10^18) to AI3 tokens
+
+### **Enhanced Wallet UX**
+
+- ✅ Copyable wallet addresses with visual feedback
+- ✅ Full address display on hover tooltips
+- ✅ Balance shown prominently in wallet button
+- ✅ Improved vertical layout for better readability
+
+### **Performance Optimizations**
+
+- ✅ Consolidated RPC connections (single shared connection)
+- ✅ Connection reuse eliminates overhead from auto-refresh
+- ✅ Race condition protection for concurrent requests
+- ✅ Proper cleanup on page unload
+
+### **Technical Architecture**
+
+```typescript
+// Shared API service consolidates all RPC operations
+export const getSharedApiConnection = async (networkId = 'taurus') => {
+  // Single connection shared across balance and operator services
+};
+
+// Balance hook with auto-refresh
+export const useBalance = (refreshInterval = 30000) => {
+  // Real-time balance updates with proper error handling
+};
+```
 
 ---
 
-_This document outlines the technical plan for integrating wallet connections into the Autonomys staking dApp. Implementation will follow commit-sized chunks as detailed above._
+## 9. Future Enhancements
+
+- **QR-based WalletConnect** once SubWallet mobile supports it.
+- **Multi-account selector** for users with multiple accounts.
+- **Transaction history** integration with balance display.
+- **Hardware wallets** (Ledger) once SDK exposes support.
+- **Staking rewards tracking** with historical data.
+
+---
+
+_This document outlines the implemented wallet connection and balance integration architecture for the Autonomys staking dApp. The wallet system is now production-ready with comprehensive balance integration and optimized performance._

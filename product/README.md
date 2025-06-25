@@ -95,16 +95,28 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [x] Full TypeScript type system with comprehensive staking domain models
 - [x] Development servers verified and working
 
-### 🔄 Phase 4: Implementation (Current)
+### ✅ Phase 4: Implementation (In Progress)
 
 - [x] Core UI components and layout system (dashboard layout implemented)
 - [x] Wallet connection and account management (completed)
 - [x] **Operator discovery and comparison interface** (completed)
-- [ ] **Wallet balance and position integration** ← **CURRENT FOCUS**
-- [ ] Staking flow implementation with real RPC data
+- [x] **✅ Wallet balance and position integration** (completed June 2025)
+- [ ] **Staking flow implementation with real RPC data** ← **CURRENT FOCUS**
 - [ ] Portfolio and withdrawal management
 
 **📋 Current Milestone:** See implementation-ready user stories in [user-stories/](./user-stories/)
+
+### **✅ Recently Completed: Wallet Balance Integration**
+
+**Status:** ✅ **MERGED** - [PR #15](https://github.com/jfrank-summit/auto-portal/pull/15)
+
+**Key Features Delivered:**
+
+- **Real Balance Display**: Dashboard and staking form show actual wallet balance via RPC
+- **Enhanced Wallet UX**: Copyable addresses, balance in wallet button, improved layout
+- **Performance Optimized**: Consolidated RPC connections, auto-refresh efficiency
+- **Unit Conversion**: Proper shannon-to-AI3 conversion with BigInt precision
+- **Production Ready**: Full error handling, loading states, TypeScript compliance
 
 ### 🧪 Phase 5: Testing & Launch (Future)
 
