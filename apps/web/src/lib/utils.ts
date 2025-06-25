@@ -21,6 +21,11 @@ export const formatAutonomysAddress = (addr?: string): string => {
 
 export const shortenAddress = (addr?: string, length = 4) => {
   if (!addr) return '';
-  const formattedAddr = formatAutonomysAddress(addr);
-  return `${formattedAddr.slice(0, length + 2)}…${formattedAddr.slice(-length)}`;
+  try {
+    const autonomysAddr = address(addr);
+    return `${autonomysAddr.slice(0, length + 2)}…${autonomysAddr.slice(-length)}`;
+  } catch (error) {
+    console.warn('Failed to format address:', error);
+    return `${addr.slice(0, length + 2)}…${addr.slice(-length)}`;
+  }
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
-import { shortenAddress, formatAutonomysAddress } from '@/lib/utils';
+import { shortenAddress } from '@/lib/utils';
+import { address } from '@autonomys/auto-utils';
 
 interface AddressDisplayProps {
   address: string;
@@ -10,7 +11,7 @@ interface AddressDisplayProps {
 }
 
 export const AddressDisplay: React.FC<AddressDisplayProps> = ({
-  address,
+  address: addr,
   name,
   showCopy = true,
   className = '',
@@ -21,7 +22,7 @@ export const AddressDisplay: React.FC<AddressDisplayProps> = ({
     e.stopPropagation();
 
     try {
-      const autonomysAddress = formatAutonomysAddress(address);
+      const autonomysAddress = address(addr);
       await navigator.clipboard.writeText(autonomysAddress);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -30,12 +31,10 @@ export const AddressDisplay: React.FC<AddressDisplayProps> = ({
     }
   };
 
-  const autonomysAddress = formatAutonomysAddress(address);
-
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
-      <span title={autonomysAddress} className="cursor-help">
-        {name || shortenAddress(address)}
+      <span title={addr} className="cursor-help">
+        {name || shortenAddress(addr)}
       </span>
       {showCopy && (
         <button

@@ -1,5 +1,3 @@
-import { formatAutonomysAddress } from './utils';
-
 /**
  * Format a number with specified decimal places
  */
@@ -67,20 +65,18 @@ export const formatTimestamp = (timestamp: number): string => {
 };
 
 /**
- * Truncate address for display (using Autonomys format)
+ * Truncate address for display
  */
 export const truncateAddress = (
   address: string,
   startLength: number = 6,
   endLength: number = 4,
 ): string => {
-  const autonomysAddress = formatAutonomysAddress(address);
-
-  if (autonomysAddress.length <= startLength + endLength) {
-    return autonomysAddress;
+  if (address.length <= startLength + endLength) {
+    return address;
   }
 
-  return `${autonomysAddress.slice(0, startLength)}...${autonomysAddress.slice(-endLength)}`;
+  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
 };
 
 /**

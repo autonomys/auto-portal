@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@/hooks/use-wallet';
 import { useBalance } from '@/hooks/use-balance';
-import { shortenAddress, formatAutonomysAddress } from '@/lib/utils';
+import { shortenAddress } from '@/lib/utils';
 import { formatAI3 } from '@/lib/formatting';
 import { Copy } from 'lucide-react';
+import { address } from '@autonomys/auto-utils';
 import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
@@ -38,8 +39,12 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             <button
               onClick={e => {
                 e.stopPropagation();
-                const autonomysAddress = formatAutonomysAddress(account.address);
-                navigator.clipboard.writeText(autonomysAddress);
+                try {
+                  const autonomysAddress = address(account.address);
+                  navigator.clipboard.writeText(autonomysAddress);
+                } catch {
+                  navigator.clipboard.writeText(account.address);
+                }
               }}
               className="p-1 hover:bg-gray-200 rounded"
               title="Copy address"
@@ -47,10 +52,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               <Copy className="w-3 h-3 text-gray-500" />
             </button>
           </div>
-          <div
-            className="text-xs text-gray-500 mt-1"
-            title={formatAutonomysAddress(account.address)}
-          >
+          <div className="text-xs text-gray-500 mt-1" title={account.address}>
             {shortenAddress(account.address, 8)}
           </div>
         </button>
@@ -68,7 +70,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
 );
 
 interface WalletButtonProps {
-  onOpenModal?: () => void;
+  onOpenModal: () => void;
 }
 
 export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
