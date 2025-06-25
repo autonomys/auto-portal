@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { OperatorStore, FilterState } from '@/types/operator';
-import { operatorService } from '@/services/operatorService';
+import { operatorService } from '@/services/operator-service';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
