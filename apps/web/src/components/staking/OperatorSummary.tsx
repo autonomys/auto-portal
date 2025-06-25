@@ -48,10 +48,10 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <p className="text-2xl font-bold text-success-600 font-mono">
-              {operator.currentAPY.toFixed(1)}%
+            <p className="text-2xl font-bold text-foreground font-mono">
+              {operator.nominationTax}%
             </p>
-            <p className="text-sm text-muted-foreground font-sans">APY</p>
+            <p className="text-sm text-muted-foreground font-sans">Tax Rate</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground font-mono">

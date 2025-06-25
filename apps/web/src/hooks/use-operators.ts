@@ -35,10 +35,6 @@ export const useOperators = () => {
 
     // Computed values
     operatorCount: filteredOperators.length,
-    averageAPY:
-      filteredOperators.length > 0
-        ? filteredOperators.reduce((sum, op) => sum + op.currentAPY, 0) / filteredOperators.length
-        : 0,
 
     // Actions
     refetch: fetchOperators,
@@ -89,10 +85,9 @@ export const useOperatorFilters = () => {
     setFilters({
       searchQuery: '',
       domainFilter: 'all',
-      sortBy: 'apy',
+      sortBy: 'totalStaked',
       sortOrder: 'desc',
-      minAPY: undefined,
-      maxAPY: undefined,
+
       statusFilter: undefined,
     });
   };

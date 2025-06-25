@@ -1,129 +1,125 @@
-import type { Operator, OperatorDetails, OperatorStats } from '@/types/operator';
+import { activate } from '@autonomys/auto-utils';
+import { operator } from '@autonomys/auto-consensus';
+import type { Operator, OperatorStats } from '@/types/operator';
 
-// Mock data for development
-const mockOperators: Operator[] = [
-  {
-    id: 'op-1',
-    name: 'Gemini-3h-Farmer-1',
-    domainId: '0',
-    domainName: 'Auto EVM',
-    ownerAccount: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-    nominationTax: 5,
-    minimumNominatorStake: '1000',
-    status: 'active',
-    totalStaked: '5000000',
-    nominatorCount: 42,
-    currentAPY: 18.5,
-    poolCapacity: 75,
-    isRecommended: true,
-  },
-  {
-    id: 'op-2',
-    name: 'Auto-Domain-Op-2',
-    domainId: '0',
-    domainName: 'Auto EVM',
-    ownerAccount: '5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty',
-    nominationTax: 8,
-    minimumNominatorStake: '500',
-    status: 'active',
-    totalStaked: '3500000',
-    nominatorCount: 28,
-    currentAPY: 16.8,
-    poolCapacity: 60,
-    isRecommended: false,
-  },
-  {
-    id: 'op-3',
-    name: 'Autonomys-Validator-X',
-    domainId: '0',
-    domainName: 'Auto EVM',
-    ownerAccount: '5DAAnrj7VHTznn2AWBemMuyBwZWs6FNFjdyVXUeYum3PTXFy',
-    nominationTax: 12,
-    minimumNominatorStake: '2000',
-    status: 'active',
-    totalStaked: '2800000',
-    nominatorCount: 35,
-    currentAPY: 15.2,
-    poolCapacity: 85,
-    isRecommended: false,
-  },
-  {
-    id: 'op-4',
-    name: 'Secure-Node-Alpha',
-    domainId: '0',
-    domainName: 'Auto EVM',
-    ownerAccount: '5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY',
-    nominationTax: 10,
-    minimumNominatorStake: '1500',
-    status: 'degraded',
-    totalStaked: '2200000',
-    nominatorCount: 19,
-    currentAPY: 14.1,
-    poolCapacity: 90,
-    isRecommended: false,
-  },
-  {
-    id: 'op-5',
-    name: 'EVM-Operator-Pro',
-    domainId: '0',
-    domainName: 'Auto EVM',
-    ownerAccount: '5FLSigC9HGRKVhB9FiEo4Y3koPsNmBmLJbpXg2mp1hXcS59Y',
-    nominationTax: 7,
-    minimumNominatorStake: '800',
-    status: 'active',
-    totalStaked: '4200000',
-    nominatorCount: 31,
-    currentAPY: 17.3,
-    poolCapacity: 68,
-    isRecommended: true,
-  },
-];
+export const operatorService = async (networkId: string = 'taurus') => {
+  const api = await activate({ networkId });
 
-// Mock operator details with additional information
-const mockOperatorDetails: Record<string, OperatorDetails> = {
-  'op-1': {
-    ...mockOperators[0],
-    description: 'High-performance operator with excellent uptime and competitive rewards.',
-    website: 'https://gemini-farmer.autonomys.xyz',
-    social: {
-      twitter: '@GeminiFarmer',
-      discord: 'GeminiFarmer#1234',
-    },
-    apyHistory: [
-      { epoch: 150, apy: 18.5, timestamp: Date.now() - 86400000 },
-      { epoch: 149, apy: 18.2, timestamp: Date.now() - 172800000 },
-      { epoch: 148, apy: 18.8, timestamp: Date.now() - 259200000 },
-    ],
-  },
-};
+  const getAllOperators = async (): Promise<Operator[]> => {
+    const TARGET_OPERATORS = ['0', '3'];
+    const operators: Operator[] = [];
 
-export const operatorService = {
-  async getAllOperators(): Promise<Operator[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return mockOperators;
-  },
+    console.log(`Fetching operators from network: ${networkId}`);
 
-  async getOperatorById(operatorId: string): Promise<OperatorDetails | null> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // Return the specific operator details if found, otherwise null
-    return mockOperatorDetails[operatorId] || null;
-  },
+    // Iterate through target operators and fetch via RPC
+    for (const operatorId of TARGET_OPERATORS) {
+      try {
+        const operatorData = await operator(api, operatorId);
+        console.log(`✅ Found operator ${operatorId}:`, operatorData);
 
-  async getOperatorStats(): Promise<OperatorStats> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+        // Map RPC data to UI interface with robust null checking
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rpc = operatorData as any;
 
-    const totalStaked = mockOperators
-      .reduce((sum, op) => sum + parseFloat(op.totalStaked), 0)
-      .toString();
+        // Skip operators with missing critical data
+        if (!rpc || rpc.signingKey === null || rpc.signingKey === undefined) {
+          console.warn(`❌ Operator ${operatorId} has null signingKey, skipping`);
+          continue;
+        }
 
-    return {
-      sharePrice: '1.0000',
-      totalShares: totalStaked,
-      totalStaked,
-      nominatorCount: mockOperators.reduce((sum, op) => sum + op.nominatorCount, 0),
-    };
-  },
+        const mappedOperator: Operator = {
+          id: operatorId,
+          name: `Operator ${operatorId}`,
+          domainId: String(rpc.currentDomainId || rpc.nextDomainId || '0'),
+          domainName: 'Auto EVM',
+          ownerAccount: String(rpc.signingKey),
+          nominationTax: Number(rpc.nominationTax || 0),
+          minimumNominatorStake: rpc.minimumNominatorStake
+            ? (Number(rpc.minimumNominatorStake) / Math.pow(10, 18)).toFixed(4)
+            : '0.0000',
+          status: 'active' as const,
+          totalStaked: rpc.currentTotalStake
+            ? (Number(rpc.currentTotalStake) / Math.pow(10, 18)).toFixed(4)
+            : '0.0000',
+          nominatorCount: 0,
+        };
+
+        operators.push(mappedOperator);
+      } catch (error) {
+        console.warn(`❌ Operator ${operatorId} not found:`, error);
+        // Continue with other operators
+      }
+    }
+
+    console.log(`Found ${operators.length} valid operators`);
+    return operators;
+  };
+
+  const getOperatorById = async (operatorId: string): Promise<Operator | null> => {
+    try {
+      const operatorData = await operator(api, operatorId);
+      console.log('operatorData', operatorData);
+
+      // Map RPC data to UI interface with robust null checking
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rpc = operatorData as any;
+
+      // Return null if critical data is missing
+      if (!rpc || rpc.signingKey === null || rpc.signingKey === undefined) {
+        console.warn(`❌ Operator ${operatorId} has null signingKey`);
+        return null;
+      }
+
+      return {
+        id: operatorId,
+        name: `Operator ${operatorId}`,
+        domainId: String(rpc.currentDomainId || rpc.nextDomainId || '0'),
+        domainName: 'Auto EVM',
+        ownerAccount: String(rpc.signingKey),
+        nominationTax: Number(rpc.nominationTax || 0),
+        minimumNominatorStake: rpc.minimumNominatorStake
+          ? (Number(rpc.minimumNominatorStake) / Math.pow(10, 18)).toFixed(4)
+          : '0.0000',
+        status: 'active' as const,
+        totalStaked: rpc.currentTotalStake
+          ? (Number(rpc.currentTotalStake) / Math.pow(10, 18)).toFixed(4)
+          : '0.0000',
+        nominatorCount: 0,
+      };
+    } catch (error) {
+      console.warn(`❌ Operator ${operatorId} not found:`, error);
+      return null;
+    }
+  };
+
+  const getOperatorStats = async (): Promise<OperatorStats> => {
+    try {
+      const operators = await getAllOperators();
+
+      const totalStaked = operators
+        .reduce((sum, op) => sum + parseFloat(op.totalStaked), 0)
+        .toString();
+
+      return {
+        sharePrice: '1.0000',
+        totalShares: totalStaked,
+        totalStaked,
+        nominatorCount: operators.reduce((sum, op) => sum + op.nominatorCount, 0),
+      };
+    } catch (error) {
+      console.error('Failed to fetch operator stats:', error);
+      return {
+        sharePrice: '1.0000',
+        totalShares: '0',
+        totalStaked: '0',
+        nominatorCount: 0,
+      };
+    }
+  };
+
+  return {
+    getAllOperators,
+    getOperatorById,
+    getOperatorStats,
+  };
 };

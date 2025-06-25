@@ -56,7 +56,7 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
               <div>
                 <p className="text-sm text-success-700 font-sans">Estimated Annual Rewards</p>
                 <p className="text-xs text-success-600 font-sans mt-1">
-                  Based on current APY and operator performance
+                  Based on current staking configuration
                 </p>
               </div>
               <p className="text-xl font-bold text-success-700 font-mono">
