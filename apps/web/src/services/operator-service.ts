@@ -1,40 +1,6 @@
-import { activate, disconnect } from '@autonomys/auto-utils';
 import { operator } from '@autonomys/auto-consensus';
 import type { Operator, OperatorStats } from '@/types/operator';
-
-// Shared connection state using functional approach (no classes)
-let sharedApi: Awaited<ReturnType<typeof activate>> | null = null;
-let currentNetworkId: string | null = null;
-
-// Simple function to get or create shared connection
-const getSharedApiConnection = async (networkId: string = 'taurus') => {
-  // Return existing connection if same network
-  if (sharedApi && currentNetworkId === networkId) {
-    return sharedApi;
-  }
-
-  // Disconnect existing connection if switching networks
-  if (sharedApi && currentNetworkId !== networkId) {
-    await disconnect(sharedApi);
-    sharedApi = null;
-    currentNetworkId = null;
-  }
-
-  // Create new connection
-  sharedApi = await activate({ networkId });
-  currentNetworkId = networkId;
-
-  return sharedApi;
-};
-
-// Cleanup on page unload
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', async () => {
-    if (sharedApi) {
-      await disconnect(sharedApi);
-    }
-  });
-}
+import { getSharedApiConnection } from './api-service';
 
 export const operatorService = async (networkId: string = 'taurus') => {
   const api = await getSharedApiConnection(networkId);

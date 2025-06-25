@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from './use-wallet';
 import { fetchWalletBalance, type WalletBalance } from '@/services/balance-service';
 
-export const useBalance = (refreshInterval = 30000) => {
+export const useBalance = () => {
   const { isConnected, selectedAccount } = useWallet();
   const [balance, setBalance] = useState<WalletBalance | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,14 +32,6 @@ export const useBalance = (refreshInterval = 30000) => {
   useEffect(() => {
     fetchBalance();
   }, [fetchBalance]);
-
-  // Auto-refresh
-  useEffect(() => {
-    if (!isConnected) return;
-
-    const interval = setInterval(fetchBalance, refreshInterval);
-    return () => clearInterval(interval);
-  }, [isConnected, refreshInterval, fetchBalance]);
 
   return { balance, loading, error, refetch: fetchBalance };
 };

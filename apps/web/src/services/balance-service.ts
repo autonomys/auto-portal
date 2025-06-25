@@ -1,6 +1,6 @@
-import { activate } from '@autonomys/auto-utils';
 import { balance } from '@autonomys/auto-consensus';
 import { shannonsToAI3 } from '@/lib/unit-conversion';
+import { getSharedApiConnection } from './api-service';
 
 export interface WalletBalance {
   free: string;
@@ -9,22 +9,18 @@ export interface WalletBalance {
 }
 
 export const fetchWalletBalance = async (address: string): Promise<WalletBalance> => {
-  const api = await activate({ networkId: 'taurus' });
+  const api = await getSharedApiConnection();
 
-  try {
-    const balanceData = await balance(api, address);
+  const balanceData = await balance(api, address);
 
-    // Convert from shannons to AI3
-    const freeAI3 = shannonsToAI3(balanceData.free.toString());
-    const reservedAI3 = shannonsToAI3(balanceData.reserved.toString());
-    const totalAI3 = freeAI3 + reservedAI3;
+  // Convert from shannons to AI3
+  const freeAI3 = shannonsToAI3(balanceData.free.toString());
+  const reservedAI3 = shannonsToAI3(balanceData.reserved.toString());
+  const totalAI3 = freeAI3 + reservedAI3;
 
-    return {
-      free: freeAI3.toString(),
-      reserved: reservedAI3.toString(),
-      total: totalAI3.toString(),
-    };
-  } finally {
-    await api.disconnect();
-  }
+  return {
+    free: freeAI3.toString(),
+    reserved: reservedAI3.toString(),
+    total: totalAI3.toString(),
+  };
 };
