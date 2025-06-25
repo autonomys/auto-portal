@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { OperatorsPage } from './pages/operators';
 import { StakingPage } from './pages/StakingPage';
+import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
 import { useBalance } from '@/hooks/use-balance';
+import { usePositions } from '@/hooks/use-positions';
 import { formatAI3 } from '@/lib/formatting';
 import './App.css';
 
@@ -14,6 +16,7 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string | null>(null);
   const { balance } = useBalance();
+  const { hasPositions } = usePositions();
 
   const handleStakeOperator = (operatorId: string) => {
     setSelectedOperatorId(operatorId);
@@ -72,8 +75,11 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Portfolio Summary */}
+        <PositionSummary />
+
+        {/* Wallet Balance - Only show available balance alongside position data */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
@@ -97,32 +103,35 @@ const App: React.FC = () => {
               <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Active Positions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-mono">0</div>
-              <p className="text-xs text-muted-foreground font-sans">Staking positions</p>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* Call to Action */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <CardTitle className="mb-2 font-serif">Start Staking</CardTitle>
-              <CardDescription className="mb-4 font-sans">
-                Browse available operators and choose the best fit for your staking strategy
-              </CardDescription>
-              <Button size="lg" className="font-sans" onClick={() => setCurrentPage('operators')}>
-                Browse Operators
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Active Positions */}
+        <ActivePositionsTable
+          onOperatorClick={operatorId => {
+            console.log('Navigate to operator details:', operatorId);
+            // Future: Navigate to operator details page
+          }}
+        />
+
+        {/* Pending Operations */}
+        <PendingOperations />
+
+        {/* Call to Action - Only show if no positions */}
+        {!hasPositions && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <CardTitle className="mb-2 font-serif">Start Staking</CardTitle>
+                <CardDescription className="mb-4 font-sans">
+                  Browse available operators and choose the best fit for your staking strategy
+                </CardDescription>
+                <Button size="lg" className="font-sans" onClick={() => setCurrentPage('operators')}>
+                  Browse Operators
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </Layout>
   );

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getWallets, getWalletBySource } from '@talismn/connect-wallets';
+import { address } from '@autonomys/auto-utils';
 import type { WalletState } from '@/types/wallet';
 import {
   SUPPORTED_WALLET_EXTENSIONS,
@@ -9,6 +10,46 @@ import {
   CONNECTION_TIMEOUT,
 } from '@/constants/wallets';
 import type { Wallet } from '@talismn/connect-wallets';
+
+// Shared wallet connection logic
+const connectToWallet = async (extensionName: string) => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('Connection timeout')), CONNECTION_TIMEOUT);
+  });
+
+  const wallet = getWalletBySource(extensionName);
+  if (!wallet) {
+    throw new Error(`Wallet not found: ${extensionName}`);
+  }
+
+  if (!wallet.installed) {
+    throw new Error(`${wallet.title} is not installed. Please install the extension first.`);
+  }
+
+  // Enable wallet with timeout
+  await Promise.race([wallet.enable(DAPP_NAME), timeoutPromise]);
+
+  if (!wallet.extension) {
+    throw new Error(`Extension not available for ${extensionName}`);
+  }
+
+  const rawAccounts = await wallet.getAccounts();
+  if (!rawAccounts || rawAccounts.length === 0) {
+    throw new Error(`No accounts found in ${wallet.title}. Please create an account first.`);
+  }
+
+  // Convert all account addresses to correct SS58 format
+  const accounts = rawAccounts.map(account => ({
+    ...account,
+    address: address(account.address), // Convert to format 6094 (Autonomys mainnet)
+  }));
+
+  return {
+    accounts,
+    injector: wallet.extension,
+    wallet,
+  };
+};
 
 // Simplified wallet store with consolidated state management
 export const useWalletStore = create<WalletState>()(
@@ -64,40 +105,8 @@ export const useWalletStore = create<WalletState>()(
           connectionError: null,
         });
 
-        let timeoutId: NodeJS.Timeout;
-
         try {
-          // Set up connection timeout
-          const timeoutPromise = new Promise<never>((_, reject) => {
-            timeoutId = setTimeout(() => {
-              reject(new Error('Connection timeout. Please try again.'));
-            }, CONNECTION_TIMEOUT);
-          });
-
-          const wallet = getWalletBySource(extensionName);
-          if (!wallet) {
-            throw new Error(`Wallet not found: ${extensionName}`);
-          }
-
-          if (!wallet.installed) {
-            throw new Error(
-              `${wallet.title} is not installed. Please install the extension first.`,
-            );
-          }
-
-          // Race between wallet connection and timeout
-          await Promise.race([wallet.enable(DAPP_NAME), timeoutPromise]);
-
-          if (!wallet.extension) {
-            throw new Error(`Extension not available for ${extensionName}`);
-          }
-
-          const accounts = await wallet.getAccounts();
-          if (!accounts || accounts.length === 0) {
-            throw new Error(
-              `No accounts found in ${wallet.title}. Please create an account first.`,
-            );
-          }
+          const { accounts, injector } = await connectToWallet(extensionName);
 
           set({
             isConnected: true,
@@ -106,7 +115,7 @@ export const useWalletStore = create<WalletState>()(
             selectedWallet: extensionName,
             selectedAccount: accounts[0],
             accounts: accounts,
-            injector: wallet.extension,
+            injector: injector,
             connectionError: null,
           });
         } catch (error) {
@@ -119,10 +128,6 @@ export const useWalletStore = create<WalletState>()(
             connectionError: errorMessage,
           });
           throw error;
-        } finally {
-          if (timeoutId!) {
-            clearTimeout(timeoutId);
-          }
         }
       },
 
@@ -146,6 +151,7 @@ export const useWalletStore = create<WalletState>()(
         });
 
         try {
+          // Check if wallet is still installed before attempting connection
           const wallet = getWalletBySource(selectedWallet);
           if (!wallet?.installed) {
             // Clear invalid persisted data
@@ -160,43 +166,33 @@ export const useWalletStore = create<WalletState>()(
             return;
           }
 
-          // Silent reconnection with timeout
-          const enablePromise = wallet.enable(DAPP_NAME);
-          const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(() => reject(new Error('Initialization timeout')), CONNECTION_TIMEOUT);
-          });
+          const { accounts, injector } = await connectToWallet(selectedWallet);
 
-          await Promise.race([enablePromise, timeoutPromise]);
+          // Find target account by comparing with stored address (already in correct format)
+          const targetAccount = accounts.find(acc => acc.address === selectedAccount.address);
 
-          if (wallet.extension) {
-            const accounts = await wallet.getAccounts();
-            const targetAccount = accounts.find(acc => acc.address === selectedAccount.address);
-
-            if (targetAccount) {
-              set({
-                isConnected: true,
-                isLoading: false,
-                loadingType: null,
-                accounts: accounts,
-                injector: wallet.extension,
-                connectionError: null,
-              });
-              console.log('Successfully reconnected to wallet');
-            } else {
-              // Account no longer exists, clear data
-              console.log('Account no longer exists, clearing persisted data');
-              set({
-                selectedWallet: null,
-                selectedAccount: null,
-                isConnected: false,
-                isLoading: false,
-                loadingType: null,
-                accounts: [],
-                injector: null,
-              });
-            }
+          if (targetAccount) {
+            set({
+              isConnected: true,
+              isLoading: false,
+              loadingType: null,
+              accounts: accounts,
+              injector: injector,
+              connectionError: null,
+            });
+            console.log('Successfully reconnected to wallet');
           } else {
-            throw new Error('Extension not available');
+            // Account no longer exists, clear data
+            console.log('Account no longer exists, clearing persisted data');
+            set({
+              selectedWallet: null,
+              selectedAccount: null,
+              isConnected: false,
+              isLoading: false,
+              loadingType: null,
+              accounts: [],
+              injector: null,
+            });
           }
         } catch (error) {
           console.warn('Silent reconnection failed:', error);
@@ -225,18 +221,19 @@ export const useWalletStore = create<WalletState>()(
         });
       },
 
-      selectAccount: (address: string) => {
+      selectAccount: (targetAddress: string) => {
         const { accounts, isConnected } = get();
         if (!isConnected) {
           console.warn('Cannot select account when wallet is not connected');
           return;
         }
 
-        const account = accounts.find(acc => acc.address === address);
+        // Find account by address (addresses are already in correct format)
+        const account = accounts.find(acc => acc.address === targetAddress);
         if (account) {
           set({ selectedAccount: account });
         } else {
-          console.warn('Account not found:', address);
+          console.warn('Account not found:', targetAddress);
         }
       },
 

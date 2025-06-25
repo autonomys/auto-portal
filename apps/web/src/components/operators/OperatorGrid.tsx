@@ -1,5 +1,5 @@
 import React from 'react';
-import { OperatorCard } from './operator-card';
+import { OperatorCard } from './OperatorCard';
 import type { Operator } from '@/types/operator';
 
 interface OperatorGridProps {
