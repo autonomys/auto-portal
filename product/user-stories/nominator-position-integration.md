@@ -117,7 +117,7 @@ import { activate } from '@autonomys/auto-utils';
 import { nominatorPosition, operator } from '@autonomys/auto-consensus';
 import { formatAI3 } from '@/utils/unit-conversion';
 
-const TARGET_OPERATORS = ['0', '1', '3']; // Same as operator service
+const TARGET_OPERATORS = ['0', '3']; // Same as operator service
 
 export interface UserPosition {
   operatorId: string;
