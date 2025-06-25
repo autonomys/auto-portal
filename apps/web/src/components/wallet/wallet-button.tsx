@@ -5,7 +5,6 @@ import { useBalance } from '@/hooks/use-balance';
 import { shortenAddress } from '@/lib/utils';
 import { formatAI3 } from '@/lib/formatting';
 import { Copy } from 'lucide-react';
-import { address } from '@autonomys/auto-utils';
 import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
@@ -39,12 +38,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
             <button
               onClick={e => {
                 e.stopPropagation();
-                try {
-                  const autonomysAddress = address(account.address);
-                  navigator.clipboard.writeText(autonomysAddress);
-                } catch {
-                  navigator.clipboard.writeText(account.address);
-                }
+                navigator.clipboard.writeText(account.address);
               }}
               className="p-1 hover:bg-gray-200 rounded"
               title="Copy address"
