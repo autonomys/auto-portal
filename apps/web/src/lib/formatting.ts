@@ -1,15 +1,16 @@
-/**
- * Format a number with thousand separators
- */
-export const formatNumber = (value: string | number, decimals: number = 0): string => {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
+import { formatAutonomysAddress } from './utils';
 
+/**
+ * Format a number with specified decimal places
+ */
+export const formatNumber = (value: string | number, decimals: number = 2): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
   if (isNaN(num)) return '0';
 
-  return new Intl.NumberFormat('en-US', {
+  return num.toLocaleString('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(num);
+  });
 };
 
 /**
@@ -28,62 +29,72 @@ export const formatPercentage = (value: number, decimals: number = 1): string =>
 };
 
 /**
- * Format large numbers with suffixes (K, M, B)
+ * Format large numbers with units (K, M, B)
  */
-export const formatCompactNumber = (value: string | number): string => {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
-
-  if (isNaN(num)) return '0';
-
-  if (num >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toFixed(1)}B`;
+export const formatLargeNumber = (value: number): string => {
+  if (value >= 1_000_000_000) {
+    return `${(value / 1_000_000_000).toFixed(1)}B`;
   }
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`;
   }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`;
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1)}K`;
   }
-
-  return formatNumber(num);
+  return value.toString();
 };
 
 /**
- * Get color class for percentage values
+ * Format date relative to now
  */
-export const getPercentageColor = (
-  percentage: number,
-  thresholds: { good: number; warning: number },
-) => {
-  if (percentage >= thresholds.good) {
-    return 'text-success-600';
-  }
-  if (percentage >= thresholds.warning) {
-    return 'text-warning-600';
-  }
-  return 'text-destructive-600';
+export const formatRelativeTime = (date: Date): string => {
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+  return date.toLocaleDateString();
 };
 
 /**
- * Get color class for APY values
+ * Format timestamp to human readable
  */
-export const getAPYColor = (apy: number) => {
-  return getPercentageColor(apy, { good: 16, warning: 12 });
+export const formatTimestamp = (timestamp: number): string => {
+  return new Date(timestamp).toLocaleString();
 };
 
 /**
- * Truncate address for display
+ * Truncate address for display (using Autonomys format)
  */
 export const truncateAddress = (
   address: string,
   startLength: number = 6,
   endLength: number = 4,
 ): string => {
-  if (address.length <= startLength + endLength) {
-    return address;
+  const autonomysAddress = formatAutonomysAddress(address);
+
+  if (autonomysAddress.length <= startLength + endLength) {
+    return autonomysAddress;
   }
 
-  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
+  return `${autonomysAddress.slice(0, startLength)}...${autonomysAddress.slice(-endLength)}`;
+};
+
+/**
+ * Get color class for percentage values
+ */
+export const getPercentageColor = (
+  value: number,
+  positiveColor = 'text-green-600',
+  negativeColor = 'text-red-600',
+  neutralColor = 'text-gray-600',
+): string => {
+  if (value > 0) return positiveColor;
+  if (value < 0) return negativeColor;
+  return neutralColor;
 };
 
 /**
@@ -98,14 +109,8 @@ export const formatTimeAgo = (timestamp: number): string => {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days > 0) {
-    return `${days}d ago`;
-  }
-  if (hours > 0) {
-    return `${hours}h ago`;
-  }
-  if (minutes > 0) {
-    return `${minutes}m ago`;
-  }
-  return 'Just now';
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  return 'just now';
 };
