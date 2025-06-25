@@ -20,7 +20,10 @@ export const calculateStakingAmounts = (
   };
 };
 
-export const getValidationRules = (operator: Operator, availableBalance?: number): StakingValidation => {
+export const getValidationRules = (
+  operator: Operator,
+  availableBalance?: number,
+): StakingValidation => {
   return {
     minimum: parseFloat(operator.minimumNominatorStake), // Already in AI3 format
     maximum: availableBalance ?? DEFAULT_BALANCE,

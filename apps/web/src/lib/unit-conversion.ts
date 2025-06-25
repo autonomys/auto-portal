@@ -9,18 +9,18 @@ const SHANNON_TO_AI3_DIVISOR = Math.pow(10, AI3_DECIMALS);
  */
 export const shannonsToAI3 = (shannons: string | number): number => {
   const shannonsStr = typeof shannons === 'string' ? shannons : shannons.toString();
-  
+
   // Handle the conversion with proper precision
   const shannonsBigInt = BigInt(shannonsStr);
   const divisorBigInt = BigInt(SHANNON_TO_AI3_DIVISOR);
-  
+
   // Get the integer part
   const integerPart = shannonsBigInt / divisorBigInt;
-  
+
   // Get the fractional part for precision
   const remainder = shannonsBigInt % divisorBigInt;
   const fractionalPart = Number(remainder) / SHANNON_TO_AI3_DIVISOR;
-  
+
   return Number(integerPart) + fractionalPart;
 };
 

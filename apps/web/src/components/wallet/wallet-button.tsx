@@ -34,11 +34,9 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
           }`}
         >
           <div className="flex items-center justify-between">
-            <span className="font-medium">
-              {account.name || shortenAddress(account.address)}
-            </span>
+            <span className="font-medium">{account.name || shortenAddress(account.address)}</span>
             <button
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 navigator.clipboard.writeText(account.address);
               }}

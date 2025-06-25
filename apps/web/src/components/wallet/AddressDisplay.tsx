@@ -19,7 +19,7 @@ export const AddressDisplay: React.FC<AddressDisplayProps> = ({
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
@@ -31,10 +31,7 @@ export const AddressDisplay: React.FC<AddressDisplayProps> = ({
 
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
-      <span
-        title={address}
-        className="cursor-help"
-      >
+      <span title={address} className="cursor-help">
         {name || shortenAddress(address)}
       </span>
       {showCopy && (

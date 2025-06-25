@@ -11,7 +11,6 @@ import {
   calculateStakingAmounts,
   getValidationRules,
   validateStakingAmount,
-  formatAI3Amount,
   TRANSACTION_FEE,
 } from '@/lib/staking-utils';
 
@@ -23,7 +22,7 @@ interface StakingFormProps {
 
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
   const { balance, loading: balanceLoading } = useBalance();
-  
+
   const [formState, setFormState] = useState<StakingFormState>({
     amount: '',
     isValid: false,
