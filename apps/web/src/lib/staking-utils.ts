@@ -1,7 +1,6 @@
 import type { StakingCalculations, StakingValidation } from '@/types/staking';
 import type { Operator } from '@/types/operator';
 
-export const DEFAULT_BALANCE = 500.0; // AI3
 export const TRANSACTION_FEE = 0.01; // AI3
 export const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
 
@@ -22,11 +21,11 @@ export const calculateStakingAmounts = (
 
 export const getValidationRules = (
   operator: Operator,
-  availableBalance?: number,
+  availableBalance: number,
 ): StakingValidation => {
   return {
     minimum: parseFloat(operator.minimumNominatorStake), // Already in AI3 format
-    maximum: availableBalance ?? DEFAULT_BALANCE,
+    maximum: availableBalance,
     required: true,
     decimals: 2,
   };

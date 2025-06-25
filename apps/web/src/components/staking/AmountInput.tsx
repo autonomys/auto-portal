@@ -1,13 +1,14 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { formatAI3Amount, DEFAULT_BALANCE, TRANSACTION_FEE } from '@/lib/staking-utils';
+import { formatAI3Amount, TRANSACTION_FEE } from '@/lib/staking-utils';
 
 interface AmountInputProps {
   amount: string;
   onAmountChange: (amount: string) => void;
   errors: string[];
   disabled?: boolean;
+  availableBalance?: number;
 }
 
 export const AmountInput: React.FC<AmountInputProps> = ({
@@ -15,10 +16,11 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   onAmountChange,
   errors,
   disabled = false,
+  availableBalance = 0,
 }) => {
   const handleMaxClick = () => {
     // Calculate maximum stakeable amount by subtracting transaction fee from available balance
-    const maxStakeableAmount = DEFAULT_BALANCE - TRANSACTION_FEE;
+    const maxStakeableAmount = Math.max(0, availableBalance - TRANSACTION_FEE);
     onAmountChange(formatAI3Amount(maxStakeableAmount));
   };
 
@@ -48,7 +50,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
             variant="outline"
             size="sm"
             onClick={handleMaxClick}
-            disabled={disabled}
+            disabled={disabled || availableBalance <= TRANSACTION_FEE}
             className="h-7 px-3 text-xs font-sans"
           >
             MAX
@@ -65,9 +67,6 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           ))}
         </div>
       )}
-      <p className="text-xs text-muted-foreground font-sans">
-        Available balance: {formatAI3Amount(DEFAULT_BALANCE)} AI3
-      </p>
     </div>
   );
 };

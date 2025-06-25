@@ -112,6 +112,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             onAmountChange={handleAmountChange}
             errors={formState.errors}
             disabled={formState.isSubmitting}
+            availableBalance={balance ? parseFloat(balance.free) : 0}
           />
 
           {/* Action Buttons */}
