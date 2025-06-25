@@ -82,7 +82,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Stake Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">Stake Amount</CardTitle>
+          <CardTitle className="text-lg font-serif">Amount to Stake</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Available Balance */}

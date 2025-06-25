@@ -18,9 +18,9 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground font-sans">Stake Amount</span>
+            <span className="text-sm text-muted-foreground font-sans">Staking Portion</span>
             <span className="font-mono font-medium text-foreground">
-              {formatAI3Amount(calculations.totalRequired - calculations.transactionFee)} AI3
+              {formatAI3Amount(calculations.netStaking)} AI3
             </span>
           </div>
           <div className="flex justify-between items-center">
