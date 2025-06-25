@@ -89,6 +89,8 @@ __metadata:
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
+    "@polkadot/util": "npm:^13.5.2"
+    "@polkadot/util-crypto": "npm:^13.5.2"
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@talismn/connect-wallets": "npm:^1.2.8"
