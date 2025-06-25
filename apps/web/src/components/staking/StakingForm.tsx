@@ -37,12 +37,11 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     expectedRewards: 0,
   });
 
-  const validationRules = getValidationRules(operator);
-
   // Update validation and calculations when amount changes
   useEffect(() => {
+    const validationRules = getValidationRules(operator);
     const validation = validateStakingAmount(formState.amount, validationRules);
-    const newCalculations = calculateStakingAmounts(formState.amount, operator.currentAPY);
+    const newCalculations = calculateStakingAmounts(formState.amount, 0);
 
     setFormState(prev => ({
       ...prev,
@@ -52,7 +51,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator.currentAPY, validationRules]);
+  }, [formState.amount, operator]);
 
   const handleAmountChange = (amount: string) => {
     setFormState(prev => ({
@@ -67,8 +66,6 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     setFormState(prev => ({ ...prev, isSubmitting: true }));
 
     try {
-      // Simulate transaction submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
       onSubmit(formState.amount);
     } catch (error) {
       console.error('Transaction failed:', error);
@@ -85,7 +82,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Stake Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">Stake Amount</CardTitle>
+          <CardTitle className="text-lg font-serif">Amount to Stake</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Available Balance */}

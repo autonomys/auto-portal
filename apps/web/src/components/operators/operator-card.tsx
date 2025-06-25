@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
+import { formatNumber, formatPercentage } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorCardProps {
@@ -31,17 +31,6 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
     return name.charAt(0).toUpperCase();
   };
 
-  const getRecommendedBadge = () => {
-    if (operator.isRecommended) {
-      return (
-        <Badge variant="secondary" className="bg-accent-100 text-accent-700 border-accent-300">
-          Recommended
-        </Badge>
-      );
-    }
-    return null;
-  };
-
   return (
     <Card className="hover:shadow-lg hover:border-primary-200 transition-all duration-200 cursor-pointer">
       <CardContent className="p-6">
@@ -60,18 +49,11 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
           </div>
           <div className="flex flex-col items-end space-y-2">
             <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
-            {getRecommendedBadge()}
           </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="text-center">
-            <div className={`text-2xl font-bold font-mono ${getAPYColor(operator.currentAPY)}`}>
-              {formatPercentage(operator.currentAPY)}
-            </div>
-            <div className="text-xs text-muted-foreground">APY</div>
-          </div>
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="text-center">
             <div className="text-2xl font-bold font-mono">
               {formatPercentage(operator.nominationTax)}

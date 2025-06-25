@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
+import { formatNumber, formatPercentage } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 
 interface OperatorTableProps {
@@ -43,7 +43,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">APY</th>
+
               <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
@@ -120,7 +120,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
         <thead className="bg-muted/50">
           <tr>
             <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">APY</th>
+
             <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
@@ -146,22 +146,10 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   <div className="min-w-0">
                     <div className="font-medium text-foreground truncate">{operator.name}</div>
                     <div className="text-sm text-muted-foreground">{operator.domainName}</div>
-                    {operator.isRecommended && (
-                      <Badge
-                        variant="secondary"
-                        className="bg-accent-100 text-accent-700 border-accent-300 text-xs mt-1"
-                      >
-                        Recommended
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </td>
-              <td className="p-4">
-                <span className={`font-mono font-medium ${getAPYColor(operator.currentAPY)}`}>
-                  {formatPercentage(operator.currentAPY)}
-                </span>
-              </td>
+
               <td className="p-4">
                 <span className="font-mono">{formatPercentage(operator.nominationTax)}</span>
               </td>

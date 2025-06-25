@@ -20,7 +20,7 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
   onNavigate,
   currentPage,
 }) => {
-  const { operators, loading, error, operatorCount, averageAPY, clearError } = useOperators();
+  const { operators, loading, error, operatorCount, clearError } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
@@ -113,12 +113,6 @@ export const OperatorsPage: React.FC<OperatorsPageProps> = ({
           <div className="mb-6">
             <p className="text-muted-foreground">
               Showing <span className="font-medium text-foreground">{operatorCount} operators</span>
-              {averageAPY > 0 && (
-                <>
-                  {' • '}Average APY:{' '}
-                  <span className="font-medium text-success-600">{averageAPY.toFixed(1)}%</span>
-                </>
-              )}
             </p>
           </div>
         )}

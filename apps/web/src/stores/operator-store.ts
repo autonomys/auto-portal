@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 import type { OperatorStore, FilterState } from '@/types/operator';
-import { operatorService } from '@/services/operatorService';
+import { operatorService } from '@/services/operator-service';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
   domainFilter: 'all',
-  sortBy: 'apy',
+  sortBy: 'totalStaked',
   sortOrder: 'desc',
 };
 
@@ -16,13 +16,20 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
   loading: false,
   error: null,
   filters: DEFAULT_FILTERS,
+  isInitialized: false,
 
   // Actions
   fetchOperators: async () => {
-    set({ loading: true, error: null });
+    const { loading } = get();
+
+    // Prevent concurrent fetches
+    if (loading) return;
+
+    set({ loading: true, error: null, isInitialized: true });
 
     try {
-      const operators = await operatorService.getAllOperators();
+      const opService = await operatorService('taurus');
+      const operators = await opService.getAllOperators();
       set({ operators, loading: false });
 
       // Apply current filters
@@ -64,24 +71,12 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       filtered = filtered.filter(op => filters.statusFilter!.includes(op.status));
     }
 
-    // APY filter
-    if (filters.minAPY !== undefined) {
-      filtered = filtered.filter(op => op.currentAPY >= filters.minAPY!);
-    }
-    if (filters.maxAPY !== undefined) {
-      filtered = filtered.filter(op => op.currentAPY <= filters.maxAPY!);
-    }
-
     // Sorting
     filtered.sort((a, b) => {
       let aValue: number;
       let bValue: number;
 
       switch (filters.sortBy) {
-        case 'apy':
-          aValue = a.currentAPY;
-          bValue = b.currentAPY;
-          break;
         case 'totalStaked':
           aValue = parseFloat(a.totalStaked);
           bValue = parseFloat(b.totalStaked);
@@ -106,7 +101,6 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
   refreshOperatorData: async (operatorId: string) => {
     try {
-      // For mock data, just refresh all operators (operatorId is ignored in mock)
       void operatorId;
       await get().fetchOperators();
     } catch (error) {

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { OperatorSummary, StakingForm } from '@/components/staking';
 import { Layout } from '@/components/layout';
-import { useOperatorStore } from '@/stores/operator-store';
+import { useOperators } from '@/hooks/use-operators';
 import type { Operator } from '@/types/operator';
 
 interface StakingPageProps {
@@ -20,16 +20,10 @@ export const StakingPage: React.FC<StakingPageProps> = ({
   onNavigate,
   currentPage,
 }) => {
-  const { operators, loading, error, fetchOperators } = useOperatorStore();
+  const { allOperators: operators, loading, error, refetch: fetchOperators } = useOperators();
   const [operator, setOperator] = useState<Operator | null>(null);
   const [stakingSuccess, setStakingSuccess] = useState(false);
   const [stakedAmount, setStakedAmount] = useState<string>('');
-
-  useEffect(() => {
-    if (operators.length === 0 && !loading) {
-      fetchOperators();
-    }
-  }, [operators.length, loading, fetchOperators]);
 
   useEffect(() => {
     const foundOperator = operators.find(op => op.id === operatorId);

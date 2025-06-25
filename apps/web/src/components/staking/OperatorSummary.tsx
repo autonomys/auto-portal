@@ -48,10 +48,10 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <p className="text-2xl font-bold text-success-600 font-mono">
-              {operator.currentAPY.toFixed(1)}%
+            <p className="text-2xl font-bold text-foreground font-mono">
+              {operator.nominationTax}%
             </p>
-            <p className="text-sm text-muted-foreground font-sans">APY</p>
+            <p className="text-sm text-muted-foreground font-sans">Tax Rate</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground font-mono">
@@ -65,7 +65,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
           </div>
           <div className="text-center">
             <p className="text-lg font-mono text-foreground">
-              {formatAI3AmountWithCommas(parseFloat(operator.totalStaked) / 1000000)} AI3
+              {formatAI3AmountWithCommas(parseFloat(operator.totalStaked))} AI3
             </p>
             <p className="text-sm text-muted-foreground font-sans">Pool Size</p>
           </div>
@@ -75,7 +75,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
           <p className="text-sm text-muted-foreground font-sans">
             <span className="font-medium">{operator.nominatorCount} nominators</span> • Min stake:{' '}
             <span className="font-mono">
-              {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake) / 1000000)} AI3
+              {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake))} AI3
             </span>
           </p>
         </div>

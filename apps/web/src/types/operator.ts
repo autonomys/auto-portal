@@ -13,13 +13,6 @@ export interface Operator {
   status: 'active' | 'inactive' | 'slashed' | 'degraded';
   totalStaked: string; // Total AI3 in pool
   nominatorCount: number;
-
-  // Performance Metrics (calculated from RPC)
-  currentAPY: number; // Current annualized percentage yield
-
-  // Calculated/Derived
-  poolCapacity: number; // Percentage of max capacity
-  isRecommended: boolean; // Algorithm-based recommendation
 }
 
 export interface OperatorStats {
@@ -29,30 +22,12 @@ export interface OperatorStats {
   nominatorCount: number;
 }
 
-export interface OperatorDetails extends Operator {
-  // Extended details for operator profile page
-  description?: string;
-  website?: string;
-  social?: {
-    twitter?: string;
-    telegram?: string;
-    discord?: string;
-  };
-  // Historical performance data
-  apyHistory: Array<{
-    epoch: number;
-    apy: number;
-    timestamp: number;
-  }>;
-}
-
 export type FilterState = {
   searchQuery: string;
   domainFilter: string;
-  sortBy: 'apy' | 'totalStaked' | 'tax';
+  sortBy: 'totalStaked' | 'tax';
   sortOrder: 'asc' | 'desc';
-  minAPY?: number;
-  maxAPY?: number;
+
   statusFilter?: Operator['status'][];
 };
 
@@ -62,6 +37,7 @@ export interface OperatorStore {
   filteredOperators: Operator[];
   loading: boolean;
   error: string | null;
+  isInitialized: boolean;
 
   // Filters
   filters: FilterState;

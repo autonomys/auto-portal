@@ -12,18 +12,19 @@ export const useOperators = () => {
     loading,
     error,
     filters,
+    isInitialized,
     fetchOperators,
     setFilters,
     refreshOperatorData,
     clearError,
   } = useOperatorStore();
 
-  // Auto-fetch operators on first mount
+  // Auto-fetch operators on first mount if not already initialized
   useEffect(() => {
-    if (operators.length === 0 && !loading && !error) {
+    if (!isInitialized && operators.length === 0 && !loading && !error) {
       fetchOperators();
     }
-  }, [operators.length, loading, error, fetchOperators]);
+  }, [isInitialized, operators.length, loading, error, fetchOperators]);
 
   return {
     // State
@@ -35,10 +36,6 @@ export const useOperators = () => {
 
     // Computed values
     operatorCount: filteredOperators.length,
-    averageAPY:
-      filteredOperators.length > 0
-        ? filteredOperators.reduce((sum, op) => sum + op.currentAPY, 0) / filteredOperators.length
-        : 0,
 
     // Actions
     refetch: fetchOperators,
@@ -89,10 +86,9 @@ export const useOperatorFilters = () => {
     setFilters({
       searchQuery: '',
       domainFilter: 'all',
-      sortBy: 'apy',
+      sortBy: 'totalStaked',
       sortOrder: 'desc',
-      minAPY: undefined,
-      maxAPY: undefined,
+
       statusFilter: undefined,
     });
   };

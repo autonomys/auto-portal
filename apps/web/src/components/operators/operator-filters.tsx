@@ -37,7 +37,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
     onFiltersChange({
       searchQuery: '',
       domainFilter: 'all',
-      sortBy: 'apy',
+      sortBy: 'totalStaked',
       sortOrder: 'desc',
     });
   };
@@ -50,7 +50,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
     return (
       filters.searchQuery.trim() !== '' ||
       filters.domainFilter !== 'all' ||
-      filters.sortBy !== 'apy' ||
+      filters.sortBy !== 'totalStaked' ||
       filters.sortOrder !== 'desc'
     );
   };
@@ -78,8 +78,6 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
             className="px-3 py-2 border border-input bg-background rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[180px]"
             disabled={loading}
           >
-            <option value="apy-desc">Sort: APY (High to Low)</option>
-            <option value="apy-asc">Sort: APY (Low to High)</option>
             <option value="totalStaked-desc">Sort: Total Staked (High to Low)</option>
             <option value="totalStaked-asc">Sort: Total Staked (Low to High)</option>
             <option value="tax-asc">Sort: Tax (Low to High)</option>
