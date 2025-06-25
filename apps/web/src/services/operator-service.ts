@@ -1,9 +1,9 @@
-import { activate } from '@autonomys/auto-utils';
 import { operator } from '@autonomys/auto-consensus';
 import type { Operator, OperatorStats } from '@/types/operator';
+import { getSharedApiConnection } from './api-service';
 
 export const operatorService = async (networkId: string = 'taurus') => {
-  const api = await activate({ networkId });
+  const api = await getSharedApiConnection(networkId);
 
   const getAllOperators = async (): Promise<Operator[]> => {
     const TARGET_OPERATORS = ['0', '3'];

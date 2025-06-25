@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
 import { TransactionPreview } from './TransactionPreview';
+import { useBalance } from '@/hooks/use-balance';
+import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import type { StakingFormState, StakingCalculations } from '@/types/staking';
 import {
   calculateStakingAmounts,
   getValidationRules,
   validateStakingAmount,
-  formatAI3Amount,
-  DEFAULT_BALANCE,
   TRANSACTION_FEE,
 } from '@/lib/staking-utils';
 
@@ -21,6 +21,8 @@ interface StakingFormProps {
 }
 
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
+  const { balance, loading: balanceLoading } = useBalance();
+
   const [formState, setFormState] = useState<StakingFormState>({
     amount: '',
     isValid: false,
@@ -39,7 +41,8 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
   // Update validation and calculations when amount changes
   useEffect(() => {
-    const validationRules = getValidationRules(operator);
+    const availableBalance = balance ? parseFloat(balance.free) : 0;
+    const validationRules = getValidationRules(operator, availableBalance);
     const validation = validateStakingAmount(formState.amount, validationRules);
     const newCalculations = calculateStakingAmounts(formState.amount, 0);
 
@@ -51,7 +54,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator]);
+  }, [formState.amount, operator, balance]);
 
   const handleAmountChange = (amount: string) => {
     setFormState(prev => ({
@@ -92,7 +95,13 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 Available Balance
               </span>
               <span className="text-lg font-mono font-semibold text-foreground">
-                {formatAI3Amount(DEFAULT_BALANCE)} AI3
+                {balanceLoading ? (
+                  <span className="animate-pulse">Loading...</span>
+                ) : balance ? (
+                  formatAI3(balance.free)
+                ) : (
+                  'Connect wallet'
+                )}
               </span>
             </div>
           </div>
@@ -103,6 +112,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             onAmountChange={handleAmountChange}
             errors={formState.errors}
             disabled={formState.isSubmitting}
+            availableBalance={balance ? parseFloat(balance.free) : 0}
           />
 
           {/* Action Buttons */}

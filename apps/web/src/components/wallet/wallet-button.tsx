@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@/hooks/use-wallet';
+import { useBalance } from '@/hooks/use-balance';
 import { shortenAddress } from '@/lib/utils';
+import { formatAI3 } from '@/lib/formatting';
+import { Copy } from 'lucide-react';
 import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
@@ -17,7 +20,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   onSelectAccount,
   onDisconnect,
 }) => (
-  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+  <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
     <div className="p-2">
       <div className="text-xs text-gray-500 mb-2">Select Account</div>
       {accounts.map((account: WalletAccount) => (
@@ -30,7 +33,22 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               : 'hover:bg-gray-50'
           }`}
         >
-          {account.name || shortenAddress(account.address)}
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{account.name || shortenAddress(account.address)}</span>
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(account.address);
+              }}
+              className="p-1 hover:bg-gray-200 rounded"
+              title="Copy address"
+            >
+              <Copy className="w-3 h-3 text-gray-500" />
+            </button>
+          </div>
+          <div className="text-xs text-gray-500 mt-1" title={account.address}>
+            {shortenAddress(account.address, 8)}
+          </div>
         </button>
       ))}
       <div className="border-t mt-2 pt-2">
@@ -60,6 +78,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
     disconnectWallet,
   } = useWallet();
 
+  const { balance } = useBalance();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleDisconnect = () => {
@@ -91,10 +110,19 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
         <Button
           variant="secondary"
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-3"
         >
-          <div className="w-2 h-2 bg-green-500 rounded-full" />
-          <span>{selectedAccount.name || shortenAddress(selectedAccount.address)}</span>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium">
+                {selectedAccount.name || shortenAddress(selectedAccount.address)}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {balance ? formatAI3(balance.free, 2) : 'Loading...'}
+              </span>
+            </div>
+          </div>
           <svg
             className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
             fill="none"

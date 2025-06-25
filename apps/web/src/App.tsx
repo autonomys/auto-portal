@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { OperatorsPage } from './pages/operators';
 import { StakingPage } from './pages/StakingPage';
+import { useBalance } from '@/hooks/use-balance';
+import { formatAI3 } from '@/lib/formatting';
 import './App.css';
 
 type Page = 'dashboard' | 'operators' | 'staking';
@@ -11,6 +13,7 @@ type Page = 'dashboard' | 'operators' | 'staking';
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string | null>(null);
+  const { balance } = useBalance();
 
   const handleStakeOperator = (operatorId: string) => {
     setSelectedOperatorId(operatorId);
@@ -73,21 +76,25 @@ const App: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Total Staked</CardTitle>
+              <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">0 AI3</div>
-              <p className="text-xs text-muted-foreground font-sans">Across all positions</p>
+              <div className="text-2xl font-bold font-mono">
+                {balance ? formatAI3(balance.free) : '---'}
+              </div>
+              <p className="text-xs text-muted-foreground font-sans">Ready to stake</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium font-sans">Total Earned</CardTitle>
+              <CardTitle className="text-sm font-medium font-sans">Total Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success-600 font-mono">0 AI3</div>
-              <p className="text-xs text-muted-foreground font-sans">Lifetime rewards</p>
+              <div className="text-2xl font-bold font-mono">
+                {balance ? formatAI3(balance.total) : '---'}
+              </div>
+              <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
             </CardContent>
           </Card>
 
