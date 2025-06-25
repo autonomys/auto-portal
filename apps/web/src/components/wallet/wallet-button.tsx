@@ -4,7 +4,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useBalance } from '@/hooks/use-balance';
 import { shortenAddress } from '@/lib/utils';
 import { formatAI3 } from '@/lib/formatting';
-import { AddressDisplay } from './AddressDisplay';
+import { Copy } from 'lucide-react';
 import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
@@ -33,11 +33,24 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
               : 'hover:bg-gray-50'
           }`}
         >
-          <AddressDisplay
-            address={account.address}
-            name={account.name}
-            className="justify-start"
-          />
+          <div className="flex items-center justify-between">
+            <span className="font-medium">
+              {account.name || shortenAddress(account.address)}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(account.address);
+              }}
+              className="p-1 hover:bg-gray-200 rounded"
+              title="Copy address"
+            >
+              <Copy className="w-3 h-3 text-gray-500" />
+            </button>
+          </div>
+          <div className="text-xs text-gray-500 mt-1" title={account.address}>
+            {shortenAddress(account.address, 8)}
+          </div>
         </button>
       ))}
       <div className="border-t mt-2 pt-2">
@@ -99,17 +112,19 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
         <Button
           variant="secondary"
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-3"
         >
-          <div className="w-2 h-2 bg-green-500 rounded-full" />
-          <AddressDisplay
-            address={selectedAccount.address}
-            name={selectedAccount.name}
-            showCopy={false}
-          />
-          <span className="text-xs text-muted-foreground">
-            {balance ? formatAI3(balance.free, 2) : '---'}
-          </span>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium">
+                {selectedAccount.name || shortenAddress(selectedAccount.address)}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {balance ? formatAI3(balance.free, 2) : 'Loading...'}
+              </span>
+            </div>
+          </div>
           <svg
             className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
             fill="none"
