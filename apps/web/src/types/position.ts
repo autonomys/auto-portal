@@ -22,7 +22,7 @@ export interface UserPosition {
 export interface PortfolioSummary {
   totalValue: number; // Total portfolio value in AI3 (raw numeric value)
   activePositions: number; // Number of operators staked to
-  totalEarned: number; // Future: requires cost basis from indexer
+  totalEarned: number; // Total earnings (requires cost basis calculation)
   pendingDeposits: number; // Count of pending deposit operations
   pendingWithdrawals: number; // Count of pending withdrawal operations
   totalStorageFee: number; // Total storage fee deposits in AI3 (raw numeric value)
