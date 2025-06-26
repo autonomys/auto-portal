@@ -81,7 +81,17 @@ product/
 
 ### **Ready for Implementation**
 
-_No stories ready for implementation yet. Next up: Staking Form RPC integration._
+### **[Staking Flow](./staking-flow.md)**
+
+- **Status:** 📝 **READY FOR IMPLEMENTATION**
+- **Type:** Frontend + RPC Integration
+- **Purpose:** End-to-end `nominateOperator` transaction submission.
+
+### **[Withdrawal Flow](./withdrawal-flow.md)**
+
+- **Status:** 📝 **READY FOR IMPLEMENTATION**
+- **Type:** Frontend + RPC Integration
+- **Purpose:** Two-step `withdrawStake` and `unlockNominator` transaction flow.
 
 ---
 
@@ -102,16 +112,19 @@ Based on logical dependencies and complexity:
 1. **Operator Discovery RPC** → ✅ **COMPLETE** - Real operator data from Taurus testnet
 2. **Wallet Balance Integration** → ✅ **COMPLETE** - Real balance data + wallet UX improvements
 3. **Nominator Position Integration** → ✅ **COMPLETE** - Portfolio tracking with position data
-4. **Staking Form RPC** → Future - Real validation with RPC data integration
-5. **Dashboard Analytics** → Future - Historical data via indexer integration
+4. **Staking Form RPC** → 📝 **READY** - Real validation with RPC data integration
+5. **Withdrawal Flow** → 📝 **READY** - `withdraw` and `unlock` transaction implementation
+6. **Dashboard Analytics** → Future - Historical data via indexer integration
 
 ### **Dependencies**
 
 - **All RPC integration** prerequisite **Auto SDK Integration** is ✅ **COMPLETE**
 - **Wallet Balance Integration** was implemented **independently**
 - **Nominator Position Integration** depended on **Wallet Connection** (✅ complete)
+- **Staking Flow** depends on **Operator Discovery** and **Wallet Balance** (✅ complete)
+- **Withdrawal Flow** depends on **Nominator Position Integration** (✅ complete)
 - **Future stories** can be implemented in **parallel** with current ones
-- **Indexer-dependent features** left mocked for now (APY, transaction history, cost basis)
+- **Indexer-dependent features** are separate and can be implemented later (APY, transaction history, cost basis)
 
 ---
 
