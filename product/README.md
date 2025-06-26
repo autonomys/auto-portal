@@ -106,6 +106,17 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 **📋 Current Milestone:** See implementation-ready user stories in [user-stories/](./user-stories/)
 
+### **✅ Recently Completed: Nominator Position Integration**
+
+**Status:** ✅ **MERGED** - [PR #19](https://github.com/jfrank-summit/auto-portal/pull/19)
+
+**Key Features Delivered:**
+
+- **Real Position Data**: Dashboard now shows actual user staking positions via RPC.
+- **Portfolio Summary**: New summary cards display total portfolio value and active position count.
+- **Pending Operations**: UI tracks and displays pending deposits and withdrawals.
+- **Auto-Refresh**: Portfolio data automatically updates every 30 seconds.
+
 ### **✅ Recently Completed: Wallet Balance Integration**
 
 **Status:** ✅ **MERGED** - [PR #15](https://github.com/jfrank-summit/auto-portal/pull/15)
@@ -175,10 +186,8 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 Current implementation-ready user stories (see [user-stories/](./user-stories/) for details):
 
-1. **[Wallet Balance Integration](./user-stories/wallet-balance-integration.md)**: Real balance data + enhanced wallet UX
-2. **[Nominator Position Integration](./user-stories/nominator-position-integration.md)**: Portfolio tracking via Auto SDK positions
-3. **Future Staking Flow**: Real validation and transaction integration
-4. **Future Dashboard Analytics**: Historical data via indexer integration
+1. **[Staking Form Integration](./user-stories/staking-form-rpc.md)**: Real validation and transaction integration
+2. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration
 
 ---
 
