@@ -72,9 +72,11 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
         <CardContent className="pt-4">
           <h4 className="text-sm font-semibold text-primary font-sans mb-2">Important Notes</h4>
           <ul className="text-xs text-primary/80 space-y-1 font-sans">
-            <li>• Storage fund is refunded when you withdraw</li>
-            <li>• Rewards are automatically compounded</li>
-            <li>• Stake will be active after next epoch (~10 minutes)</li>
+            <li>• Storage fund (20%) is held by the protocol and refunded when you withdraw</li>
+            <li>• Only the net staking amount (80%) earns rewards</li>
+            <li>• Rewards are automatically compounded to your position</li>
+            <li>• Stake will be active after next epoch transition (~10 minutes)</li>
+            <li>• Your stake will appear as "Pending" until the epoch transition occurs</li>
           </ul>
         </CardContent>
       </Card>
