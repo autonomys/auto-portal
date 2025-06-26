@@ -60,6 +60,12 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
           params,
           selectedAccount,
           injector,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (result: any) => {
+            if (result.status?.isBroadcast) {
+              setState('pending');
+            }
+          },
         );
 
         if (result.success) {

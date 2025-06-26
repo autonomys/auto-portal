@@ -44,6 +44,7 @@ export const stakingService = {
    * @param params - Staking parameters
    * @param account - Account to sign with
    * @param injector - Wallet injector for signing
+   * @param progressCallback - Optional callback for real-time transaction status updates
    * @returns Promise that resolves with transaction result
    */
   nominate: async (
@@ -51,6 +52,8 @@ export const stakingService = {
     account: { address: string },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     injector: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progressCallback?: (result: any) => void,
   ): Promise<StakingResult> => {
     try {
       // Create the transaction
@@ -63,6 +66,10 @@ export const stakingService = {
           { signer: injector.signer },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (result: any) => {
+            if (progressCallback) {
+              progressCallback(result);
+            }
+
             const { status, txHash, events } = result;
             if (status.isInBlock) {
               console.log(`Transaction included at blockHash ${status.asInBlock}`);
