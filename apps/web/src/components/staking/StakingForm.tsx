@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
@@ -26,6 +26,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions();
   const stakingTransaction = useStakingTransaction();
+  const submittedAmount = useRef('');
 
   const [formState, setFormState] = useState<StakingFormState>({
     amount: '',
@@ -85,6 +86,8 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     const amount = parseFloat(formState.amount);
     if (isNaN(amount) || amount <= 0) return;
 
+    submittedAmount.current = formState.amount;
+
     try {
       // Execute the real staking transaction
       await stakingTransaction.execute({
@@ -106,17 +109,13 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       refetchPositions();
 
       // Reset form after a delay to show success state
-      setTimeout(() => {
-        onSubmit(formState.amount);
+      const timerId = setTimeout(() => {
+        onSubmit(submittedAmount.current);
       }, 3000);
+
+      return () => clearTimeout(timerId);
     }
-  }, [
-    stakingTransaction.isSuccess,
-    stakingTransaction.txHash,
-    refetchPositions,
-    onSubmit,
-    formState.amount,
-  ]);
+  }, [stakingTransaction.isSuccess, stakingTransaction.txHash, refetchPositions, onSubmit]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
