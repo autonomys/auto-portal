@@ -6,9 +6,13 @@ import { InfoIcon } from 'lucide-react';
 
 interface TransactionPreviewProps {
   calculations: StakingCalculations;
+  feeLoading?: boolean;
 }
 
-export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculations }) => {
+export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
+  calculations,
+  feeLoading = false,
+}) => {
   return (
     <div className="space-y-6">
       {/* Transaction Breakdown */}
@@ -35,14 +39,22 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground font-sans">Transaction Fee</span>
             <span className="font-mono font-medium text-foreground">
-              {formatAI3Amount(calculations.transactionFee)} AI3
+              {feeLoading ? (
+                <span className="animate-pulse text-muted-foreground">Estimating...</span>
+              ) : (
+                `${formatAI3Amount(calculations.transactionFee, 8)} AI3`
+              )}
             </span>
           </div>
           <hr className="border-border" />
           <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold text-foreground font-sans">Total Required</span>
+            <span className="font-sans font-semibold text-foreground">Total Required</span>
             <span className="font-mono font-bold text-foreground text-lg">
-              {formatAI3Amount(calculations.totalRequired)} AI3
+              {feeLoading ? (
+                <span className="animate-pulse text-muted-foreground">Calculating...</span>
+              ) : (
+                `${formatAI3Amount(calculations.totalRequired)} AI3`
+              )}
             </span>
           </div>
         </CardContent>

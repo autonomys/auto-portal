@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useWallet } from './use-wallet';
 import { stakingService, type StakingParams, type StakingResult } from '@/services/staking-service';
+import { TRANSACTION_FEE } from '@/lib/staking-utils';
 
 export type TransactionState = 'idle' | 'signing' | 'pending' | 'success' | 'error';
 
@@ -11,10 +12,13 @@ interface UseStakingTransactionReturn {
   error: string | null;
   txHash: string | null;
   blockHash: string | null;
+  estimatedFee: number | null;
+  feeLoading: boolean;
 
   // Actions
   execute: (params: StakingParams) => Promise<void>;
   reset: () => void;
+  estimateFee: (params: StakingParams) => Promise<void>;
 
   // Computed
   isIdle: boolean;
@@ -32,6 +36,29 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [blockHash, setBlockHash] = useState<string | null>(null);
+  const [estimatedFee, setEstimatedFee] = useState<number | null>(null);
+  const [feeLoading, setFeeLoading] = useState(false);
+
+  const estimateFee = useCallback(
+    async (params: StakingParams) => {
+      if (!isConnected || !selectedAccount) {
+        return;
+      }
+
+      setFeeLoading(true);
+      try {
+        const fee = await stakingService.estimateTransactionFee(params, selectedAccount.address);
+        setEstimatedFee(fee);
+      } catch (err) {
+        console.error('Fee estimation error:', err);
+        // Set fallback fee on error
+        setEstimatedFee(TRANSACTION_FEE);
+      } finally {
+        setFeeLoading(false);
+      }
+    },
+    [isConnected, selectedAccount],
+  );
 
   const execute = useCallback(
     async (params: StakingParams) => {
@@ -92,6 +119,8 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
     setError(null);
     setTxHash(null);
     setBlockHash(null);
+    setEstimatedFee(null);
+    setFeeLoading(false);
   }, []);
 
   // Computed values
@@ -110,10 +139,13 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
     error,
     txHash,
     blockHash,
+    estimatedFee,
+    feeLoading,
 
     // Actions
     execute,
     reset,
+    estimateFee,
 
     // Computed
     isIdle,

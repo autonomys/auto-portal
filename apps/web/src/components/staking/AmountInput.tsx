@@ -9,6 +9,7 @@ interface AmountInputProps {
   errors: string[];
   disabled?: boolean;
   availableBalance?: number;
+  estimatedFee?: number;
 }
 
 export const AmountInput: React.FC<AmountInputProps> = ({
@@ -17,11 +18,15 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   errors,
   disabled = false,
   availableBalance = 0,
+  estimatedFee,
 }) => {
+  const feeToUse = (estimatedFee ?? TRANSACTION_FEE) * 3;
+
   const handleMaxClick = () => {
     // Calculate maximum stakeable amount by subtracting transaction fee from available balance
-    const maxStakeableAmount = Math.max(0, availableBalance - TRANSACTION_FEE);
-    onAmountChange(formatAI3Amount(maxStakeableAmount));
+    // Use estimated fee * 3 as requested to account for fee buffer
+    const maxStakeableAmount = Math.max(0, availableBalance - feeToUse);
+    onAmountChange(formatAI3Amount(maxStakeableAmount, 5));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +55,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
             variant="outline"
             size="sm"
             onClick={handleMaxClick}
-            disabled={disabled || availableBalance <= TRANSACTION_FEE}
+            disabled={disabled || availableBalance <= feeToUse}
             className="h-7 px-3 text-xs font-sans"
           >
             MAX
