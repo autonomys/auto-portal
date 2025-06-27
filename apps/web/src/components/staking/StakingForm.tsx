@@ -154,15 +154,12 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     if (stakingTransaction.isSuccess && stakingTransaction.txHash) {
       // Refresh positions data to show the new pending deposit
       refetchPositions();
-
-      // Reset form after a delay to show success state
-      const timerId = setTimeout(() => {
-        onSubmit(submittedAmount.current);
-      }, 3000);
-
-      return () => clearTimeout(timerId);
     }
-  }, [stakingTransaction.isSuccess, stakingTransaction.txHash, refetchPositions, onSubmit]);
+  }, [stakingTransaction.isSuccess, stakingTransaction.txHash, refetchPositions]);
+
+  const handleContinue = () => {
+    onSubmit(submittedAmount.current);
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -202,16 +199,36 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
           {/* Transaction Status */}
           {stakingTransaction.txHash && (
-            <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <h4 className="text-sm font-semibold text-primary font-sans mb-2">
-                Transaction Status
+            <div
+              className={`p-4 border rounded-lg ${
+                stakingTransaction.isSuccess
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-primary/5 border-primary/20'
+              }`}
+            >
+              <h4
+                className={`text-sm font-semibold font-sans mb-2 ${
+                  stakingTransaction.isSuccess ? 'text-green-800' : 'text-primary'
+                }`}
+              >
+                {stakingTransaction.isSuccess ? 'Transaction Successful!' : 'Transaction Status'}
               </h4>
-              <div className="space-y-1 text-xs text-primary/80 font-mono">
-                <div>Hash: {stakingTransaction.txHash}</div>
-                {stakingTransaction.blockHash && <div>Block: {stakingTransaction.blockHash}</div>}
+              <div className="space-y-1 text-xs font-mono">
+                <div
+                  className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
+                >
+                  Hash: {stakingTransaction.txHash}
+                </div>
+                {stakingTransaction.blockHash && (
+                  <div
+                    className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
+                  >
+                    Block: {stakingTransaction.blockHash}
+                  </div>
+                )}
                 {stakingTransaction.isSuccess && (
-                  <div className="text-green-600 font-sans">
-                    ✓ Confirmed - Stake will be active next epoch
+                  <div className="text-green-600 font-sans mt-2 font-medium">
+                    ✓ Your stake of {submittedAmount.current} AI3 will be active next epoch
                   </div>
                 )}
               </div>
@@ -220,26 +237,44 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              disabled={formState.isSubmitting}
-              className="flex-1 font-sans"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                !formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute
-              }
-              className="flex-1 font-sans"
-            >
-              {stakingTransaction.isSigning && 'Awaiting signature...'}
-              {stakingTransaction.isPending && 'Submitting...'}
-              {stakingTransaction.isSuccess && 'Success!'}
-              {!stakingTransaction.loading && !stakingTransaction.isSuccess && 'Stake Tokens'}
-            </Button>
+            {stakingTransaction.isSuccess ? (
+              // Success state buttons
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => stakingTransaction.reset()}
+                  className="flex-1 font-sans"
+                >
+                  Stake More
+                </Button>
+                <Button onClick={handleContinue} className="flex-1 font-sans">
+                  Continue
+                </Button>
+              </>
+            ) : (
+              // Normal state buttons
+              <>
+                <Button
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={formState.isSubmitting}
+                  className="flex-1 font-sans"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={
+                    !formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute
+                  }
+                  className="flex-1 font-sans"
+                >
+                  {stakingTransaction.isSigning && 'Awaiting signature...'}
+                  {stakingTransaction.isPending && 'Submitting...'}
+                  {!stakingTransaction.loading && 'Stake Tokens'}
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
