@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Operator } from '@/types/operator';
+import { useOperatorPosition } from '@/hooks/use-positions';
 import { formatAI3AmountWithCommas } from '@/lib/staking-utils';
 
 interface OperatorSummaryProps {
@@ -9,6 +10,8 @@ interface OperatorSummaryProps {
 }
 
 export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) => {
+  const { position: userPosition } = useOperatorPosition(operator.id);
+
   const getStatusBadgeVariant = (status: Operator['status']) => {
     switch (status) {
       case 'active':
@@ -26,6 +29,25 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
   const getOperatorInitial = (name: string) => {
     return name.charAt(0).toUpperCase();
+  };
+
+  // Calculate user's share percentage
+  const calculateUserShare = (): string => {
+    if (!userPosition || userPosition.positionValue === 0) {
+      return '0.00';
+    }
+
+    const totalStaked = parseFloat(operator.totalStaked);
+    if (totalStaked === 0) {
+      return '0.00';
+    }
+
+    const userStake =
+      userPosition.positionValue +
+      userPosition.pendingDeposits.reduce((sum, deposit) => sum + deposit.amount, 0);
+    const sharePercentage = (userStake / totalStaked) * 100;
+
+    return sharePercentage.toFixed(2);
   };
 
   return (
@@ -60,7 +82,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
             <p className="text-sm text-muted-foreground font-sans">Tax</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground font-mono">0%</p>
+            <p className="text-2xl font-bold text-foreground font-mono">{calculateUserShare()}%</p>
             <p className="text-sm text-muted-foreground font-sans">Your Share</p>
           </div>
           <div className="text-center">
@@ -73,7 +95,6 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
         <div className="mt-4 pt-4 border-t border-border">
           <p className="text-sm text-muted-foreground font-sans">
-            <span className="font-medium">{operator.nominatorCount} nominators</span> • Min stake:{' '}
             <span className="font-mono">
               {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake))} AI3
             </span>
