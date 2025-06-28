@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Info } from 'lucide-react';
 import type { Operator } from '@/types/operator';
 import { useOperatorPosition } from '@/hooks/use-positions';
 import { formatAI3AmountWithCommas } from '@/lib/staking-utils';
@@ -77,13 +78,57 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground font-mono">
-              {operator.nominationTax}%
+              {operator.nominatorCount}
             </p>
-            <p className="text-sm text-muted-foreground font-sans">Tax</p>
+            <p className="text-sm text-muted-foreground font-sans">Nominators</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground font-mono">{calculateUserShare()}%</p>
-            <p className="text-sm text-muted-foreground font-sans">Your Share</p>
+            <div className="flex items-center justify-center space-x-1">
+              <p className="text-sm text-muted-foreground font-sans">Your Share</p>
+              <div className="relative group">
+                <Info className="w-3 h-3 text-muted-foreground cursor-help" />
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 min-w-max">
+                  {!userPosition || userPosition.positionValue === 0 ? (
+                    'You have no position with this operator'
+                  ) : (
+                    <div>
+                      {userPosition.pendingDeposits.length > 0 ? (
+                        <>
+                          <div>
+                            Active: {formatAI3AmountWithCommas(userPosition.positionValue)} AI3
+                          </div>
+                          <div>
+                            Pending:{' '}
+                            {formatAI3AmountWithCommas(
+                              userPosition.pendingDeposits.reduce(
+                                (sum, deposit) => sum + deposit.amount,
+                                0,
+                              ),
+                            )}{' '}
+                            AI3
+                          </div>
+                          <div className="border-t border-gray-600 pt-1 mt-1 font-medium">
+                            Total:{' '}
+                            {formatAI3AmountWithCommas(
+                              userPosition.positionValue +
+                                userPosition.pendingDeposits.reduce(
+                                  (sum, deposit) => sum + deposit.amount,
+                                  0,
+                                ),
+                            )}{' '}
+                            AI3
+                          </div>
+                        </>
+                      ) : (
+                        `Your position: ${formatAI3AmountWithCommas(userPosition.positionValue)} AI3`
+                      )}
+                    </div>
+                  )}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="text-center">
             <p className="text-lg font-mono text-foreground">
@@ -95,6 +140,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
         <div className="mt-4 pt-4 border-t border-border">
           <p className="text-sm text-muted-foreground font-sans">
+            <span className="font-medium">{operator.nominatorCount} nominators</span> • Min stake:{' '}
             <span className="font-mono">
               {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake))} AI3
             </span>
