@@ -101,10 +101,23 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [x] Wallet connection and account management (completed)
 - [x] **Operator discovery and comparison interface** (completed)
 - [x] **✅ Wallet balance and position integration** (completed June 2025)
-- [ ] **Staking flow implementation with real RPC data** ← **CURRENT FOCUS**
-- [ ] Portfolio and withdrawal management
+- [x] **✅ Staking flow implementation with real RPC data** (completed)
+- [ ] **Withdrawal flow implementation** ← **CURRENT FOCUS**
+- [ ] Portfolio analytics and advanced features
 
-**📋 Current Milestone:** See implementation-ready user stories in [user-stories/](./user-stories/)
+**📋 Current Milestone:** [Withdrawal Flow](./user-stories/withdrawal-flow.md) - Two-step withdrawal implementation
+
+### **✅ Recently Completed: Staking Flow Implementation**
+
+**Status:** ✅ **MERGED** - Latest merge addresses staking flow with real RPC integration
+
+**Key Features Delivered:**
+
+- **Real Transaction Submission**: Complete `nominateOperator` extrinsic submission via Auto SDK
+- **Form Validation**: Real-time validation using actual operator data and user balance
+- **Transaction Status**: Live feedback during signing, submission, and confirmation
+- **Position Updates**: Automatic refresh showing new pending deposits after successful stakes
+- **Error Handling**: Comprehensive error management for all failure scenarios
 
 ### **✅ Recently Completed: Nominator Position Integration**
 
@@ -182,11 +195,15 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ## 🛠 Next Steps
 
+### Recently Completed
+
+- **[Staking Flow Implementation](./user-stories/complete/staking-flow.md)**: ✅ **COMPLETE** - Real `nominateOperator` transaction submission with Auto SDK integration, comprehensive form validation, real-time transaction status, and automatic position refresh
+
 ### Immediate Actions (Phase 4)
 
 Current implementation-ready user stories (see [user-stories/](./user-stories/) for details):
 
-1. **[Staking Form Integration](./user-stories/staking-form-rpc.md)**: Real validation and transaction integration
+1. **[Withdrawal Flow](./user-stories/withdrawal-flow.md)**: Two-step `withdrawStake` and `unlockNominator` implementation ← **CURRENT PRIORITY**
 2. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration
 
 ---

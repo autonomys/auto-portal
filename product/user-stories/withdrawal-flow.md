@@ -3,7 +3,7 @@
 **Priority:** High
 **Type:** Frontend + RPC Integration
 **Prerequisites:** ✅ Nominator Position Integration
-**Status:** 📝 **READY FOR IMPLEMENTATION**
+**Status:** 🎯 **CURRENT PRIORITY**
 
 ---
 
