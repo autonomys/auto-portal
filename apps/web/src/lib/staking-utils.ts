@@ -1,20 +1,22 @@
 import type { StakingCalculations, StakingValidation } from '@/types/staking';
 import type { Operator } from '@/types/operator';
 
-export const TRANSACTION_FEE = 0.01; // AI3
-export const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
+export const TRANSACTION_FEE = 0.0001; // Fallback fee
+const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
 
 export const calculateStakingAmounts = (
   amount: string,
   operatorAPY: number,
+  transactionFee?: number,
 ): StakingCalculations => {
   const amountValue = parseFloat(amount) || 0;
+  const feeToUse = transactionFee ?? TRANSACTION_FEE;
 
   return {
     storageFund: amountValue * STORAGE_FUND_PERCENTAGE,
     netStaking: amountValue * (1 - STORAGE_FUND_PERCENTAGE),
-    transactionFee: TRANSACTION_FEE,
-    totalRequired: amountValue + TRANSACTION_FEE,
+    transactionFee: feeToUse,
+    totalRequired: amountValue + feeToUse,
     expectedRewards: amountValue * (1 - STORAGE_FUND_PERCENTAGE) * (operatorAPY / 100),
   };
 };
@@ -27,15 +29,17 @@ export const getValidationRules = (
     minimum: parseFloat(operator.minimumNominatorStake), // Already in AI3 format
     maximum: availableBalance,
     required: true,
-    decimals: 2,
+    decimals: 8,
   };
 };
 
 export const validateStakingAmount = (
   amount: string,
   validation: StakingValidation,
+  transactionFee?: number,
 ): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
+  const feeToUse = transactionFee ?? TRANSACTION_FEE;
 
   if (!amount || amount.trim() === '') {
     errors.push('Please enter a staking amount');
@@ -58,7 +62,7 @@ export const validateStakingAmount = (
   }
 
   // Check if amount + fee exceeds balance
-  if (numericAmount + TRANSACTION_FEE > validation.maximum) {
+  if (numericAmount + feeToUse > validation.maximum) {
     errors.push('Insufficient balance for this amount plus transaction fees');
   }
 
@@ -74,13 +78,13 @@ export const validateStakingAmount = (
   };
 };
 
-export const formatAI3Amount = (amount: number): string => {
-  return amount.toFixed(2);
+export const formatAI3Amount = (amount: number, decimals = 5): string => {
+  return amount.toFixed(decimals);
 };
 
-export const formatAI3AmountWithCommas = (amount: number): string => {
+export const formatAI3AmountWithCommas = (amount: number, decimals = 5): string => {
   return amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   });
 };

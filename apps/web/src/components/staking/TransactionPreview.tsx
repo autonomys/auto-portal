@@ -6,9 +6,13 @@ import { InfoIcon } from 'lucide-react';
 
 interface TransactionPreviewProps {
   calculations: StakingCalculations;
+  feeLoading?: boolean;
 }
 
-export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculations }) => {
+export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
+  calculations,
+  feeLoading = false,
+}) => {
   return (
     <div className="space-y-6">
       {/* Transaction Breakdown */}
@@ -35,14 +39,22 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground font-sans">Transaction Fee</span>
             <span className="font-mono font-medium text-foreground">
-              {formatAI3Amount(calculations.transactionFee)} AI3
+              {feeLoading ? (
+                <span className="animate-pulse text-muted-foreground">Estimating...</span>
+              ) : (
+                `${formatAI3Amount(calculations.transactionFee, 8)} AI3`
+              )}
             </span>
           </div>
           <hr className="border-border" />
           <div className="flex justify-between items-center">
-            <span className="text-sm font-semibold text-foreground font-sans">Total Required</span>
+            <span className="font-sans font-semibold text-foreground">Total Required</span>
             <span className="font-mono font-bold text-foreground text-lg">
-              {formatAI3Amount(calculations.totalRequired)} AI3
+              {feeLoading ? (
+                <span className="animate-pulse text-muted-foreground">Calculating...</span>
+              ) : (
+                `${formatAI3Amount(calculations.totalRequired)} AI3`
+              )}
             </span>
           </div>
         </CardContent>
@@ -72,9 +84,11 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({ calculat
         <CardContent className="pt-4">
           <h4 className="text-sm font-semibold text-primary font-sans mb-2">Important Notes</h4>
           <ul className="text-xs text-primary/80 space-y-1 font-sans">
-            <li>• Storage fund is refunded when you withdraw</li>
-            <li>• Rewards are automatically compounded</li>
-            <li>• Stake will be active after next epoch (~10 minutes)</li>
+            <li>• Storage fund (20%) is held by the protocol and refunded when you withdraw</li>
+            <li>• Only the net staking amount (80%) earns rewards</li>
+            <li>• Rewards are automatically compounded to your position</li>
+            <li>• Stake will be active after next epoch transition (~10 minutes)</li>
+            <li>• Your stake will appear as "Pending" until the epoch transition occurs</li>
           </ul>
         </CardContent>
       </Card>

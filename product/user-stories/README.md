@@ -67,19 +67,31 @@ product/
 - **Type:** RPC Integration
 - **Purpose:** Replace mock operator data with Auto SDK calls for operators 0, 1, 3
 
-### **Ready for Implementation**
+### **[Wallet Balance Integration](./complete/wallet-balance-integration.md)**
 
-### **[Wallet Balance Integration](./wallet-balance-integration.md)**
-
-- **Status:** 🆕 **READY FOR IMPLEMENTATION**
+- **Status:** ✅ **COMPLETE**
 - **Type:** Frontend Integration + UX Enhancement
 - **Purpose:** Real balance data in dashboard/staking form + enhanced wallet UX
 
-### **[Nominator Position Integration](./nominator-position-integration.md)**
+### **[Nominator Position Integration](./complete/nominator-position-integration.md)**
 
-- **Status:** 🆕 **READY FOR IMPLEMENTATION**
+- **Status:** ✅ **COMPLETE**
 - **Type:** Backend Integration + Portfolio Display
 - **Purpose:** Real portfolio tracking using Auto SDK position data
+
+### **Ready for Implementation**
+
+### **[Staking Flow](./staking-flow.md)**
+
+- **Status:** 📝 **READY FOR IMPLEMENTATION**
+- **Type:** Frontend + RPC Integration
+- **Purpose:** End-to-end `nominateOperator` transaction submission.
+
+### **[Withdrawal Flow](./withdrawal-flow.md)**
+
+- **Status:** 📝 **READY FOR IMPLEMENTATION**
+- **Type:** Frontend + RPC Integration
+- **Purpose:** Two-step `withdrawStake` and `unlockNominator` transaction flow.
 
 ---
 
@@ -98,18 +110,21 @@ The user stories are designed to be implemented in this order:
 Based on logical dependencies and complexity:
 
 1. **Operator Discovery RPC** → ✅ **COMPLETE** - Real operator data from Taurus testnet
-2. **Wallet Balance Integration** → 🆕 **READY** - Real balance data + wallet UX improvements
-3. **Nominator Position Integration** → 🆕 **READY** - Portfolio tracking with position data
-4. **Staking Form RPC** → Future - Real validation with RPC data integration
-5. **Dashboard Analytics** → Future - Historical data via indexer integration
+2. **Wallet Balance Integration** → ✅ **COMPLETE** - Real balance data + wallet UX improvements
+3. **Nominator Position Integration** → ✅ **COMPLETE** - Portfolio tracking with position data
+4. **Staking Form RPC** → 📝 **READY** - Real validation with RPC data integration
+5. **Withdrawal Flow** → 📝 **READY** - `withdraw` and `unlock` transaction implementation
+6. **Dashboard Analytics** → Future - Historical data via indexer integration
 
 ### **Dependencies**
 
 - **All RPC integration** prerequisite **Auto SDK Integration** is ✅ **COMPLETE**
-- **Wallet Balance Integration** can be implemented **independently**
-- **Nominator Position Integration** depends on **Wallet Connection** (✅ complete)
+- **Wallet Balance Integration** was implemented **independently**
+- **Nominator Position Integration** depended on **Wallet Connection** (✅ complete)
+- **Staking Flow** depends on **Operator Discovery** and **Wallet Balance** (✅ complete)
+- **Withdrawal Flow** depends on **Nominator Position Integration** (✅ complete)
 - **Future stories** can be implemented in **parallel** with current ones
-- **Indexer-dependent features** left mocked for now (APY, transaction history, cost basis)
+- **Indexer-dependent features** are separate and can be implemented later (APY, transaction history, cost basis)
 
 ---
 

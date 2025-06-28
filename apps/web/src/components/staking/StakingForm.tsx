@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
 import { TransactionPreview } from './TransactionPreview';
 import { useBalance } from '@/hooks/use-balance';
+import { usePositions } from '@/hooks/use-positions';
+import { useStakingTransaction } from '@/hooks/use-staking-transaction';
 import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import type { StakingFormState, StakingCalculations } from '@/types/staking';
@@ -22,6 +24,10 @@ interface StakingFormProps {
 
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
   const { balance, loading: balanceLoading } = useBalance();
+  const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
+  const stakingTransaction = useStakingTransaction();
+  const submittedAmount = useRef('');
+  const currentAmount = useRef(0);
 
   const [formState, setFormState] = useState<StakingFormState>({
     amount: '',
@@ -43,20 +49,78 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   useEffect(() => {
     const availableBalance = balance ? parseFloat(balance.free) : 0;
     const validationRules = getValidationRules(operator, availableBalance);
-    const validation = validateStakingAmount(formState.amount, validationRules);
-    const newCalculations = calculateStakingAmounts(formState.amount, 0);
+    const validation = validateStakingAmount(
+      formState.amount,
+      validationRules,
+      stakingTransaction.estimatedFee ?? undefined,
+    );
+    const newCalculations = calculateStakingAmounts(
+      formState.amount,
+      0,
+      stakingTransaction.estimatedFee ?? undefined,
+    );
+
+    // Add transaction errors to validation errors
+    const allErrors = [...validation.errors];
+    if (stakingTransaction.error && !stakingTransaction.loading) {
+      allErrors.push(stakingTransaction.error);
+    }
 
     setFormState(prev => ({
       ...prev,
-      isValid: validation.isValid,
-      errors: validation.errors,
+      isValid: validation.isValid && !stakingTransaction.loading,
+      errors: allErrors,
       showPreview: validation.isValid && parseFloat(formState.amount) > 0,
+      isSubmitting: stakingTransaction.loading,
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator, balance]);
+  }, [
+    formState.amount,
+    operator,
+    balance,
+    stakingTransaction.loading,
+    stakingTransaction.error,
+    stakingTransaction.estimatedFee,
+  ]);
+
+  // Update current amount ref when form amount changes
+  useEffect(() => {
+    currentAmount.current = parseFloat(formState.amount) || 0;
+  }, [formState.amount]);
+
+  // Estimate fee when amount or operator changes (immediate, one-time)
+  useEffect(() => {
+    const amount = parseFloat(formState.amount);
+    if (amount > 0 && !isNaN(amount)) {
+      stakingTransaction.estimateFee({
+        operatorId: operator.id,
+        amount: amount,
+      });
+    }
+  }, [formState.amount, operator.id, stakingTransaction.estimateFee]);
+
+  // Periodic fee refresh (every 20 seconds) - only when there's a valid amount
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const amount = currentAmount.current;
+      if (amount > 0 && !isNaN(amount)) {
+        stakingTransaction.estimateFee({
+          operatorId: operator.id,
+          amount: amount,
+        });
+      }
+    }, 20000); // 20 seconds
+
+    return () => clearInterval(intervalId);
+  }, [operator.id, stakingTransaction.estimateFee]); // Only depend on operator and estimateFee function
 
   const handleAmountChange = (amount: string) => {
+    // Reset transaction state when amount changes
+    if (stakingTransaction.state !== 'idle') {
+      stakingTransaction.reset();
+    }
+
     setFormState(prev => ({
       ...prev,
       amount,
@@ -64,20 +128,37 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   };
 
   const handleSubmit = async () => {
-    if (!formState.isValid || formState.isSubmitting) return;
+    if (!formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute) return;
 
-    setFormState(prev => ({ ...prev, isSubmitting: true }));
+    const amount = parseFloat(formState.amount);
+    if (isNaN(amount) || amount <= 0) return;
+
+    submittedAmount.current = formState.amount;
 
     try {
-      onSubmit(formState.amount);
+      // Execute the real staking transaction
+      await stakingTransaction.execute({
+        operatorId: operator.id,
+        amount: amount,
+      });
+
+      // The transaction state will be updated by the hook
+      // Success handling is done via useEffect below
     } catch (error) {
       console.error('Transaction failed:', error);
-      setFormState(prev => ({
-        ...prev,
-        isSubmitting: false,
-        errors: ['Transaction failed. Please try again.'],
-      }));
     }
+  };
+
+  // Handle transaction success
+  useEffect(() => {
+    if (stakingTransaction.isSuccess && stakingTransaction.txHash) {
+      // Refresh positions data to show the new pending deposit
+      refetchPositions();
+    }
+  }, [stakingTransaction.isSuccess, stakingTransaction.txHash, refetchPositions]);
+
+  const handleContinue = () => {
+    onSubmit(submittedAmount.current);
   };
 
   return (
@@ -113,25 +194,87 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             errors={formState.errors}
             disabled={formState.isSubmitting}
             availableBalance={balance ? parseFloat(balance.free) : 0}
+            estimatedFee={stakingTransaction.estimatedFee ?? undefined}
           />
+
+          {/* Transaction Status */}
+          {stakingTransaction.txHash && (
+            <div
+              className={`p-4 border rounded-lg ${
+                stakingTransaction.isSuccess
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-primary/5 border-primary/20'
+              }`}
+            >
+              <h4
+                className={`text-sm font-semibold font-sans mb-2 ${
+                  stakingTransaction.isSuccess ? 'text-green-800' : 'text-primary'
+                }`}
+              >
+                {stakingTransaction.isSuccess ? 'Transaction Successful!' : 'Transaction Status'}
+              </h4>
+              <div className="space-y-1 text-xs font-mono">
+                <div
+                  className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
+                >
+                  Hash: {stakingTransaction.txHash}
+                </div>
+                {stakingTransaction.blockHash && (
+                  <div
+                    className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
+                  >
+                    Block: {stakingTransaction.blockHash}
+                  </div>
+                )}
+                {stakingTransaction.isSuccess && (
+                  <div className="text-green-600 font-sans mt-2 font-medium">
+                    ✓ Your stake of {submittedAmount.current} AI3 will be active next epoch
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              disabled={formState.isSubmitting}
-              className="flex-1 font-sans"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!formState.isValid || formState.isSubmitting}
-              className="flex-1 font-sans"
-            >
-              {formState.isSubmitting ? 'Processing...' : 'Stake Tokens'}
-            </Button>
+            {stakingTransaction.isSuccess ? (
+              // Success state buttons
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => stakingTransaction.reset()}
+                  className="flex-1 font-sans"
+                >
+                  Stake More
+                </Button>
+                <Button onClick={handleContinue} className="flex-1 font-sans">
+                  Continue
+                </Button>
+              </>
+            ) : (
+              // Normal state buttons
+              <>
+                <Button
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={formState.isSubmitting}
+                  className="flex-1 font-sans"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={
+                    !formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute
+                  }
+                  className="flex-1 font-sans"
+                >
+                  {stakingTransaction.isSigning && 'Awaiting signature...'}
+                  {stakingTransaction.isPending && 'Submitting...'}
+                  {!stakingTransaction.loading && 'Stake Tokens'}
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -139,7 +282,10 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Transaction Preview */}
       <div>
         {formState.showPreview ? (
-          <TransactionPreview calculations={calculations} />
+          <TransactionPreview
+            calculations={calculations}
+            feeLoading={stakingTransaction.feeLoading}
+          />
         ) : (
           <Card>
             <CardContent className="pt-6">
