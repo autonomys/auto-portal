@@ -26,6 +26,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
   const stakingTransaction = useStakingTransaction();
+  const { estimateFee } = stakingTransaction;
   const submittedAmount = useRef('');
   const currentAmount = useRef(0);
 
@@ -93,19 +94,19 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   useEffect(() => {
     const amount = parseFloat(formState.amount);
     if (amount > 0 && !isNaN(amount)) {
-      stakingTransaction.estimateFee({
+      estimateFee({
         operatorId: operator.id,
         amount: amount,
       });
     }
-  }, [formState.amount, operator.id, stakingTransaction.estimateFee]);
+  }, [formState.amount, operator.id, estimateFee]);
 
   // Periodic fee refresh (every 20 seconds) - only when there's a valid amount
   useEffect(() => {
     const intervalId = setInterval(() => {
       const amount = currentAmount.current;
       if (amount > 0 && !isNaN(amount)) {
-        stakingTransaction.estimateFee({
+        estimateFee({
           operatorId: operator.id,
           amount: amount,
         });
@@ -113,7 +114,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }, 20000); // 20 seconds
 
     return () => clearInterval(intervalId);
-  }, [operator.id, stakingTransaction.estimateFee]); // Only depend on operator and estimateFee function
+  }, [operator.id, estimateFee]); // Only depend on operator and estimateFee function
 
   const handleAmountChange = (amount: string) => {
     // Reset transaction state when amount changes
