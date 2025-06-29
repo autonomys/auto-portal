@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from '@/components/staking/AmountInput';
@@ -25,14 +25,7 @@ export const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ position, onClos
   const [preview, setPreview] = useState<WithdrawalPreview | null>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
 
-  // Generate withdrawal preview when amount or type changes
-  useEffect(() => {
-    if (selectedPosition && selectedAccount && parseFloat(amount) > 0) {
-      generatePreview();
-    }
-  }, [selectedPosition, amount, withdrawalType, selectedAccount]);
-
-  const generatePreview = async () => {
+  const generatePreview = useCallback(async () => {
     if (!selectedPosition || !selectedAccount) return;
 
     setIsLoadingPreview(true);
@@ -49,7 +42,14 @@ export const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ position, onClos
     } finally {
       setIsLoadingPreview(false);
     }
-  };
+  }, [selectedPosition, selectedAccount, amount, withdrawalType]);
+
+  // Generate withdrawal preview when amount or type changes
+  useEffect(() => {
+    if (selectedPosition && selectedAccount && parseFloat(amount) > 0) {
+      generatePreview();
+    }
+  }, [selectedPosition, selectedAccount, amount, withdrawalType, generatePreview]);
 
   const handleWithdraw = async () => {
     if (!selectedPosition || !preview) return;
@@ -63,11 +63,11 @@ export const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ position, onClos
     await executeWithdraw(request);
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = useCallback(() => {
     // Refresh positions to show new pending withdrawal
     refreshPositions();
     onClose?.();
-  };
+  }, [refreshPositions, onClose]);
 
   const getMaxWithdrawalAmount = () => {
     return selectedPosition?.positionValue || 0;
@@ -84,7 +84,7 @@ export const WithdrawalPage: React.FC<WithdrawalPageProps> = ({ position, onClos
     if (withdrawalState === 'success') {
       handleSuccess();
     }
-  }, [withdrawalState]);
+  }, [withdrawalState, handleSuccess]);
 
   if (withdrawalState === 'signing') {
     return (
