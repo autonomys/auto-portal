@@ -1,11 +1,13 @@
 # Withdrawal Flow Implementation Summary
 
 ## Overview
+
 I have successfully implemented the complete two-step withdrawal and unlock flow as specified in the user story. The implementation follows the existing code patterns and architecture, providing a seamless user experience for withdrawing staked tokens.
 
 ## ✅ Completed Features
 
 ### 1. **Position Types** (`apps/web/src/types/position.ts`)
+
 - Added withdrawal-related types:
   - `WithdrawalRequest` - For requesting withdrawals (partial/full)
   - `WithdrawalPreview` - For showing withdrawal estimates and timing
@@ -13,6 +15,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - Extended existing `PendingWithdrawal` interface for better tracking
 
 ### 2. **Withdrawal Service** (`apps/web/src/services/withdrawal-service.ts`)
+
 - **`getWithdrawalPreview()`** - Calculates withdrawal amounts, fees, and unlock timing
 - **`requestWithdrawal()`** - Constructs and signs `withdrawStake` extrinsics
 - **`unlockFunds()`** - Constructs and signs `unlockNominator` extrinsics
@@ -21,6 +24,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - Follows existing service patterns with proper error handling
 
 ### 3. **Withdrawal Transaction Hook** (`apps/web/src/hooks/use-withdrawal-transaction.ts`)
+
 - Manages state for both withdrawal and unlock transactions
 - Provides separate state tracking for each step:
   - `withdrawalState` / `unlockState` - ('idle' | 'signing' | 'pending' | 'success' | 'error')
@@ -29,6 +33,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - Real-time transaction progress tracking
 
 ### 4. **WithdrawalPage Component** (`apps/web/src/pages/WithdrawalPage.tsx`)
+
 - **Complete withdrawal interface** with:
   - Position selection and details display
   - Partial vs. full withdrawal options
@@ -40,6 +45,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - **Success flow** with automatic position refresh
 
 ### 5. **Updated PendingOperations Component** (`apps/web/src/components/positions/PendingOperations.tsx`)
+
 - **Real-time unlock status detection** - automatically checks when withdrawals are ready
 - **Dynamic "Unlock" button** - appears when locking period ends
 - **Visual progress tracking** with:
@@ -49,6 +55,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - **Automatic refresh** after successful unlock transactions
 
 ### 6. **Updated ActivePositionsTable Component** (`apps/web/src/components/positions/ActivePositionsTable.tsx`)
+
 - **"Withdraw" button** added to each active position
 - **Conditional display** - only shows for active positions
 - **Integration ready** - accepts `onWithdrawClick` prop for modal/page trigger
@@ -56,13 +63,16 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 ## 🔧 Technical Implementation Details
 
 ### **Service Architecture**
+
 - Uses existing `getSharedApiConnection()` pattern for API access
 - Implements singleton pattern for service consistency
 - Proper unit conversion with `ai3ToShannons()` / `shannonsToAI3()`
 - Integrates with existing position service for data validation
 
 ### **Transaction Flow**
+
 1. **Step 1: Request Withdrawal**
+
    - User selects position and amount
    - Preview shows breakdown (stake + storage return + fees)
    - `withdrawStake` extrinsic is signed and submitted
@@ -76,12 +86,14 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
    - Funds return to wallet, position updates
 
 ### **State Management**
+
 - Leverages existing `usePositions` hook for data consistency
 - Transaction states provide real-time feedback
 - Automatic refreshing ensures UI stays current
 - Error boundaries handle edge cases gracefully
 
 ### **User Experience**
+
 - **Progressive disclosure** - shows only relevant information at each step
 - **Clear visual feedback** - loading states, progress indicators, status badges
 - **Validation** - prevents invalid amounts, disabled states for pending operations
@@ -90,6 +102,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 ## 🎯 User Story Compliance
 
 ### ✅ **Step 1: Request Withdrawal**
+
 - [x] "Withdraw" button available on active positions
 - [x] Partial and full withdrawal options
 - [x] Amount validation against position value
@@ -102,6 +115,7 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - [x] Position refresh showing pending withdrawal
 
 ### ✅ **Step 2: Unlock Funds**
+
 - [x] Automatic detection of unlock readiness
 - [x] "Unlock" button activation when ready
 - [x] `unlockNominator` extrinsic construction and signing
@@ -109,12 +123,14 @@ I have successfully implemented the complete two-step withdrawal and unlock flow
 - [x] Position and balance refresh after success
 
 ### ✅ **Error Handling & UX**
+
 - [x] Loading and error states for both transactions
 - [x] Clear explanation of two-step process
 - [x] User-friendly error messages
 - [x] Transaction rejection handling
 
 ### ✅ **Withdrawal Progress Tracking**
+
 - [x] Visual progress tracker with status indicators
 - [x] Block countdown display
 - [x] Dynamic status updates
