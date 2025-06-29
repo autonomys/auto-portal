@@ -10,14 +10,20 @@ interface ActivePositionsTableProps {
   refreshInterval?: number;
   networkId?: string;
   onOperatorClick?: (operatorId: string) => void;
+  onWithdrawClick?: (position: UserPosition) => void;
 }
 
 interface PositionRowProps {
   position: UserPosition;
   onOperatorClick?: (operatorId: string) => void;
+  onWithdrawClick?: (position: UserPosition) => void;
 }
 
-const PositionRow: React.FC<PositionRowProps> = ({ position, onOperatorClick }) => {
+const PositionRow: React.FC<PositionRowProps> = ({
+  position,
+  onOperatorClick,
+  onWithdrawClick,
+}) => {
   const getStatusVariant = (status: UserPosition['status']) => {
     switch (status) {
       case 'active':
@@ -95,16 +101,28 @@ const PositionRow: React.FC<PositionRowProps> = ({ position, onOperatorClick }) 
         <div className="text-xl font-mono font-bold text-foreground">
           {formatAI3(position.positionValue, 2)}
         </div>
-        {onOperatorClick && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onOperatorClick(position.operatorId)}
-            className="text-xs font-sans"
-          >
-            View Details
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {onWithdrawClick && position.status === 'active' && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onWithdrawClick(position)}
+              className="text-xs font-sans"
+            >
+              Withdraw
+            </Button>
+          )}
+          {onOperatorClick && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOperatorClick(position.operatorId)}
+              className="text-xs font-sans"
+            >
+              View Details
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -114,6 +132,7 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   refreshInterval,
   networkId,
   onOperatorClick,
+  onWithdrawClick,
 }) => {
   const { positions, loading, error, lastUpdated } = usePositions({
     refreshInterval,
@@ -188,6 +207,7 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
               key={position.operatorId}
               position={position}
               onOperatorClick={onOperatorClick}
+              onWithdrawClick={onWithdrawClick}
             />
           ))}
         </div>

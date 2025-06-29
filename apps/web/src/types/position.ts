@@ -33,3 +33,24 @@ export interface PositionServiceError {
   error: string;
   timestamp: Date;
 }
+
+// Withdrawal related types
+export interface WithdrawalRequest {
+  operatorId: string;
+  amount: string;
+  type: 'partial' | 'full';
+}
+
+export interface WithdrawalPreview {
+  stakedAmount: string;
+  storageAmount: string;
+  totalAmount: string;
+  estimatedFee: string;
+  unlockAt: number;
+  estimatedUnlockTime: string;
+}
+
+export interface UnlockRequest {
+  operatorId: string;
+  withdrawalId: string;
+}

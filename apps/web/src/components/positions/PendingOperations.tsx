@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { usePositions } from '@/hooks/use-positions';
+import { useWallet } from '@/hooks/use-wallet';
+import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
+import { withdrawalService } from '@/services/withdrawal-service';
 import { formatAI3, formatNumber } from '@/lib/formatting';
 import type { PendingDeposit, PendingWithdrawal } from '@/types/position';
 
@@ -18,6 +22,9 @@ interface PendingDepositItemProps {
 interface PendingWithdrawalItemProps {
   withdrawal: PendingWithdrawal;
   operatorName: string;
+  operatorId: string;
+  onUnlock?: (operatorId: string) => void;
+  isUnlocking?: boolean;
 }
 
 const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operatorName }) => (
@@ -43,40 +50,133 @@ const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operat
 const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
   withdrawal,
   operatorName,
-}) => (
-  <div className="flex items-center justify-between p-3 bg-orange-50/50 border border-orange-200 rounded-lg">
-    <div className="flex items-center gap-3">
-      <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-      <div>
-        <div className="font-medium font-sans text-sm">{operatorName}</div>
-        <div className="text-xs text-muted-foreground font-sans">
-          Withdrawal • Unlocks at block {formatNumber(withdrawal.unlockAtBlock)}
-        </div>
-      </div>
-    </div>
-    <div className="text-right">
-      <div className="font-mono font-semibold text-orange-700">
-        -{formatAI3(withdrawal.amount, 4)}
-      </div>
+  operatorId,
+  onUnlock,
+  isUnlocking = false,
+}) => {
+  const [isReadyToUnlock, setIsReadyToUnlock] = useState(false);
+  const [currentBlock, setCurrentBlock] = useState<number | null>(null);
+
+  useEffect(() => {
+    const checkUnlockStatus = async () => {
+      try {
+        const ready = await withdrawalService.isReadyToUnlock(withdrawal.unlockAtBlock);
+        const block = await withdrawalService.getCurrentBlock();
+        setIsReadyToUnlock(ready);
+        setCurrentBlock(block);
+      } catch (error) {
+        console.error('Error checking unlock status:', error);
+      }
+    };
+
+    checkUnlockStatus();
+    const interval = setInterval(checkUnlockStatus, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [withdrawal.unlockAtBlock]);
+
+  const handleUnlock = () => {
+    if (onUnlock && isReadyToUnlock) {
+      onUnlock(operatorId);
+    }
+  };
+
+  const getRemainingBlocks = () => {
+    if (!currentBlock) return null;
+    return Math.max(0, withdrawal.unlockAtBlock - currentBlock);
+  };
+
+  const getStatusBadge = () => {
+    if (isReadyToUnlock) {
+      return (
+        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+          Ready to Unlock
+        </Badge>
+      );
+    }
+    return (
       <Badge variant="destructive" className="text-xs">
         Withdrawing
       </Badge>
+    );
+  };
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-orange-50/50 border border-orange-200 rounded-lg">
+      <div className="flex items-center gap-3">
+        <div
+          className={`w-2 h-2 rounded-full ${isReadyToUnlock ? 'bg-green-500' : 'bg-orange-500 animate-pulse'}`}
+        ></div>
+        <div>
+          <div className="font-medium font-sans text-sm">{operatorName}</div>
+          <div className="text-xs text-muted-foreground font-sans">
+            Withdrawal • Unlocks at block {formatNumber(withdrawal.unlockAtBlock)}
+            {currentBlock && !isReadyToUnlock && (
+              <span className="ml-1">({getRemainingBlocks()} blocks remaining)</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="text-right flex items-center gap-3">
+        <div>
+          <div className="font-mono font-semibold text-orange-700">
+            -{formatAI3(withdrawal.amount, 4)}
+          </div>
+          {getStatusBadge()}
+        </div>
+        {isReadyToUnlock && (
+          <Button size="sm" onClick={handleUnlock} disabled={isUnlocking} className="text-xs">
+            {isUnlocking ? 'Unlocking...' : 'Unlock'}
+          </Button>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const PendingOperations: React.FC<PendingOperationsProps> = ({
   refreshInterval,
   networkId,
 }) => {
-  const { positions, loading, error } = usePositions({
+  const { positions, loading, error, refetch } = usePositions({
     refreshInterval,
     networkId,
   });
+  const { selectedAccount, injector } = useWallet();
+  const { unlockState, executeUnlock, resetUnlock } = useWithdrawalTransaction(
+    selectedAccount,
+    injector,
+  );
+
+  const handleUnlock = async (operatorId: string) => {
+    try {
+      await executeUnlock({
+        operatorId,
+        withdrawalId: operatorId, // Using operatorId as withdrawalId for now
+      });
+
+      // Refresh positions after successful unlock
+      if (unlockState === 'success') {
+        await refetch();
+      }
+    } catch (error) {
+      console.error('Error unlocking funds:', error);
+    }
+  };
+
+  // Reset unlock state when it's successful
+  useEffect(() => {
+    if (unlockState === 'success') {
+      resetUnlock();
+      refetch();
+    }
+  }, [unlockState, resetUnlock, refetch]);
 
   // Collect all pending operations
   const allPendingDeposits: Array<PendingDeposit & { operatorName: string }> = [];
-  const allPendingWithdrawals: Array<PendingWithdrawal & { operatorName: string }> = [];
+  const allPendingWithdrawals: Array<
+    PendingWithdrawal & { operatorName: string; operatorId: string }
+  > = [];
 
   positions.forEach(position => {
     position.pendingDeposits.forEach(deposit => {
@@ -90,6 +190,7 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
       allPendingWithdrawals.push({
         ...withdrawal,
         operatorName: position.operatorName,
+        operatorId: position.operatorId,
       });
     });
   });
@@ -191,6 +292,9 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
                     key={`${withdrawal.operatorName}-${withdrawal.unlockAtBlock}-${index}`}
                     withdrawal={withdrawal}
                     operatorName={withdrawal.operatorName}
+                    operatorId={withdrawal.operatorId}
+                    onUnlock={handleUnlock}
+                    isUnlocking={unlockState === 'signing' || unlockState === 'pending'}
                   />
                 ))}
               </div>
