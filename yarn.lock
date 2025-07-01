@@ -84,8 +84,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@auto-portal/web@workspace:apps/web"
   dependencies:
-    "@autonomys/auto-consensus": "npm:1.5.2"
-    "@autonomys/auto-utils": "npm:1.5.2"
+    "@autonomys/auto-consensus": "npm:1.5.3"
+    "@autonomys/auto-utils": "npm:1.5.3"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
@@ -118,12 +118,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@autonomys/auto-consensus@npm:1.5.2":
-  version: 1.5.2
-  resolution: "@autonomys/auto-consensus@npm:1.5.2"
+"@autonomys/auto-consensus@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@autonomys/auto-consensus@npm:1.5.3"
   dependencies:
-    "@autonomys/auto-utils": "npm:^1.5.2"
-  checksum: 10c0/7efe8762676b6f26cc799aa432edbc1c176a3e83b830b04ca20d344d68bae587e38ccc299e51a361a8c35c865472aa43b39f7c5274fcb1d758ca14e65aeebfee
+    "@autonomys/auto-utils": "npm:^1.5.3"
+  checksum: 10c0/38888b49c2ee719fdb518f61496e2417aa325e782bb67b506dfa0606c30b69efe721c4278d3486aeb5e2f0f82bae4ecf7ddd64ddb9eef13cdb4a64cb99f24703
   languageName: node
   linkType: hard
 
@@ -136,13 +136,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@autonomys/auto-utils@npm:1.5.2, @autonomys/auto-utils@npm:^1.5.2":
-  version: 1.5.2
-  resolution: "@autonomys/auto-utils@npm:1.5.2"
+"@autonomys/auto-utils@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@autonomys/auto-utils@npm:1.5.3"
   dependencies:
     "@polkadot/api": "npm:^15.8.1"
     "@polkadot/extension-dapp": "npm:^0.58.6"
-  checksum: 10c0/0c3b769f56d2109dd9e8faca531197d9f9286b336b61ebd5f0915681bfa79657d5c7efc41a054f885ff8558b70aee70ca56955469c3dfde4d56d7b7a9a96ec79
+  checksum: 10c0/e8ecf6fe1816763102268aed6d467e50e82f20df7d5ae166292a28c2272ac965a034263968952db061e7f7a6b7542f871f2af5c2752fd7a2b890beb785a4f8dd
   languageName: node
   linkType: hard
 
@@ -154,6 +154,16 @@ __metadata:
     "@polkadot/extension-dapp": "npm:^0.47.5"
     fs: "npm:^0.0.1-security"
   checksum: 10c0/ef441f66eb67c6dd248a83e31bfadae5c3f5d1fc942979aa734164e79a53fb4d5292b58733fcb4469f8df47afa8f15055c8b2c9036d4182a8b59ebdbfd1f3d92
+  languageName: node
+  linkType: hard
+
+"@autonomys/auto-utils@npm:^1.5.3":
+  version: 1.5.4
+  resolution: "@autonomys/auto-utils@npm:1.5.4"
+  dependencies:
+    "@polkadot/api": "npm:^15.8.1"
+    "@polkadot/extension-dapp": "npm:^0.58.6"
+  checksum: 10c0/c3041484bb9e8ee8f3d469988982fb3aac2c51c9a798b3975542598c9b4796e3a8a55070e7ddb7d3819b9dfd13acd267f3eb3a22ed7a0bf83df80d6352d6c837
   languageName: node
   linkType: hard
 
