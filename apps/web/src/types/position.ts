@@ -4,8 +4,10 @@ export interface PendingDeposit {
 }
 
 export interface PendingWithdrawal {
-  amount: number; // Amount in AI3 (raw numeric value)
-  unlockAtBlock: number;
+  grossWithdrawalAmount: number; // Total gross amount user will receive in AI3
+  stakeWithdrawalAmount: number; // Net stake amount being withdrawn in AI3
+  storageFeeRefund: number; // Storage fee refund portion in AI3
+  unlockAtBlock: number; // Aligns with unlockAtDomainBlock from SDK
 }
 
 export interface UserPosition {
