@@ -95,29 +95,41 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [x] Full TypeScript type system with comprehensive staking domain models
 - [x] Development servers verified and working
 
-### ✅ Phase 4: Implementation (In Progress)
+### ✅ Phase 4: Implementation (Completed Core Features)
 
 - [x] Core UI components and layout system (dashboard layout implemented)
 - [x] Wallet connection and account management (completed)
 - [x] **Operator discovery and comparison interface** (completed)
 - [x] **✅ Wallet balance and position integration** (completed June 2025)
 - [x] **✅ Staking flow implementation with real RPC data** (completed)
-- [ ] **Withdrawal flow implementation** ← **CURRENT FOCUS**
-- [ ] Portfolio analytics and advanced features
+- [x] **✅ Withdrawal flow implementation** (completed)
+- [ ] Portfolio analytics and advanced features ← **NEXT FOCUS**
 
-**📋 Current Milestone:** [Withdrawal Flow](./user-stories/withdrawal-flow.md) - Two-step withdrawal implementation
+**📋 Latest Milestone:** ✅ **Core Staking Platform Complete** - Full staking lifecycle implemented
 
-### **✅ Recently Completed: Staking Flow Implementation**
+### **✅ Recently Completed: Withdrawal Flow Implementation**
 
-**Status:** ✅ **MERGED** - Latest merge addresses staking flow with real RPC integration
+**Status:** ✅ **MERGED** - Complete two-step withdrawal flow with unlock functionality
 
 **Key Features Delivered:**
 
-- **Real Transaction Submission**: Complete `nominateOperator` extrinsic submission via Auto SDK
-- **Form Validation**: Real-time validation using actual operator data and user balance
-- **Transaction Status**: Live feedback during signing, submission, and confirmation
-- **Position Updates**: Automatic refresh showing new pending deposits after successful stakes
-- **Error Handling**: Comprehensive error management for all failure scenarios
+- **Withdrawal Request Flow**: Real `withdrawStake` extrinsic submission with partial/full withdrawal support
+- **Unlock Functionality**: `unlockFunds` extrinsic with block-based status checking
+- **Smart Status Tracking**: Real-time withdrawal unlock eligibility based on domain blocks
+- **Transaction Preview**: Clear breakdown showing stake withdrawal + storage fee refund
+- **Position Integration**: Automatic refresh of pending operations and position data
+- **UI/UX Excellence**: Withdrawal form modal, pending operations display, and unlock buttons
+
+### **🎯 Core Platform Achievement**
+
+**Complete Staking Lifecycle Implemented:**
+
+- ✅ **Operator Discovery** - Browse and compare operators with real RPC data
+- ✅ **Wallet Integration** - Connect wallet with balance display and address management
+- ✅ **Staking Flow** - Real `nominateOperator` transactions with comprehensive validation
+- ✅ **Position Tracking** - Live portfolio monitoring with pending operations
+- ✅ **Withdrawal Flow** - Two-step `withdrawStake` and `unlockFunds` process
+- ✅ **Real-time Updates** - Auto-refresh of balances, positions, and unlock status
 
 ### **✅ Recently Completed: Nominator Position Integration**
 
@@ -199,12 +211,12 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 - **[Staking Flow Implementation](./user-stories/complete/staking-flow.md)**: ✅ **COMPLETE** - Real `nominateOperator` transaction submission with Auto SDK integration, comprehensive form validation, real-time transaction status, and automatic position refresh
 
-### Immediate Actions (Phase 4)
+### Next Phase Actions (Phase 5)
 
 Current implementation-ready user stories (see [user-stories/](./user-stories/) for details):
 
-1. **[Withdrawal Flow](./user-stories/withdrawal-flow.md)**: Two-step `withdrawStake` and `unlockNominator` implementation ← **CURRENT PRIORITY**
-2. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration
+1. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration ← **NEXT PRIORITY**
+2. **Advanced Portfolio Features**: Batch operations, performance analytics, and enhanced monitoring
 
 ---
 

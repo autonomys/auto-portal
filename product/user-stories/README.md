@@ -85,13 +85,13 @@ product/
 - **Type:** Frontend + RPC Integration
 - **Purpose:** End-to-end `nominateOperator` transaction submission with real Auto SDK integration
 
-### **Ready for Implementation**
+### **Recently Completed**
 
-### **[Withdrawal Flow](./withdrawal-flow.md)**
+### **[Withdrawal Flow](./complete/withdrawal-flow.md)**
 
-- **Status:** 🎯 **CURRENT PRIORITY**
+- **Status:** ✅ **COMPLETED**
 - **Type:** Frontend + RPC Integration
-- **Purpose:** Two-step `withdrawStake` and `unlockNominator` transaction flow.
+- **Purpose:** Two-step `withdrawStake` and `unlockFunds` transaction flow.
 
 ---
 
@@ -113,8 +113,8 @@ Based on logical dependencies and complexity:
 2. **Wallet Balance Integration** → ✅ **COMPLETE** - Real balance data + wallet UX improvements
 3. **Nominator Position Integration** → ✅ **COMPLETE** - Portfolio tracking with position data
 4. **Staking Flow RPC** → ✅ **COMPLETE** - Real `nominateOperator` transaction submission
-5. **Withdrawal Flow** → 🎯 **CURRENT** - `withdraw` and `unlock` transaction implementation
-6. **Dashboard Analytics** → Future - Historical data via indexer integration
+5. **Withdrawal Flow** → ✅ **COMPLETE** - `withdrawStake` and `unlockFunds` transaction implementation
+6. **Dashboard Analytics** → 🎯 **NEXT** - Historical data via indexer integration
 
 ### **Dependencies**
 
@@ -122,9 +122,9 @@ Based on logical dependencies and complexity:
 - **Wallet Balance Integration** was implemented **independently** (✅ complete)
 - **Nominator Position Integration** depended on **Wallet Connection** (✅ complete)
 - **Staking Flow** depended on **Operator Discovery** and **Wallet Balance** (✅ complete)
-- **Withdrawal Flow** depends on **Nominator Position Integration** (✅ complete) → 🎯 **READY TO START**
-- **Future stories** can be implemented in **parallel** with current ones
-- **Indexer-dependent features** are separate and can be implemented later (APY, transaction history, cost basis)
+- **Withdrawal Flow** depended on **Nominator Position Integration** (✅ complete) → ✅ **COMPLETED**
+- **Dashboard Analytics** can be implemented next (indexer integration)
+- **Advanced features** are ready for development (batch operations, enhanced analytics)
 
 ---
 

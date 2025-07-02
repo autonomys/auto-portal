@@ -3,7 +3,7 @@
 **Priority:** High
 **Type:** Frontend + RPC Integration
 **Prerequisites:** ✅ Nominator Position Integration
-**Status:** 🎯 **CURRENT PRIORITY**
+**Status:** ✅ **COMPLETED**
 
 ---
 
@@ -23,42 +23,42 @@ This feature is critical for completing the staking lifecycle and builds directl
 
 ---
 
-## ✅ Acceptance Criteria
+## ✅ Acceptance Criteria - ALL COMPLETED
 
 ### **Step 1: Request Withdrawal**
 
-- [ ] A "Withdraw" button will be available on the portfolio or active positions table.
-- [ ] The withdrawal UI must allow users to choose between a **partial** or **full** withdrawal.
-- [ ] For partial withdrawals, the input must be validated against the user's total position value.
-- [ ] The UI must provide a **clear preview** of the withdrawal, showing:
+- [x] A "Withdraw" button will be available on the portfolio or active positions table.
+- [x] The withdrawal UI must allow users to choose between a **partial** or **full** withdrawal.
+- [x] For partial withdrawals, the input must be validated against the user's total position value.
+- [x] The UI must provide a **clear preview** of the withdrawal, showing:
   - The amount of staked tokens being withdrawn.
   - The proportional amount of the **storage fund** being returned.
   - The estimated transaction fee.
-- [ ] The flow must construct and sign the `withdrawStake` extrinsic using the Auto SDK.
-- [ ] Upon success, the `usePositions` hook must be refreshed to show a new **pending withdrawal**, including the unlock block number or an estimated unlock time.
+- [x] The flow must construct and sign the `withdrawStake` extrinsic using the Auto SDK.
+- [x] Upon success, the `usePositions` hook must be refreshed to show a new **pending withdrawal**, including the unlock block number or an estimated unlock time.
 
 ### **Step 2: Unlock Funds**
 
-- [ ] The `PendingOperations.tsx` component must detect when a withdrawal is ready to be unlocked (current block > unlock block).
-- [ ] A "Claim" or "Unlock" button must become active next to the corresponding pending withdrawal.
-- [ ] Clicking "Claim" will construct and sign the `unlockNominator` extrinsic.
-- [ ] The UI must provide real-time feedback on the unlock transaction status.
-- [ ] Upon success, the `usePositions` and `useBalance` hooks must be refreshed. The pending withdrawal should be removed from the list, and the user's available balance should increase.
+- [x] The `PendingOperations.tsx` component must detect when a withdrawal is ready to be unlocked (current block > unlock block).
+- [x] A "Claim" or "Unlock" button must become active next to the corresponding pending withdrawal.
+- [x] Clicking "Claim" will construct and sign the `unlockFunds` extrinsic.
+- [x] The UI must provide real-time feedback on the unlock transaction status.
+- [x] Upon success, the `usePositions` and `useBalance` hooks must be refreshed. The pending withdrawal should be removed from the list, and the user's available balance should increase.
 
 ### **Error Handling & UX**
 
-- [ ] Clear loading and error states must be implemented for both `withdrawStake` and `unlockNominator` transactions.
-- [ ] The UI must explain the two-step nature of the process and the associated waiting period.
-- [ ] If a transaction is rejected or fails, the user should be notified with a clear error message.
+- [x] Clear loading and error states must be implemented for both `withdrawStake` and `unlockFunds` transactions.
+- [x] The UI must explain the two-step nature of the process and the associated waiting period.
+- [x] If a transaction is rejected or fails, the user should be notified with a clear error message.
 
 ### **Withdrawal Progress Tracking**
 
-- [ ] A visual progress tracker (e.g., a timeline or stepper) must be displayed for pending withdrawals.
-- [ ] The tracker must clearly show the current status:
+- [x] A visual progress tracker (e.g., a timeline or stepper) must be displayed for pending withdrawals.
+- [x] The tracker must clearly show the current status:
   - **Step 1: Withdrawing** (Waiting for locking period to end)
   - **Step 2: Ready to Unlock** (Locking period complete)
   - **Step 3: Unlocked** (Funds returned to wallet)
-- [ ] The UI should display the estimated unlock time or the specific block number required for the unlock. This should be a dynamic countdown if possible.
+- [x] The UI should display the estimated unlock time or the specific block number required for the unlock. This should be a dynamic countdown if possible.
 
 ---
 
