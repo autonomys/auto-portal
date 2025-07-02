@@ -74,7 +74,7 @@ This feature is critical for completing the staking lifecycle and builds directl
 
 - This service will contain two primary functions:
   - `requestWithdrawal(operatorId, amount)`: Handles the `withdrawStake` extrinsic.
-  - `unlock(operatorId)`: Handles the `unlockNominator` extrinsic.
+  - `unlock(operatorId)`: Handles the `unlockFunds` extrinsic.
 - It will include logic to correctly format parameters for the different withdrawal types (All, Stake, etc.).
 
 ### 3. **Create `useWithdrawalTransaction` Hook**
