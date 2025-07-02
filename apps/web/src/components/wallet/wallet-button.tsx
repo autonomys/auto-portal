@@ -4,7 +4,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useBalance } from '@/hooks/use-balance';
 import { shortenAddress } from '@/lib/utils';
 import { formatAI3 } from '@/lib/formatting';
-import { Copy } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 import type { WalletAccount } from '@talismn/connect-wallets';
 
 interface AccountDropdownProps {
@@ -19,49 +19,66 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   selectedAccount,
   onSelectAccount,
   onDisconnect,
-}) => (
-  <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-    <div className="p-2">
-      <div className="text-xs text-gray-500 mb-2">Select Account</div>
-      {accounts.map((account: WalletAccount) => (
-        <button
-          key={account.address}
-          onClick={() => onSelectAccount(account.address)}
-          className={`w-full text-left px-2 py-1 rounded text-sm ${
-            account.address === selectedAccount?.address
-              ? 'bg-blue-50 text-blue-600'
-              : 'hover:bg-gray-50'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-medium">{account.name || shortenAddress(account.address)}</span>
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                navigator.clipboard.writeText(account.address);
-              }}
-              className="p-1 hover:bg-gray-200 rounded"
-              title="Copy address"
-            >
-              <Copy className="w-3 h-3 text-gray-500" />
-            </button>
-          </div>
-          <div className="text-xs text-gray-500 mt-1" title={account.address}>
-            {shortenAddress(account.address, 8)}
-          </div>
-        </button>
-      ))}
-      <div className="border-t mt-2 pt-2">
-        <button
-          onClick={onDisconnect}
-          className="w-full text-left px-2 py-1 rounded text-sm text-red-600 hover:bg-red-50"
-        >
-          Disconnect
-        </button>
+}) => {
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+
+  const handleCopy = async (e: React.MouseEvent, address: string) => {
+    e.stopPropagation();
+
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopiedAddress(address);
+      setTimeout(() => setCopiedAddress(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy address:', err);
+    }
+  };
+
+  return (
+    <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+      <div className="p-2">
+        <div className="text-xs text-gray-500 mb-2">Select Account</div>
+        {accounts.map((account: WalletAccount) => (
+          <button
+            key={account.address}
+            onClick={() => onSelectAccount(account.address)}
+            className={`w-full text-left px-2 py-1 rounded text-sm ${
+              account.address === selectedAccount?.address
+                ? 'bg-blue-50 text-blue-600'
+                : 'hover:bg-gray-50'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{account.name || shortenAddress(account.address)}</span>
+              <button
+                onClick={e => handleCopy(e, account.address)}
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                title="Copy address"
+              >
+                {copiedAddress === account.address ? (
+                  <Check className="w-3 h-3 text-green-600" />
+                ) : (
+                  <Copy className="w-3 h-3 text-gray-500" />
+                )}
+              </button>
+            </div>
+            <div className="text-xs text-gray-500 mt-1" title={account.address}>
+              {shortenAddress(account.address, 8)}
+            </div>
+          </button>
+        ))}
+        <div className="border-t mt-2 pt-2">
+          <button
+            onClick={onDisconnect}
+            className="w-full text-left px-2 py-1 rounded text-sm text-red-600 hover:bg-red-50"
+          >
+            Disconnect
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface WalletButtonProps {
   onOpenModal?: () => void;
