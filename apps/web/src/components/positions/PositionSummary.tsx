@@ -1,7 +1,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tooltip } from '@/components/ui/tooltip';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3, formatNumber } from '@/lib/formatting';
+import { PositionBreakdown } from './PositionBreakdown';
 
 interface PositionSummaryProps {
   refreshInterval?: number;
@@ -9,7 +11,7 @@ interface PositionSummaryProps {
 }
 
 export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterval, networkId }) => {
-  const { portfolioSummary, loading, error } = usePositions({
+  const { portfolioSummary, positions, loading, error } = usePositions({
     refreshInterval,
     networkId,
   });
@@ -34,16 +36,19 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
       label: 'Total Position Value',
       value: portfolioSummary ? formatAI3(portfolioSummary.totalValue, 2) : '0.00 AI3',
       subtitle: 'Current worth of all positions',
+      showTooltip: true,
     },
     {
       label: 'Active Positions',
       value: portfolioSummary ? formatNumber(portfolioSummary.activePositions) : '0',
       subtitle: 'Operators staked with',
+      showTooltip: false,
     },
     {
       label: 'Storage Deposits',
       value: portfolioSummary ? formatAI3(portfolioSummary.totalStorageFee, 4) : '0.0000 AI3',
       subtitle: 'Total locked in storage fees',
+      showTooltip: false,
     },
   ];
 
@@ -54,9 +59,25 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <div className="text-2xl font-mono font-bold relative">
-                <span className={`text-foreground ${loading ? 'opacity-60' : ''}`}>
-                  {card.value}
-                </span>
+                {card.showTooltip && portfolioSummary && positions ? (
+                  <Tooltip
+                    content={
+                      <PositionBreakdown
+                        portfolioSummary={portfolioSummary}
+                        positions={positions}
+                      />
+                    }
+                    side="top"
+                  >
+                    <span className={`text-foreground cursor-help ${loading ? 'opacity-60' : ''}`}>
+                      {card.value}
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <span className={`text-foreground ${loading ? 'opacity-60' : ''}`}>
+                    {card.value}
+                  </span>
+                )}
                 {loading && (
                   <div className="absolute -top-1 -right-1">
                     <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />

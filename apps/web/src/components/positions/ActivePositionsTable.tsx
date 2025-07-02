@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Tooltip } from '@/components/ui/tooltip';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
 import { WithdrawalForm } from '@/components/staking';
+import { PositionBreakdown } from './PositionBreakdown';
 import type { UserPosition } from '@/types/position';
 
 interface ActivePositionsTableProps {
@@ -50,6 +52,9 @@ const PositionRow: React.FC<PositionRowProps> = ({
         return 'text-muted-foreground';
     }
   };
+
+  // Calculate total position value including storage fee deposit
+  const totalPositionValue = position.positionValue + position.storageFeeDeposit;
 
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
@@ -100,7 +105,9 @@ const PositionRow: React.FC<PositionRowProps> = ({
 
       <div className="flex flex-col items-end space-y-2 min-w-[200px]">
         <div className="text-xl font-mono font-bold text-foreground text-right">
-          {formatAI3(position.positionValue, 2)}
+          <Tooltip content={<PositionBreakdown position={position} />} side="left">
+            <span className="cursor-help">{formatAI3(totalPositionValue, 2)}</span>
+          </Tooltip>
         </div>
         <div className="flex gap-2 justify-end">
           {onOperatorClick && (
