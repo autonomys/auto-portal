@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -141,32 +141,33 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
   const [unlockingOperator, setUnlockingOperator] = useState<string | null>(null);
   const [currentBlock, setCurrentBlock] = useState<number | null>(null);
 
-  // Collect all pending operations
-  const allPendingDeposits: Array<PendingDeposit & { operatorName: string }> = [];
-  const allPendingWithdrawals: Array<
-    PendingWithdrawal & { operatorName: string; operatorId: string }
-  > = [];
-
-  positions.forEach(position => {
-    position.pendingDeposits.forEach(deposit => {
-      allPendingDeposits.push({
-        ...deposit,
-        operatorName: position.operatorName,
+  // Collect all pending deposits sorted by epoch
+  const allPendingDeposits = useMemo(() => {
+    const deps: Array<PendingDeposit & { operatorName: string }> = [];
+    positions.forEach(position => {
+      position.pendingDeposits.forEach(deposit => {
+        deps.push({ ...deposit, operatorName: position.operatorName });
       });
     });
+    deps.sort((a, b) => a.effectiveEpoch - b.effectiveEpoch);
+    return deps;
+  }, [positions]);
 
-    position.pendingWithdrawals.forEach(withdrawal => {
-      allPendingWithdrawals.push({
-        ...withdrawal,
-        operatorName: position.operatorName,
-        operatorId: position.operatorId,
+  // Collect all pending withdrawals sorted by unlock block
+  const allPendingWithdrawals = useMemo(() => {
+    const wds: Array<PendingWithdrawal & { operatorName: string; operatorId: string }> = [];
+    positions.forEach(position => {
+      position.pendingWithdrawals.forEach(withdrawal => {
+        wds.push({
+          ...withdrawal,
+          operatorName: position.operatorName,
+          operatorId: position.operatorId,
+        });
       });
     });
-  });
-
-  // Sort by epoch/block number
-  allPendingDeposits.sort((a, b) => a.effectiveEpoch - b.effectiveEpoch);
-  allPendingWithdrawals.sort((a, b) => a.unlockAtBlock - b.unlockAtBlock);
+    wds.sort((a, b) => a.unlockAtBlock - b.unlockAtBlock);
+    return wds;
+  }, [positions]);
 
   // Check withdrawal unlock statuses
   useEffect(() => {
@@ -201,7 +202,7 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
     // Refresh statuses every 30 seconds
     const interval = setInterval(checkStatuses, 30000);
     return () => clearInterval(interval);
-  }, [allPendingWithdrawals.length]);
+  }, [allPendingWithdrawals]);
 
   // Handle unlock success
   useEffect(() => {
