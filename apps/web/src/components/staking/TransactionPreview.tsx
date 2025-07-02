@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { StakingCalculations } from '@/types/staking';
 import { formatAI3Amount } from '@/lib/staking-utils';
 import { InfoIcon } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
 
 interface TransactionPreviewProps {
   calculations: StakingCalculations;
@@ -30,7 +31,12 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-1">
               <span className="text-sm text-muted-foreground font-sans">Storage Fund (20%)</span>
-              <InfoIcon className="w-4 h-4 text-muted-foreground" />
+              <Tooltip
+                content="20% of your stake is reserved as storage fees and refunded proportionally when you withdraw. Actual refund depends on storage fund performance."
+                side="top"
+              >
+                <InfoIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
+              </Tooltip>
             </div>
             <span className="font-mono font-medium text-foreground">
               {formatAI3Amount(calculations.storageFund)} AI3
