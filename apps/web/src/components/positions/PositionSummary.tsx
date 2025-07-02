@@ -34,33 +34,33 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
       label: 'Total Position Value',
       value: portfolioSummary ? formatAI3(portfolioSummary.totalValue, 2) : '0.00 AI3',
       subtitle: 'Current worth of all positions',
-      loading: loading,
     },
     {
       label: 'Active Positions',
       value: portfolioSummary ? formatNumber(portfolioSummary.activePositions) : '0',
       subtitle: 'Operators staked with',
-      loading: loading,
     },
     {
       label: 'Storage Deposits',
       value: portfolioSummary ? formatAI3(portfolioSummary.totalStorageFee, 4) : '0.0000 AI3',
       subtitle: 'Total locked in storage fees',
-      loading: loading,
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {summaryCards.map(card => (
-        <Card key={card.label}>
+        <Card key={card.label} className="relative">
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
-              <div className="text-2xl font-mono font-bold">
-                {card.loading ? (
-                  <span className="animate-pulse text-muted-foreground">---</span>
-                ) : (
-                  <span className="text-foreground">{card.value}</span>
+              <div className="text-2xl font-mono font-bold relative">
+                <span className={`text-foreground ${loading ? 'opacity-60' : ''}`}>
+                  {card.value}
+                </span>
+                {loading && (
+                  <div className="absolute -top-1 -right-1">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
                 )}
               </div>
               <div className="text-sm font-medium text-muted-foreground font-sans">
