@@ -15,7 +15,7 @@ type Page = 'dashboard' | 'operators' | 'staking';
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string | null>(null);
-  const { balance } = useBalance();
+  const { balance, loading: balanceLoading } = useBalance();
   const { hasPositions } = usePositions();
 
   const handleStakeOperator = (operatorId: string) => {
@@ -80,25 +80,39 @@ const App: React.FC = () => {
 
         {/* Wallet Balance - Only show available balance alongside position data */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <Card className="relative">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">
-                {balance ? formatAI3(balance.free) : '---'}
+              <div className="text-2xl font-bold font-mono relative">
+                <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
+                  {balance ? formatAI3(balance.free) : '0.00 AI3'}
+                </span>
+                {balanceLoading && (
+                  <div className="absolute -top-1 -right-1">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                )}
               </div>
               <p className="text-xs text-muted-foreground font-sans">Ready to stake</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="relative">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium font-sans">Total Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold font-mono">
-                {balance ? formatAI3(balance.total) : '---'}
+              <div className="text-2xl font-bold font-mono relative">
+                <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
+                  {balance ? formatAI3(balance.total) : '0.00 AI3'}
+                </span>
+                {balanceLoading && (
+                  <div className="absolute -top-1 -right-1">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                )}
               </div>
               <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
             </CardContent>
