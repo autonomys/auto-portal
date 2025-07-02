@@ -30,6 +30,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     isSigning,
     isPending,
     isSuccess,
+    isIdle,
     txHash,
     loading: stakingLoading,
     error: stakingError,
@@ -118,7 +119,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
   const handleAmountChange = (amount: string) => {
     // Reset transaction state when amount changes
-    if (stakingLoading) {
+    if (!isIdle) {
       reset();
     }
 
