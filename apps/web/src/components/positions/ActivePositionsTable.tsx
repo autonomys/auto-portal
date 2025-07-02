@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
+import { WithdrawalForm } from '@/components/staking';
 import type { UserPosition } from '@/types/position';
 
 interface ActivePositionsTableProps {
@@ -15,9 +17,14 @@ interface ActivePositionsTableProps {
 interface PositionRowProps {
   position: UserPosition;
   onOperatorClick?: (operatorId: string) => void;
+  onWithdrawClick?: (position: UserPosition) => void;
 }
 
-const PositionRow: React.FC<PositionRowProps> = ({ position, onOperatorClick }) => {
+const PositionRow: React.FC<PositionRowProps> = ({
+  position,
+  onOperatorClick,
+  onWithdrawClick,
+}) => {
   const getStatusVariant = (status: UserPosition['status']) => {
     switch (status) {
       case 'active':
@@ -91,20 +98,32 @@ const PositionRow: React.FC<PositionRowProps> = ({ position, onOperatorClick }) 
         )}
       </div>
 
-      <div className="text-right space-y-2">
-        <div className="text-xl font-mono font-bold text-foreground">
+      <div className="flex flex-col items-end space-y-2 min-w-[200px]">
+        <div className="text-xl font-mono font-bold text-foreground text-right">
           {formatAI3(position.positionValue, 2)}
         </div>
-        {onOperatorClick && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onOperatorClick(position.operatorId)}
-            className="text-xs font-sans"
-          >
-            View Details
-          </Button>
-        )}
+        <div className="flex gap-2 justify-end">
+          {onOperatorClick && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOperatorClick(position.operatorId)}
+              className="text-xs font-sans"
+            >
+              View Details
+            </Button>
+          )}
+          {position.positionValue > 0 && onWithdrawClick && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onWithdrawClick(position)}
+              className="text-xs font-sans text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300"
+            >
+              Withdraw
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -115,10 +134,30 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   networkId,
   onOperatorClick,
 }) => {
-  const { positions, loading, error, lastUpdated } = usePositions({
+  const { positions, loading, error, lastUpdated, refetch } = usePositions({
     refreshInterval,
     networkId,
   });
+
+  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<UserPosition | null>(null);
+
+  const handleWithdrawClick = (position: UserPosition) => {
+    setSelectedPosition(position);
+    setWithdrawalDialogOpen(true);
+  };
+
+  const handleWithdrawalSuccess = () => {
+    setWithdrawalDialogOpen(false);
+    setSelectedPosition(null);
+    // Refresh positions to show updated data
+    refetch();
+  };
+
+  const handleWithdrawalCancel = () => {
+    setWithdrawalDialogOpen(false);
+    setSelectedPosition(null);
+  };
 
   if (loading && positions.length === 0) {
     return (
@@ -170,28 +209,44 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-serif">Active Positions</CardTitle>
-          {lastUpdated && (
-            <div className="text-xs text-muted-foreground font-sans">
-              Last updated: {formatTimeAgo(lastUpdated.getTime())}
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {positions.map(position => (
-            <PositionRow
-              key={position.operatorId}
-              position={position}
-              onOperatorClick={onOperatorClick}
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="font-serif">Active Positions</CardTitle>
+            {lastUpdated && (
+              <div className="text-xs text-muted-foreground font-sans">
+                Last updated: {formatTimeAgo(lastUpdated.getTime())}
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {positions.map(position => (
+              <PositionRow
+                key={position.operatorId}
+                position={position}
+                onOperatorClick={onOperatorClick}
+                onWithdrawClick={handleWithdrawClick}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Withdrawal Dialog */}
+      <Dialog open={withdrawalDialogOpen} onOpenChange={setWithdrawalDialogOpen}>
+        <DialogContent className="p-0 max-w-md">
+          {selectedPosition && (
+            <WithdrawalForm
+              position={selectedPosition}
+              onSuccess={handleWithdrawalSuccess}
+              onCancel={handleWithdrawalCancel}
             />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

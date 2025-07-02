@@ -1,12 +1,12 @@
 import { operator } from '@autonomys/auto-consensus';
 import type { Operator, OperatorStats } from '@/types/operator';
 import { getSharedApiConnection } from './api-service';
+import { TARGET_OPERATORS } from '@/constants/target-operators';
 
 export const operatorService = async (networkId: string = 'taurus') => {
   const api = await getSharedApiConnection(networkId);
 
   const getAllOperators = async (): Promise<Operator[]> => {
-    const TARGET_OPERATORS = ['0', '3'];
     const operators: Operator[] = [];
 
     console.log(`Fetching operators from network: ${networkId}`);

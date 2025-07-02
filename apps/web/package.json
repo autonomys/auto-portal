@@ -12,8 +12,8 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@autonomys/auto-consensus": "1.5.2",
-    "@autonomys/auto-utils": "1.5.2",
+    "@autonomys/auto-consensus": "1.5.5",
+    "@autonomys/auto-utils": "1.5.5",
     "@polkadot/api": "^16.2.2",
     "@polkadot/extension-dapp": "^0.60.1",
     "@radix-ui/react-dialog": "^1.1.14",

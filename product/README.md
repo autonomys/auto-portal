@@ -95,16 +95,41 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 - [x] Full TypeScript type system with comprehensive staking domain models
 - [x] Development servers verified and working
 
-### ✅ Phase 4: Implementation (In Progress)
+### ✅ Phase 4: Implementation (Completed Core Features)
 
 - [x] Core UI components and layout system (dashboard layout implemented)
 - [x] Wallet connection and account management (completed)
 - [x] **Operator discovery and comparison interface** (completed)
 - [x] **✅ Wallet balance and position integration** (completed June 2025)
-- [ ] **Staking flow implementation with real RPC data** ← **CURRENT FOCUS**
-- [ ] Portfolio and withdrawal management
+- [x] **✅ Staking flow implementation with real RPC data** (completed)
+- [x] **✅ Withdrawal flow implementation** (completed)
+- [ ] Portfolio analytics and advanced features ← **NEXT FOCUS**
 
-**📋 Current Milestone:** See implementation-ready user stories in [user-stories/](./user-stories/)
+**📋 Latest Milestone:** ✅ **Core Staking Platform Complete** - Full staking lifecycle implemented
+
+### **✅ Recently Completed: Withdrawal Flow Implementation**
+
+**Status:** ✅ **MERGED** - Complete two-step withdrawal flow with unlock functionality
+
+**Key Features Delivered:**
+
+- **Withdrawal Request Flow**: Real `withdrawStake` extrinsic submission with partial/full withdrawal support
+- **Unlock Functionality**: `unlockFunds` extrinsic with block-based status checking
+- **Smart Status Tracking**: Real-time withdrawal unlock eligibility based on domain blocks
+- **Transaction Preview**: Clear breakdown showing stake withdrawal + storage fee refund
+- **Position Integration**: Automatic refresh of pending operations and position data
+- **UI/UX Excellence**: Withdrawal form modal, pending operations display, and unlock buttons
+
+### **🎯 Core Platform Achievement**
+
+**Complete Staking Lifecycle Implemented:**
+
+- ✅ **Operator Discovery** - Browse and compare operators with real RPC data
+- ✅ **Wallet Integration** - Connect wallet with balance display and address management
+- ✅ **Staking Flow** - Real `nominateOperator` transactions with comprehensive validation
+- ✅ **Position Tracking** - Live portfolio monitoring with pending operations
+- ✅ **Withdrawal Flow** - Two-step `withdrawStake` and `unlockFunds` process
+- ✅ **Real-time Updates** - Auto-refresh of balances, positions, and unlock status
 
 ### **✅ Recently Completed: Nominator Position Integration**
 
@@ -182,12 +207,16 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ## 🛠 Next Steps
 
-### Immediate Actions (Phase 4)
+### Recently Completed
+
+- **[Staking Flow Implementation](./user-stories/complete/staking-flow.md)**: ✅ **COMPLETE** - Real `nominateOperator` transaction submission with Auto SDK integration, comprehensive form validation, real-time transaction status, and automatic position refresh
+
+### Next Phase Actions (Phase 5)
 
 Current implementation-ready user stories (see [user-stories/](./user-stories/) for details):
 
-1. **[Staking Form Integration](./user-stories/staking-form-rpc.md)**: Real validation and transaction integration
-2. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration
+1. **[Dashboard Analytics](./user-stories/dashboard-analytics.md)**: Historical data via indexer integration ← **NEXT PRIORITY**
+2. **Advanced Portfolio Features**: Batch operations, performance analytics, and enhanced monitoring
 
 ---
 

@@ -25,7 +25,20 @@ interface StakingFormProps {
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
-  const stakingTransaction = useStakingTransaction();
+  const {
+    execute,
+    isSigning,
+    isPending,
+    isSuccess,
+    isIdle,
+    txHash,
+    loading: stakingLoading,
+    error: stakingError,
+    estimatedFee,
+    estimateFee,
+    canExecute,
+    reset,
+  } = useStakingTransaction();
   const submittedAmount = useRef('');
   const currentAmount = useRef(0);
 
@@ -52,37 +65,26 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     const validation = validateStakingAmount(
       formState.amount,
       validationRules,
-      stakingTransaction.estimatedFee ?? undefined,
+      estimatedFee ?? undefined,
     );
-    const newCalculations = calculateStakingAmounts(
-      formState.amount,
-      0,
-      stakingTransaction.estimatedFee ?? undefined,
-    );
+    const newCalculations = calculateStakingAmounts(formState.amount, 0, estimatedFee ?? undefined);
 
     // Add transaction errors to validation errors
     const allErrors = [...validation.errors];
-    if (stakingTransaction.error && !stakingTransaction.loading) {
-      allErrors.push(stakingTransaction.error);
+    if (stakingError && !stakingLoading) {
+      allErrors.push(stakingError);
     }
 
     setFormState(prev => ({
       ...prev,
-      isValid: validation.isValid && !stakingTransaction.loading,
+      isValid: validation.isValid && !stakingLoading,
       errors: allErrors,
       showPreview: validation.isValid && parseFloat(formState.amount) > 0,
-      isSubmitting: stakingTransaction.loading,
+      isSubmitting: stakingLoading,
     }));
 
     setCalculations(newCalculations);
-  }, [
-    formState.amount,
-    operator,
-    balance,
-    stakingTransaction.loading,
-    stakingTransaction.error,
-    stakingTransaction.estimatedFee,
-  ]);
+  }, [formState.amount, operator, balance, stakingLoading, stakingError, estimatedFee]);
 
   // Update current amount ref when form amount changes
   useEffect(() => {
@@ -93,19 +95,19 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   useEffect(() => {
     const amount = parseFloat(formState.amount);
     if (amount > 0 && !isNaN(amount)) {
-      stakingTransaction.estimateFee({
+      estimateFee({
         operatorId: operator.id,
         amount: amount,
       });
     }
-  }, [formState.amount, operator.id, stakingTransaction.estimateFee]);
+  }, [formState.amount, operator.id, estimateFee]);
 
   // Periodic fee refresh (every 20 seconds) - only when there's a valid amount
   useEffect(() => {
     const intervalId = setInterval(() => {
       const amount = currentAmount.current;
       if (amount > 0 && !isNaN(amount)) {
-        stakingTransaction.estimateFee({
+        estimateFee({
           operatorId: operator.id,
           amount: amount,
         });
@@ -113,12 +115,12 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }, 20000); // 20 seconds
 
     return () => clearInterval(intervalId);
-  }, [operator.id, stakingTransaction.estimateFee]); // Only depend on operator and estimateFee function
+  }, [operator.id, estimateFee]);
 
   const handleAmountChange = (amount: string) => {
     // Reset transaction state when amount changes
-    if (stakingTransaction.state !== 'idle') {
-      stakingTransaction.reset();
+    if (!isIdle) {
+      reset();
     }
 
     setFormState(prev => ({
@@ -128,7 +130,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   };
 
   const handleSubmit = async () => {
-    if (!formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute) return;
+    if (!formState.isValid || formState.isSubmitting || !canExecute) return;
 
     const amount = parseFloat(formState.amount);
     if (isNaN(amount) || amount <= 0) return;
@@ -137,7 +139,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
     try {
       // Execute the real staking transaction
-      await stakingTransaction.execute({
+      await execute({
         operatorId: operator.id,
         amount: amount,
       });
@@ -151,11 +153,11 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
   // Handle transaction success
   useEffect(() => {
-    if (stakingTransaction.isSuccess && stakingTransaction.txHash) {
+    if (isSuccess && txHash) {
       // Refresh positions data to show the new pending deposit
       refetchPositions();
     }
-  }, [stakingTransaction.isSuccess, stakingTransaction.txHash, refetchPositions]);
+  }, [isSuccess, txHash, refetchPositions]);
 
   const handleContinue = () => {
     onSubmit(submittedAmount.current);
@@ -194,42 +196,29 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             errors={formState.errors}
             disabled={formState.isSubmitting}
             availableBalance={balance ? parseFloat(balance.free) : 0}
-            estimatedFee={stakingTransaction.estimatedFee ?? undefined}
+            estimatedFee={estimatedFee ?? undefined}
           />
 
           {/* Transaction Status */}
-          {stakingTransaction.txHash && (
+          {txHash && (
             <div
               className={`p-4 border rounded-lg ${
-                stakingTransaction.isSuccess
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-primary/5 border-primary/20'
+                isSuccess ? 'bg-green-50 border-green-200' : 'bg-primary/5 border-primary/20'
               }`}
             >
               <h4
                 className={`text-sm font-semibold font-sans mb-2 ${
-                  stakingTransaction.isSuccess ? 'text-green-800' : 'text-primary'
+                  isSuccess ? 'text-green-800' : 'text-primary'
                 }`}
               >
-                {stakingTransaction.isSuccess ? 'Transaction Successful!' : 'Transaction Status'}
+                {isSuccess ? 'Transaction Successful!' : 'Transaction Status'}
               </h4>
               <div className="space-y-1 text-xs font-mono">
-                <div
-                  className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
-                >
-                  Hash: {stakingTransaction.txHash}
+                <div className={isSuccess ? 'text-green-700' : 'text-primary/80'}>
+                  Hash: {txHash}
                 </div>
-                {stakingTransaction.blockHash && (
-                  <div
-                    className={stakingTransaction.isSuccess ? 'text-green-700' : 'text-primary/80'}
-                  >
-                    Block: {stakingTransaction.blockHash}
-                  </div>
-                )}
-                {stakingTransaction.isSuccess && (
-                  <div className="text-green-600 font-sans mt-2 font-medium">
-                    ✓ Your stake of {submittedAmount.current} AI3 will be active next epoch
-                  </div>
+                {stakingError && (
+                  <div className={`text-red-700 font-sans mt-2 font-medium`}>{stakingError}</div>
                 )}
               </div>
             </div>
@@ -237,14 +226,10 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
           {/* Action Buttons */}
           <div className="flex gap-4 pt-4">
-            {stakingTransaction.isSuccess ? (
+            {isSuccess ? (
               // Success state buttons
               <>
-                <Button
-                  variant="outline"
-                  onClick={() => stakingTransaction.reset()}
-                  className="flex-1 font-sans"
-                >
+                <Button variant="outline" onClick={() => reset()} className="flex-1 font-sans">
                   Stake More
                 </Button>
                 <Button onClick={handleContinue} className="flex-1 font-sans">
@@ -264,14 +249,12 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={
-                    !formState.isValid || formState.isSubmitting || !stakingTransaction.canExecute
-                  }
+                  disabled={!formState.isValid || formState.isSubmitting || !canExecute}
                   className="flex-1 font-sans"
                 >
-                  {stakingTransaction.isSigning && 'Awaiting signature...'}
-                  {stakingTransaction.isPending && 'Submitting...'}
-                  {!stakingTransaction.loading && 'Stake Tokens'}
+                  {isSigning && 'Awaiting signature...'}
+                  {isPending && 'Submitting...'}
+                  {!stakingLoading && 'Stake Tokens'}
                 </Button>
               </>
             )}
@@ -282,10 +265,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Transaction Preview */}
       <div>
         {formState.showPreview ? (
-          <TransactionPreview
-            calculations={calculations}
-            feeLoading={stakingTransaction.feeLoading}
-          />
+          <TransactionPreview calculations={calculations} feeLoading={stakingLoading} />
         ) : (
           <Card>
             <CardContent className="pt-6">

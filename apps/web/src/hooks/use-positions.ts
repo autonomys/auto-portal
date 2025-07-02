@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from './use-wallet';
 import { positionService } from '@/services/position-service';
-import type { UserPosition, PortfolioSummary, PositionServiceError } from '@/types/position';
+import type { UserPosition, PortfolioSummary } from '@/types/position';
+import { TARGET_OPERATORS } from '@/constants/target-operators';
 
 interface UsePositionsOptions {
   refreshInterval?: number; // Auto-refresh interval in ms. 0 = disabled, default 30000 (30s)
@@ -14,7 +15,6 @@ interface UsePositionsReturn {
   portfolioSummary: PortfolioSummary | null;
   loading: boolean;
   error: string | null;
-  serviceErrors: PositionServiceError[];
   lastUpdated: Date | null;
 
   // Computed
@@ -40,7 +40,6 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
   const [portfolioSummary, setPortfolioSummary] = useState<PortfolioSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [serviceErrors, setServiceErrors] = useState<PositionServiceError[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Clear data when wallet disconnects
@@ -48,7 +47,6 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
     if (!isConnected || !selectedAccount) {
       setPositions([]);
       setPortfolioSummary(null);
-      setServiceErrors([]);
       setLastUpdated(null);
       setError(null);
     }
@@ -65,13 +63,20 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
 
     try {
       const service = await positionService(networkId);
-      const result = await service.fetchUserPositions(selectedAccount.address);
 
-      const summary = service.calculatePortfolioSummary(result.positions);
+      // TODO: This is a temporary solution to fetch positions for target operators until we have indexer in place
+      const positions = (
+        await Promise.all(
+          TARGET_OPERATORS.map(async operatorId =>
+            service.getPositionByOperator(selectedAccount.address, operatorId),
+          ),
+        )
+      ).filter(position => position !== null);
 
-      setPositions(result.positions);
+      const summary = service.calculatePortfolioSummary(positions);
+
+      setPositions(positions);
       setPortfolioSummary(summary);
-      setServiceErrors(result.errors);
       setLastUpdated(new Date());
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch positions';
@@ -116,7 +121,6 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
     portfolioSummary,
     loading,
     error,
-    serviceErrors,
     lastUpdated,
 
     // Computed

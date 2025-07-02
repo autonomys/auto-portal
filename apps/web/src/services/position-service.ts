@@ -6,13 +6,10 @@ import type {
   PortfolioSummary,
   PendingDeposit,
   PendingWithdrawal,
-  PositionServiceError,
 } from '@/types/position';
 
 export const positionService = async (networkId: string = 'taurus') => {
   const api = await getSharedApiConnection(networkId);
-
-  const TARGET_OPERATORS = ['0', '3']; // Same as operator service
 
   /**
    * Determine position status based on pending operations
@@ -24,74 +21,6 @@ export const positionService = async (networkId: string = 'taurus') => {
     if (pendingWithdrawals.length > 0) return 'withdrawing';
     if (pendingDeposits.length > 0) return 'pending';
     return 'active';
-  };
-
-  /**
-   * Fetch positions for a specific user across all target operators
-   */
-  const fetchUserPositions = async (
-    address: string,
-  ): Promise<{
-    positions: UserPosition[];
-    errors: PositionServiceError[];
-  }> => {
-    const errors: PositionServiceError[] = [];
-
-    // Check positions across target operators in parallel
-    const positionPromises = TARGET_OPERATORS.map(async operatorId => {
-      try {
-        const positionData = await nominatorPosition(api, operatorId, address);
-
-        // Only include if user has a position (knownValue > 0)
-        if (positionData.knownValue > 0n) {
-          const pendingDeposits: PendingDeposit[] = positionData.pendingDeposits.map(deposit => ({
-            amount: shannonsToAI3(deposit.amount.toString()),
-            effectiveEpoch: deposit.effectiveEpoch,
-          }));
-
-          const pendingWithdrawals: PendingWithdrawal[] = positionData.pendingWithdrawals.map(
-            withdrawal => ({
-              amount: shannonsToAI3(withdrawal.amount.toString()),
-              unlockAtBlock: withdrawal.unlockAtBlock,
-            }),
-          );
-
-          const position: UserPosition = {
-            operatorId,
-            operatorName: `Operator ${operatorId}`,
-            positionValue: shannonsToAI3(positionData.knownValue.toString()),
-            storageFeeDeposit: shannonsToAI3(positionData.storageFeeDeposit.toString()),
-            pendingDeposits,
-            pendingWithdrawals,
-            status: getPositionStatus(pendingDeposits, pendingWithdrawals),
-            lastUpdated: new Date(),
-          };
-
-          return position;
-        }
-
-        return null;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.warn(`Failed to fetch position for operator ${operatorId}:`, error);
-
-        errors.push({
-          operatorId,
-          error: errorMessage,
-          timestamp: new Date(),
-        });
-
-        return null;
-      }
-    });
-
-    const results = await Promise.all(positionPromises);
-    const validPositions = results.filter(Boolean) as UserPosition[];
-
-    return {
-      positions: validPositions,
-      errors,
-    };
   };
 
   /**
@@ -138,10 +67,22 @@ export const positionService = async (networkId: string = 'taurus') => {
         }));
 
         const pendingWithdrawals: PendingWithdrawal[] = positionData.pendingWithdrawals.map(
-          withdrawal => ({
-            amount: shannonsToAI3(withdrawal.amount.toString()),
-            unlockAtBlock: withdrawal.unlockAtBlock,
-          }),
+          withdrawal => {
+            const stakeWithdrawalAmount = shannonsToAI3(
+              withdrawal.stakeWithdrawalAmount.toString(),
+            );
+            const storageFeeRefund = shannonsToAI3(withdrawal.storageFeeRefund.toString());
+
+            // Total amount user will receive = net stake + storage fee refund
+            const grossWithdrawalAmount = stakeWithdrawalAmount + storageFeeRefund;
+
+            return {
+              grossWithdrawalAmount, // Total gross amount user will receive
+              stakeWithdrawalAmount, // Net stake amount being withdrawn
+              storageFeeRefund, // Storage fee refund
+              unlockAtBlock: withdrawal.unlockAtDomainBlock,
+            };
+          },
         );
 
         return {
@@ -164,9 +105,7 @@ export const positionService = async (networkId: string = 'taurus') => {
   };
 
   return {
-    fetchUserPositions,
     calculatePortfolioSummary,
     getPositionByOperator,
-    TARGET_OPERATORS,
   };
 };
