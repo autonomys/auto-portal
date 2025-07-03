@@ -134,12 +134,26 @@ export const createStatusBadge = (
 /**
  * Utility function to properly add hover prefix to background classes
  * Handles cases where bg classes might contain variants like 'dark:'
+ * Correctly positions hover modifier after existing modifiers
  */
-const addHoverToClasses = (classes: string): string => {
+const addHoverToClasses = (classes: string | null | undefined): string => {
+  if (!classes) return '';
+  
   return classes
     .split(' ')
     .filter(Boolean)
-    .map(cls => `hover:${cls}`)
+    .map(cls => {
+      // Check if the class has existing modifiers (contains colon)
+      const colonIndex = cls.lastIndexOf(':');
+      if (colonIndex > 0) {
+        // Insert hover: after the last modifier
+        const modifiers = cls.substring(0, colonIndex + 1);
+        const baseClass = cls.substring(colonIndex + 1);
+        return `${modifiers}hover:${baseClass}`;
+      }
+      // No modifiers, just add hover: prefix
+      return `hover:${cls}`;
+    })
     .join(' ');
 };
 
