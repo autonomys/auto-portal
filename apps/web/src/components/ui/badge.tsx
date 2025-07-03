@@ -15,10 +15,27 @@ const badgeVariants = cva(
         destructive:
           'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80',
         outline: 'text-foreground',
+        success:
+          'border-transparent bg-green-500 text-white shadow hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700',
+        warning:
+          'border-transparent bg-yellow-500 text-white shadow hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700',
+        info: 'border-transparent bg-blue-500 text-white shadow hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700',
+      },
+      size: {
+        sm: 'px-2 py-0.5 text-xs',
+        md: 'px-2.5 py-0.5 text-xs',
+        lg: 'px-3 py-1 text-sm',
+      },
+      shape: {
+        default: 'rounded-md',
+        pill: 'rounded-full',
+        dot: 'rounded-full px-1.5 py-1.5 text-[0px]',
       },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'md',
+      shape: 'default',
     },
   },
 );
@@ -27,8 +44,17 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
-}
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className, variant, size, shape, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(badgeVariants({ variant, size, shape }), className)}
+        {...props}
+      />
+    );
+  },
+);
+Badge.displayName = 'Badge';
 
 export { Badge, badgeVariants };
