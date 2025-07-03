@@ -139,7 +139,7 @@ const addHoverToClasses = (classes: string): string => {
   return classes
     .split(' ')
     .filter(Boolean)
-    .map((cls) => `hover:${cls}`)
+    .map(cls => `hover:${cls}`)
     .join(' ');
 };
 
