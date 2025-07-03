@@ -7,6 +7,7 @@ import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/comp
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3 } from '@/lib/formatting';
+import { layout } from '@/lib/layout';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,12 +64,12 @@ export const DashboardPage: React.FC = () => {
   );
 
   return (
-    <div className="py-12 space-y-12">
+    <div className={layout.pageSection + ' ' + layout.pageContent}>
       {/* Page Header */}
-      <div className="border-b border-border pb-8 text-center">
+      <div className={layout.pageHeader}>
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-serif font-bold text-foreground mb-3">Dashboard</h1>
-          <p className="text-lg text-muted-foreground font-sans leading-relaxed">
+          <h1 className="text-h1 text-foreground mb-3">Dashboard</h1>
+          <p className="text-body-large text-muted-foreground">
             Manage your staking positions and discover operators
           </p>
         </div>
@@ -78,13 +79,13 @@ export const DashboardPage: React.FC = () => {
       <PositionSummary />
 
       {/* Wallet Balance - Only show available balance alongside position data */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={layout.gridResponsive['1-2'] + ' gap-6'}>
         <Card className="relative">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium font-sans">Available Balance</CardTitle>
+            <CardTitle className="text-label">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono relative">
+            <div className="text-2xl font-mono font-bold leading-tight relative">
               <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
                 {balance ? formatAI3(balance.free) : '0.00 AI3'}
               </span>
@@ -94,16 +95,16 @@ export const DashboardPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <p className="text-xs text-muted-foreground font-sans">Ready to stake</p>
+            <p className="text-caption">Ready to stake</p>
           </CardContent>
         </Card>
 
         <Card className="relative">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium font-sans">Total Balance</CardTitle>
+            <CardTitle className="text-label">Total Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono relative">
+            <div className="text-2xl font-mono font-bold leading-tight relative">
               <Tooltip content={<TotalBalanceBreakdown />} side="top">
                 <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
                   {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
@@ -115,7 +116,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <p className="text-xs text-muted-foreground font-sans">Wallet + Storage Deposits</p>
+            <p className="text-caption">Wallet + Storage Deposits</p>
           </CardContent>
         </Card>
       </div>
@@ -136,11 +137,11 @@ export const DashboardPage: React.FC = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <CardTitle className="mb-2 font-serif">Start Staking</CardTitle>
-              <CardDescription className="mb-4 font-sans">
+              <CardTitle className="text-h3 mb-2">Start Staking</CardTitle>
+              <CardDescription className="text-body mb-4">
                 Browse available operators and choose the best fit for your staking strategy
               </CardDescription>
-              <Button size="lg" className="font-sans" onClick={() => navigate('/operators')}>
+              <Button size="lg" onClick={() => navigate('/operators')}>
                 Browse Operators
               </Button>
             </div>

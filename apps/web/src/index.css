@@ -215,3 +215,87 @@
     font-feature-settings: "tnum" 1, "zero" 1;
   }
 }
+
+@layer utilities {
+  /* Typography utilities for semantic text styling */
+  .text-display {
+    @apply text-5xl font-serif font-bold leading-tight;
+  }
+  
+  .text-h1 {
+    @apply text-4xl font-serif font-bold leading-tight;
+  }
+  
+  .text-h2 {
+    @apply text-2xl font-serif font-semibold leading-tight;
+  }
+  
+  .text-h3 {
+    @apply text-xl font-serif font-semibold leading-snug;
+  }
+  
+  .text-h4 {
+    @apply text-lg font-serif font-medium leading-snug;
+  }
+  
+  .text-body {
+    @apply text-base font-sans leading-relaxed;
+  }
+  
+  .text-body-small {
+    @apply text-sm font-sans leading-relaxed;
+  }
+  
+  .text-label {
+    @apply text-sm font-medium font-sans leading-normal;
+  }
+  
+  .text-caption {
+    @apply text-xs font-sans text-muted-foreground leading-normal;
+  }
+  
+  .text-code {
+    @apply text-sm font-mono leading-normal;
+  }
+
+  /* Spacing utilities for consistent layout patterns */
+  .stack-xs {
+    @apply flex flex-col gap-2;
+  }
+  
+  .stack-sm {
+    @apply flex flex-col gap-3;
+  }
+  
+  .stack-md {
+    @apply flex flex-col gap-4;
+  }
+  
+  .stack-lg {
+    @apply flex flex-col gap-6;
+  }
+  
+  .stack-xl {
+    @apply flex flex-col gap-8;
+  }
+  
+  .inline-xs {
+    @apply flex items-center gap-2;
+  }
+  
+  .inline-sm {
+    @apply flex items-center gap-3;
+  }
+  
+  .inline-md {
+    @apply flex items-center gap-4;
+  }
+  
+  .inline-lg {
+    @apply flex items-center gap-6;
+  }
+  
+  .inline-xl {
+    @apply flex items-center gap-8;
+  }
+}
