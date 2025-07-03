@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Layout } from './components/layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { OperatorsPage } from './pages/operators';
 import { StakingPage } from './pages/StakingPage';
 import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
@@ -16,7 +17,17 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string | null>(null);
   const { balance, loading: balanceLoading } = useBalance();
-  const { hasPositions } = usePositions();
+  const { hasPositions, portfolioSummary } = usePositions();
+
+  // Calculate true total balance including storage deposits
+  const totalBalanceWithPositions = useMemo(() => {
+    if (!balance) return null;
+
+    const walletBalance = parseFloat(balance.total);
+    const storageDeposits = portfolioSummary?.totalStorageFee || 0;
+
+    return walletBalance + storageDeposits;
+  }, [balance, portfolioSummary]);
 
   const handleStakeOperator = (operatorId: string) => {
     setSelectedOperatorId(operatorId);
@@ -62,6 +73,45 @@ const App: React.FC = () => {
     );
   }
 
+  // Breakdown tooltip content for total balance
+  const TotalBalanceBreakdown = () => (
+    <div className="space-y-1.5 min-w-48">
+      <div className="text-xs font-semibold text-gray-300 border-b border-gray-700 pb-1">
+        Total Balance Breakdown
+      </div>
+      <div className="space-y-1">
+        <div className="flex justify-between">
+          <span className="text-gray-300">Free Balance:</span>
+          <span className="font-mono text-white">
+            {balance ? formatAI3(balance.free, 4) : '0.0000 AI3'}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-300">Reserved Balance:</span>
+          <span className="font-mono text-white">
+            {balance ? formatAI3(balance.reserved, 4) : '0.0000 AI3'}
+          </span>
+        </div>
+        {portfolioSummary && portfolioSummary.totalStorageFee > 0 && (
+          <div className="flex justify-between">
+            <span className="text-gray-300">Storage Deposits:</span>
+            <span className="font-mono text-white">
+              {formatAI3(portfolioSummary.totalStorageFee, 4)}
+            </span>
+          </div>
+        )}
+        <div className="border-t border-gray-700 pt-1 mt-2">
+          <div className="flex justify-between font-semibold">
+            <span className="text-gray-200">Total Balance:</span>
+            <span className="font-mono text-white">
+              {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions, 4) : '0.0000 AI3'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <Layout className="py-12" onNavigate={handleNavigate} currentPage={getLayoutCurrentPage()}>
       <div className="space-y-12">
@@ -105,16 +155,18 @@ const App: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold font-mono relative">
-                <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
-                  {balance ? formatAI3(balance.total) : '0.00 AI3'}
-                </span>
+                <Tooltip content={<TotalBalanceBreakdown />} side="top">
+                  <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
+                    {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
+                  </span>
+                </Tooltip>
                 {balanceLoading && (
                   <div className="absolute -top-1 -right-1">
                     <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                   </div>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground font-sans">Free + Reserved</p>
+              <p className="text-xs text-muted-foreground font-sans">Wallet + Storage Deposits</p>
             </CardContent>
           </Card>
         </div>
