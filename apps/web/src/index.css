@@ -35,6 +35,14 @@
     --chart-5: 27 87% 67%;
 
     /* Semantic color tokens - Light mode */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 98%;
+    --error: 0 84% 60%;
+    --error-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 9%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 98%;
     --success-50: 122 39% 97%;
     --success-100: 121 47% 94%;
     --success-200: 124 63% 88%;
@@ -119,6 +127,14 @@
     --chart-5: 340 75% 55%;
 
     /* Semantic color tokens - Dark mode */
+    --success: 123 46% 70%;
+    --success-foreground: 0 0% 9%;
+    --error: 0 91% 71%;
+    --error-foreground: 0 0% 9%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 0 0% 9%;
+    --info: 213 94% 68%;
+    --info-foreground: 0 0% 9%;
     --success-50: 144 61% 12%;
     --success-100: 145 63% 20%;
     --success-200: 142 72% 29%;
