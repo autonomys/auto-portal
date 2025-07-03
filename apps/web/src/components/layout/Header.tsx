@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { WalletButton, WalletModal } from '@/components/wallet';
 
 interface HeaderProps {
   className?: string;
-  onNavigate?: (page: 'dashboard' | 'operators') => void;
-  currentPage?: 'dashboard' | 'operators';
 }
 
-export const Header: React.FC<HeaderProps> = ({ className = '', onNavigate, currentPage }) => {
+export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-
-  const handleNavClick = (page: 'dashboard' | 'operators') => {
-    if (onNavigate) {
-      onNavigate(page);
-    }
-  };
 
   return (
     <header className={`bg-background border-b border-border ${className}`}>
@@ -32,32 +25,30 @@ export const Header: React.FC<HeaderProps> = ({ className = '', onNavigate, curr
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => handleNavClick('dashboard')}
-              className={`px-3 py-2 text-sm font-medium transition-colors font-sans ${
-                currentPage === 'dashboard'
-                  ? 'text-foreground border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `px-3 py-2 text-sm font-medium transition-colors font-sans ${
+                  isActive
+                    ? 'text-foreground border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`
+              }
             >
               Dashboard
-            </button>
-            <button
-              onClick={() => handleNavClick('operators')}
-              className={`px-3 py-2 text-sm font-medium transition-colors font-sans ${
-                currentPage === 'operators'
-                  ? 'text-foreground border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
+            </NavLink>
+            <NavLink
+              to="/operators"
+              className={({ isActive }) =>
+                `px-3 py-2 text-sm font-medium transition-colors font-sans ${
+                  isActive
+                    ? 'text-foreground border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`
+              }
             >
               Operators
-            </button>
-            <button
-              onClick={() => handleNavClick('dashboard')}
-              className="text-muted-foreground hover:text-foreground px-3 py-2 text-sm font-medium transition-colors font-sans"
-            >
-              Portfolio
-            </button>
+            </NavLink>
           </nav>
 
           {/* Wallet Connection */}
