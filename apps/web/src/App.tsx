@@ -80,30 +80,30 @@ const App: React.FC = () => {
         Total Balance Breakdown
       </div>
       <div className="space-y-1">
-        <div className="flex justify-between">
-          <span className="text-gray-300">Free Balance:</span>
-          <span className="font-mono text-white">
+        <div className="grid grid-cols-2 gap-2">
+          <span className="text-gray-300 text-left">Free Balance:</span>
+          <span className="font-mono text-white text-right">
             {balance ? formatAI3(balance.free, 4) : '0.0000 AI3'}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-300">Reserved Balance:</span>
-          <span className="font-mono text-white">
+        <div className="grid grid-cols-2 gap-2">
+          <span className="text-gray-300 text-left">Reserved Balance:</span>
+          <span className="font-mono text-white text-right">
             {balance ? formatAI3(balance.reserved, 4) : '0.0000 AI3'}
           </span>
         </div>
         {portfolioSummary && portfolioSummary.totalStorageFee > 0 && (
-          <div className="flex justify-between">
-            <span className="text-gray-300">Storage Deposits:</span>
-            <span className="font-mono text-white">
+          <div className="grid grid-cols-2 gap-2">
+            <span className="text-gray-300 text-left">Storage Deposits:</span>
+            <span className="font-mono text-white text-right">
               {formatAI3(portfolioSummary.totalStorageFee, 4)}
             </span>
           </div>
         )}
         <div className="border-t border-gray-700 pt-1 mt-2">
-          <div className="flex justify-between font-semibold">
-            <span className="text-gray-200">Total Balance:</span>
-            <span className="font-mono text-white">
+          <div className="grid grid-cols-2 gap-2 font-semibold">
+            <span className="text-gray-200 text-left">Total Balance:</span>
+            <span className="font-mono text-white text-right">
               {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions, 4) : '0.0000 AI3'}
             </span>
           </div>

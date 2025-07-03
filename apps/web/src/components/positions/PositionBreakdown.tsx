@@ -32,30 +32,34 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
           Position Breakdown
         </div>
         <div className="space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-300">Staked:</span>
-            <span className="font-mono text-white">{formatAI3(totalStaked, 4)}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <span className="text-gray-300 text-left">Staked:</span>
+            <span className="font-mono text-white text-right">{formatAI3(totalStaked, 4)}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-300">Storage Fund:</span>
-            <span className="font-mono text-white">{formatAI3(storageFund, 4)}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <span className="text-gray-300 text-left">Storage Fund:</span>
+            <span className="font-mono text-white text-right">{formatAI3(storageFund, 4)}</span>
           </div>
           {pendingStaked > 0 && (
-            <div className="flex justify-between">
-              <span className="text-yellow-300">Pending Staked:</span>
-              <span className="font-mono text-yellow-300">{formatAI3(pendingStaked, 4)}</span>
+            <div className="grid grid-cols-2 gap-2">
+              <span className="text-yellow-300 text-left">Pending Staked:</span>
+              <span className="font-mono text-yellow-300 text-right">
+                {formatAI3(pendingStaked, 4)}
+              </span>
             </div>
           )}
           {pendingWithdrawal > 0 && (
-            <div className="flex justify-between">
-              <span className="text-orange-300">Pending Withdrawal:</span>
-              <span className="font-mono text-orange-300">{formatAI3(pendingWithdrawal, 4)}</span>
+            <div className="grid grid-cols-2 gap-2">
+              <span className="text-orange-300 text-left">Pending Withdrawal:</span>
+              <span className="font-mono text-orange-300 text-right">
+                {formatAI3(pendingWithdrawal, 4)}
+              </span>
             </div>
           )}
           <div className="border-t border-gray-700 pt-1 mt-2">
-            <div className="flex justify-between font-semibold">
-              <span className="text-gray-200">Total Value:</span>
-              <span className="font-mono text-white">
+            <div className="grid grid-cols-2 gap-2 font-semibold">
+              <span className="text-gray-200 text-left">Total Value:</span>
+              <span className="font-mono text-white text-right">
                 {formatAI3(totalStaked + storageFund, 4)}
               </span>
             </div>
@@ -89,32 +93,36 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
           Portfolio Breakdown
         </div>
         <div className="space-y-1">
-          <div className="flex justify-between">
-            <span className="text-gray-300">Total Staked:</span>
-            <span className="font-mono text-white">{formatAI3(totalStaked, 4)}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <span className="text-gray-300 text-left">Total Staked:</span>
+            <span className="font-mono text-white text-right">{formatAI3(totalStaked, 4)}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-300">Storage Fund:</span>
-            <span className="font-mono text-white">{formatAI3(totalStorageFund, 4)}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <span className="text-gray-300 text-left">Storage Fund:</span>
+            <span className="font-mono text-white text-right">
+              {formatAI3(totalStorageFund, 4)}
+            </span>
           </div>
           {totalPendingStaked > 0 && (
-            <div className="flex justify-between">
-              <span className="text-yellow-300">Pending Staked:</span>
-              <span className="font-mono text-yellow-300">{formatAI3(totalPendingStaked, 4)}</span>
+            <div className="grid grid-cols-2 gap-2">
+              <span className="text-yellow-300 text-left">Pending Staked:</span>
+              <span className="font-mono text-yellow-300 text-right">
+                {formatAI3(totalPendingStaked, 4)}
+              </span>
             </div>
           )}
           {totalPendingWithdrawal > 0 && (
-            <div className="flex justify-between">
-              <span className="text-orange-300">Pending Withdrawal:</span>
-              <span className="font-mono text-orange-300">
+            <div className="grid grid-cols-2 gap-2">
+              <span className="text-orange-300 text-left">Pending Withdrawal:</span>
+              <span className="font-mono text-orange-300 text-right">
                 {formatAI3(totalPendingWithdrawal, 4)}
               </span>
             </div>
           )}
           <div className="border-t border-gray-700 pt-1 mt-2">
-            <div className="flex justify-between font-semibold">
-              <span className="text-gray-200">Total Value:</span>
-              <span className="font-mono text-white">
+            <div className="grid grid-cols-2 gap-2 font-semibold">
+              <span className="text-gray-200 text-left">Total Value:</span>
+              <span className="font-mono text-white text-right">
                 {formatAI3(portfolioSummary.totalValue, 4)}
               </span>
             </div>
