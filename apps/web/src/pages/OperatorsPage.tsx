@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,13 @@ export const OperatorsPage: React.FC = () => {
   const { operators, loading, error, operatorCount, clearError } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
 
-  // Get view mode from URL params, default to grid
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>(
-    (searchParams.get('view') as 'grid' | 'table') || 'grid',
-  );
+  // Derive view mode from URL params with proper validation, default to grid
+  const getValidatedViewMode = (): 'grid' | 'table' => {
+    const viewParam = searchParams.get('view');
+    return viewParam === 'grid' || viewParam === 'table' ? viewParam : 'grid';
+  };
+
+  const viewMode = getValidatedViewMode();
 
   const handleStake = (operatorId: string) => {
     navigate(`/staking/${operatorId}`);
@@ -27,7 +30,6 @@ export const OperatorsPage: React.FC = () => {
   };
 
   const handleViewModeChange = (mode: 'grid' | 'table') => {
-    setViewMode(mode);
     setSearchParams(prev => {
       const params = new URLSearchParams(prev);
       params.set('view', mode);
