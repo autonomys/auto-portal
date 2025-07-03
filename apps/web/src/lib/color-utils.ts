@@ -132,6 +132,18 @@ export const createStatusBadge = (
 };
 
 /**
+ * Utility function to properly add hover prefix to background classes
+ * Handles cases where bg classes might contain variants like 'dark:'
+ */
+const addHoverToClasses = (classes: string): string => {
+  return classes
+    .split(' ')
+    .filter(Boolean)
+    .map(cls => `hover:${cls}`)
+    .join(' ');
+};
+
+/**
  * Creates button classes with semantic colors
  */
 export const createSemanticButton = (
@@ -149,8 +161,8 @@ export const createSemanticButton = (
 
   const variantClasses = {
     solid: colors.button,
-    outline: `border ${colors.border} ${colors.text} bg-transparent hover:${colors.bg}`,
-    ghost: `${colors.text} bg-transparent hover:${colors.bg}`,
+    outline: `border ${colors.border} ${colors.text} bg-transparent ${addHoverToClasses(colors.bg)}`,
+    ghost: `${colors.text} bg-transparent ${addHoverToClasses(colors.bg)}`,
   };
 
   return cn(
