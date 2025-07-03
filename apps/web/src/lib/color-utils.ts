@@ -6,7 +6,7 @@
  * throughout the application.
  */
 
-import { cn } from './utils';
+import { cn } from './cn';
 import {
   type SemanticColor,
   type StatusColor,
