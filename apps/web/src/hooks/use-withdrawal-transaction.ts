@@ -4,7 +4,9 @@ import {
   withdrawalService,
   type WithdrawalParams,
   type UnlockParams,
+  type BatchUnlockParams,
   type WithdrawalResult,
+  type BatchWithdrawalResult,
 } from '@/services/withdrawal-service';
 
 export type WithdrawalTransactionState = 'idle' | 'signing' | 'pending' | 'success' | 'error';
@@ -13,10 +15,13 @@ interface UseWithdrawalTransactionReturn {
   // State
   withdrawalState: WithdrawalTransactionState;
   unlockState: WithdrawalTransactionState;
+  batchUnlockState: WithdrawalTransactionState;
   withdrawalLoading: boolean;
   unlockLoading: boolean;
+  batchUnlockLoading: boolean;
   withdrawalError: string | null;
   unlockError: string | null;
+  batchUnlockError: string | null;
   withdrawalTxHash: string | null;
   unlockTxHash: string | null;
   withdrawalBlockHash: string | null;
@@ -24,12 +29,16 @@ interface UseWithdrawalTransactionReturn {
   estimatedWithdrawalFee: number | null;
   estimatedUnlockFee: number | null;
   feeLoading: boolean;
+  batchUnlockProgress: { completed: number; total: number; current?: string } | null;
+  batchUnlockResult: BatchWithdrawalResult | null;
 
   // Actions
   executeWithdraw: (params: WithdrawalParams) => Promise<void>;
   executeUnlock: (params: UnlockParams) => Promise<void>;
+  executeBatchUnlock: (params: BatchUnlockParams) => Promise<void>;
   resetWithdrawal: () => void;
   resetUnlock: () => void;
+  resetBatchUnlock: () => void;
   resetAll: () => void;
   estimateWithdrawalFee: (params: WithdrawalParams) => Promise<void>;
   estimateUnlockFee: (params: UnlockParams) => Promise<void>;
@@ -48,6 +57,13 @@ interface UseWithdrawalTransactionReturn {
   isUnlockSuccess: boolean;
   isUnlockError: boolean;
   canExecuteUnlock: boolean;
+
+  isBatchUnlockIdle: boolean;
+  isBatchUnlockSigning: boolean;
+  isBatchUnlockPending: boolean;
+  isBatchUnlockSuccess: boolean;
+  isBatchUnlockError: boolean;
+  canExecuteBatchUnlock: boolean;
 }
 
 export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
@@ -64,6 +80,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [unlockTxHash, setUnlockTxHash] = useState<string | null>(null);
   const [unlockBlockHash, setUnlockBlockHash] = useState<string | null>(null);
+
+  // Batch unlock state
+  const [batchUnlockState, setBatchUnlockState] = useState<WithdrawalTransactionState>('idle');
+  const [batchUnlockError, setBatchUnlockError] = useState<string | null>(null);
+  const [batchUnlockProgress, setBatchUnlockProgress] = useState<{
+    completed: number;
+    total: number;
+    current?: string;
+  } | null>(null);
+  const [batchUnlockResult, setBatchUnlockResult] = useState<BatchWithdrawalResult | null>(null);
 
   // Fee estimation state
   const [estimatedWithdrawalFee, setEstimatedWithdrawalFee] = useState<number | null>(null);
@@ -218,6 +244,60 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     [isConnected, selectedAccount, injector, unlockState],
   );
 
+  const executeBatchUnlock = useCallback(
+    async (params: BatchUnlockParams) => {
+      // Validate prerequisites
+      if (!isConnected || !selectedAccount || !injector) {
+        setBatchUnlockError('Wallet not connected');
+        setBatchUnlockState('error');
+        return;
+      }
+
+      if (batchUnlockState !== 'idle') {
+        console.warn('Batch unlock transaction already in progress');
+        return;
+      }
+
+      // Reset previous state
+      setBatchUnlockError(null);
+      setBatchUnlockProgress(null);
+      setBatchUnlockResult(null);
+
+      try {
+        setBatchUnlockState('signing');
+
+        // Execute the batch unlock transaction
+        const result: BatchWithdrawalResult = await withdrawalService.batchUnlockFunds(
+          params,
+          selectedAccount,
+          injector,
+          progress => {
+            setBatchUnlockProgress(progress);
+            if (progress.completed === 0) {
+              setBatchUnlockState('pending');
+            }
+          },
+        );
+
+        setBatchUnlockResult(result);
+        if (result.success) {
+          setBatchUnlockState('success');
+        } else {
+          setBatchUnlockState('error');
+          setBatchUnlockError(
+            `Batch unlock failed: ${result.totalFailed} of ${result.results.length} operations failed`,
+          );
+        }
+      } catch (err) {
+        setBatchUnlockState('error');
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        setBatchUnlockError(errorMessage);
+        console.error('Batch unlock transaction error:', err);
+      }
+    },
+    [isConnected, selectedAccount, injector, batchUnlockState],
+  );
+
   const resetWithdrawal = useCallback(() => {
     setWithdrawalState('idle');
     setWithdrawalError(null);
@@ -234,15 +314,24 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     setEstimatedUnlockFee(null);
   }, []);
 
+  const resetBatchUnlock = useCallback(() => {
+    setBatchUnlockState('idle');
+    setBatchUnlockError(null);
+    setBatchUnlockProgress(null);
+    setBatchUnlockResult(null);
+  }, []);
+
   const resetAll = useCallback(() => {
     resetWithdrawal();
     resetUnlock();
+    resetBatchUnlock();
     setFeeLoading(false);
-  }, [resetWithdrawal, resetUnlock]);
+  }, [resetWithdrawal, resetUnlock, resetBatchUnlock]);
 
   // Computed values
   const withdrawalLoading = withdrawalState === 'signing' || withdrawalState === 'pending';
   const unlockLoading = unlockState === 'signing' || unlockState === 'pending';
+  const batchUnlockLoading = batchUnlockState === 'signing' || batchUnlockState === 'pending';
 
   const isWithdrawalIdle = withdrawalState === 'idle';
   const isWithdrawalSigning = withdrawalState === 'signing';
@@ -259,14 +348,25 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
   const isUnlockError = unlockState === 'error';
   const canExecuteUnlock = isConnected && !!selectedAccount && !!injector && unlockState === 'idle';
 
+  const isBatchUnlockIdle = batchUnlockState === 'idle';
+  const isBatchUnlockSigning = batchUnlockState === 'signing';
+  const isBatchUnlockPending = batchUnlockState === 'pending';
+  const isBatchUnlockSuccess = batchUnlockState === 'success';
+  const isBatchUnlockError = batchUnlockState === 'error';
+  const canExecuteBatchUnlock =
+    isConnected && !!selectedAccount && !!injector && batchUnlockState === 'idle';
+
   return {
     // State
     withdrawalState,
     unlockState,
+    batchUnlockState,
     withdrawalLoading,
     unlockLoading,
+    batchUnlockLoading,
     withdrawalError,
     unlockError,
+    batchUnlockError,
     withdrawalTxHash,
     unlockTxHash,
     withdrawalBlockHash,
@@ -274,12 +374,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     estimatedWithdrawalFee,
     estimatedUnlockFee,
     feeLoading,
+    batchUnlockProgress,
+    batchUnlockResult,
 
     // Actions
     executeWithdraw,
     executeUnlock,
+    executeBatchUnlock,
     resetWithdrawal,
     resetUnlock,
+    resetBatchUnlock,
     resetAll,
     estimateWithdrawalFee,
     estimateUnlockFee,
@@ -298,5 +402,12 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     isUnlockSuccess,
     isUnlockError,
     canExecuteUnlock,
+
+    isBatchUnlockIdle,
+    isBatchUnlockSigning,
+    isBatchUnlockPending,
+    isBatchUnlockSuccess,
+    isBatchUnlockError,
+    canExecuteBatchUnlock,
   };
 };

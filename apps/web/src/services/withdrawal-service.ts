@@ -13,11 +13,28 @@ export interface UnlockParams {
   unlockType: 'funds' | 'nominator';
 }
 
+export interface BatchUnlockParams {
+  operatorIds: string[];
+  unlockType: 'funds' | 'nominator';
+}
+
 export interface WithdrawalResult {
   success: boolean;
   txHash?: string;
   error?: string;
   blockHash?: string;
+}
+
+export interface BatchWithdrawalResult {
+  success: boolean;
+  results: Array<{
+    operatorId: string;
+    success: boolean;
+    txHash?: string;
+    error?: string;
+  }>;
+  totalSuccess: number;
+  totalFailed: number;
 }
 
 export const withdrawalService = {
@@ -252,6 +269,97 @@ export const withdrawalService = {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
+  },
+
+  /**
+   * Execute multiple unlock requests in batch
+   * @param params - Batch unlock parameters
+   * @param account - Account to sign with
+   * @param injector - Wallet injector for signing
+   * @param progressCallback - Optional callback for progress updates
+   * @returns Promise that resolves with batch operation result
+   */
+  batchUnlockFunds: async (
+    params: BatchUnlockParams,
+    account: { address: string },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    injector: any,
+    progressCallback?: (progress: { completed: number; total: number; current?: string }) => void,
+  ): Promise<BatchWithdrawalResult> => {
+    const { operatorIds } = params;
+    const results: BatchWithdrawalResult['results'] = [];
+    let totalSuccess = 0;
+    let totalFailed = 0;
+
+    try {
+      for (let i = 0; i < operatorIds.length; i++) {
+        const operatorId = operatorIds[i];
+
+        if (progressCallback) {
+          progressCallback({
+            completed: i,
+            total: operatorIds.length,
+            current: operatorId,
+          });
+        }
+
+        try {
+          const result = await withdrawalService.unlockFunds(
+            { operatorId, unlockType: params.unlockType },
+            account,
+            injector,
+          );
+
+          results.push({
+            operatorId,
+            success: result.success,
+            txHash: result.txHash,
+            error: result.error,
+          });
+
+          if (result.success) {
+            totalSuccess++;
+          } else {
+            totalFailed++;
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          results.push({
+            operatorId,
+            success: false,
+            error: errorMessage,
+          });
+          totalFailed++;
+        }
+
+        // Add a small delay between transactions to avoid overwhelming the network
+        if (i < operatorIds.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      if (progressCallback) {
+        progressCallback({
+          completed: operatorIds.length,
+          total: operatorIds.length,
+        });
+      }
+
+      return {
+        success: totalSuccess > 0,
+        results,
+        totalSuccess,
+        totalFailed,
+      };
+    } catch (error) {
+      console.error('Batch unlock failed:', error);
+      return {
+        success: false,
+        results,
+        totalSuccess,
+        totalFailed,
       };
     }
   },
