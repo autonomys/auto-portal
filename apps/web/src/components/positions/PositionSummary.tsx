@@ -102,7 +102,7 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
                 <div className="flex items-center justify-center space-x-8 text-sm font-sans">
                   {portfolioSummary.pendingDeposits > 0 && (
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
                       <span className="text-muted-foreground">
                         {portfolioSummary.pendingDeposits} pending deposit
                         {portfolioSummary.pendingDeposits > 1 ? 's' : ''}
@@ -111,7 +111,7 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
                   )}
                   {portfolioSummary.pendingWithdrawals > 0 && (
                     <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
                       <span className="text-muted-foreground">
                         {portfolioSummary.pendingWithdrawals} pending withdrawal
                         {portfolioSummary.pendingWithdrawals > 1 ? 's' : ''}

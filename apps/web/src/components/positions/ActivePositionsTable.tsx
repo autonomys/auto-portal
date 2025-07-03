@@ -43,11 +43,11 @@ const PositionRow: React.FC<PositionRowProps> = ({
   const getStatusColor = (status: UserPosition['status']) => {
     switch (status) {
       case 'active':
-        return 'text-green-600';
+        return 'text-success-600';
       case 'pending':
-        return 'text-yellow-600';
+        return 'text-warning-600';
       case 'withdrawing':
-        return 'text-orange-600';
+        return 'text-warning-600';
       default:
         return 'text-muted-foreground';
     }
@@ -83,7 +83,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
           <div className="flex gap-4 text-sm">
             {position.pendingDeposits.length > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
                 <span className={getStatusColor('pending')}>
                   {position.pendingDeposits.length} pending deposit
                   {position.pendingDeposits.length > 1 ? 's' : ''}
@@ -92,7 +92,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
             )}
             {position.pendingWithdrawals.length > 0 && (
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
                 <span className={getStatusColor('withdrawing')}>
                   {position.pendingWithdrawals.length} pending withdrawal
                   {position.pendingWithdrawals.length > 1 ? 's' : ''}
@@ -125,7 +125,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onWithdrawClick(position)}
-              className="text-xs font-sans text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300"
+              className="text-xs font-sans text-warning-600 hover:text-warning-700 border-warning-200 hover:border-warning-300"
             >
               Withdraw
             </Button>
