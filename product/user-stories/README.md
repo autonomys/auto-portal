@@ -93,6 +93,14 @@ product/
 - **Type:** Frontend + RPC Integration
 - **Purpose:** Two-step `withdrawStake` and `unlockFunds` transaction flow.
 
+### **Ready for Implementation**
+
+### **[Operator Details](./operator-details.md)**
+
+- **Status:** 📋 **READY FOR IMPLEMENTATION**
+- **Type:** Frontend + RPC Enhancement
+- **Purpose:** Dedicated operator details page with comprehensive operator information and navigation from discovery.
+
 ---
 
 ## 🏗️ Implementation Sequence
