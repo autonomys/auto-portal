@@ -22,10 +22,15 @@ interface PendingDepositItemProps {
 interface PendingWithdrawalItemProps {
   withdrawal: PendingWithdrawal;
   operatorName: string;
-  operatorId: string;
   unlockStatus?: WithdrawalUnlockStatus;
-  onUnlock: (operatorId: string) => void;
-  isUnlocking: boolean;
+}
+
+interface UnlockableSummaryProps {
+  totalAmount: number;
+  count: number;
+  onClaimAll: () => void;
+  isClaimingAll: boolean;
+  progress?: { completed: number; total: number; current?: string } | null;
 }
 
 const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operatorName }) => (
@@ -51,15 +56,18 @@ const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operat
 const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
   withdrawal,
   operatorName,
-  operatorId,
   unlockStatus,
-  onUnlock,
-  isUnlocking,
 }) => {
   const isUnlockable = unlockStatus?.isUnlockable || false;
 
   return (
-    <div className="flex items-center justify-between p-3 bg-orange-50/50 border border-orange-200 rounded-lg">
+    <div
+      className={`flex items-center justify-between p-3 rounded-lg ${
+        isUnlockable
+          ? 'bg-green-50/50 border border-green-200'
+          : 'bg-orange-50/50 border border-orange-200'
+      }`}
+    >
       <div className="flex items-center gap-3">
         <div
           className={`w-2 h-2 rounded-full ${
@@ -70,7 +78,7 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
           <div className="font-medium font-sans text-sm text-left">{operatorName}</div>
           <div className="text-xs text-muted-foreground font-sans text-left">
             {isUnlockable ? (
-              <span className="text-green-600 font-medium">Ready to unlock</span>
+              <span className="text-green-600 font-medium text-sm">Ready to unlock</span>
             ) : unlockStatus?.estimatedTimeRemaining ? (
               <div className="flex items-center gap-2 text-left">
                 <div className="text-sm font-medium text-foreground">
@@ -86,7 +94,7 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
                 </Tooltip>
               </div>
             ) : (
-              <span>
+              <span className="text-sm font-medium">
                 Withdrawal • Unlocks at domain block{' '}
                 {withdrawal.unlockAtBlock > 0 ? formatNumber(withdrawal.unlockAtBlock) : 'TBD'}
               </span>
@@ -95,34 +103,57 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
         </div>
       </div>
       <div className="text-right">
-        <div className="flex items-start justify-end gap-4">
-          <div className="text-right">
-            <div className="font-mono font-semibold text-orange-700 text-lg">
-              {formatAI3(withdrawal.grossWithdrawalAmount, 4)}
-            </div>
-            <div className="text-xs text-muted-foreground font-sans mb-2">
-              Stake: {formatAI3(withdrawal.stakeWithdrawalAmount, 2)} + Refund:{' '}
-              {formatAI3(withdrawal.storageFeeRefund, 2)}
-            </div>
-            <Badge variant={isUnlockable ? 'default' : 'destructive'} className="text-xs">
-              {isUnlockable ? 'Unlockable' : 'Withdrawing'}
-            </Badge>
-          </div>
-          {isUnlockable && (
-            <Button
-              size="sm"
-              onClick={() => onUnlock(operatorId)}
-              disabled={isUnlocking}
-              className="text-xs px-4 py-2 h-auto"
-            >
-              {isUnlocking ? 'Unlocking...' : 'Claim'}
-            </Button>
-          )}
+        <div className="font-mono font-semibold text-lg">
+          {formatAI3(withdrawal.grossWithdrawalAmount, 4)}
         </div>
+        <div className="text-xs text-muted-foreground font-sans mb-2">
+          Stake: {formatAI3(withdrawal.stakeWithdrawalAmount, 2)} + Refund:{' '}
+          {formatAI3(withdrawal.storageFeeRefund, 2)}
+        </div>
+        <Badge
+          variant={isUnlockable ? 'default' : 'destructive'}
+          className={`text-xs ${isUnlockable ? 'bg-green-100 text-green-800' : ''}`}
+        >
+          {isUnlockable ? 'Unlockable' : 'Withdrawing'}
+        </Badge>
       </div>
     </div>
   );
 };
+
+const UnlockableSummary: React.FC<UnlockableSummaryProps> = ({
+  totalAmount,
+  count,
+  onClaimAll,
+  isClaimingAll,
+  progress,
+}) => (
+  <div className="mb-4 p-3 bg-green-50/50 border border-green-200 rounded-lg">
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="text-sm font-medium text-green-800">
+          Total Unlockable: {formatAI3(totalAmount, 4)} AI3
+        </div>
+        <div className="text-xs text-green-600">
+          {count} withdrawal{count > 1 ? 's' : ''} ready
+        </div>
+        {progress && progress.total > 0 && (
+          <div className="text-xs text-green-600 mt-1">
+            Progress: {progress.completed}/{progress.total}
+            {progress.current && ` (Processing ${progress.current})`}
+          </div>
+        )}
+      </div>
+      <Button
+        onClick={onClaimAll}
+        disabled={isClaimingAll}
+        className="bg-black text-white hover:bg-gray-800"
+      >
+        {isClaimingAll ? 'Claiming...' : 'Claim All'}
+      </Button>
+    </div>
+  </div>
+);
 
 export const PendingOperations: React.FC<PendingOperationsProps> = ({
   refreshInterval,
@@ -133,12 +164,18 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
     networkId,
   });
 
-  const { executeUnlock, unlockState, unlockError, resetUnlock } = useWithdrawalTransaction();
+  const {
+    executeBatchUnlock,
+    batchUnlockState,
+    batchUnlockError,
+    batchUnlockProgress,
+    batchUnlockResult,
+    resetBatchUnlock,
+  } = useWithdrawalTransaction();
 
   const [withdrawalStatuses, setWithdrawalStatuses] = useState<Map<string, WithdrawalUnlockStatus>>(
     new Map(),
   );
-  const [unlockingOperator, setUnlockingOperator] = useState<string | null>(null);
   const [currentBlock, setCurrentBlock] = useState<number | null>(null);
 
   // Collect all pending deposits sorted by epoch
@@ -168,6 +205,28 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
     wds.sort((a, b) => a.unlockAtBlock - b.unlockAtBlock);
     return wds;
   }, [positions]);
+
+  // Calculate unlockable withdrawals and total amount
+  const unlockableData = useMemo(() => {
+    const unlockable = allPendingWithdrawals.filter(withdrawal => {
+      const statusKey = `${withdrawal.operatorId}-${withdrawal.unlockAtBlock}`;
+      const unlockStatus = withdrawalStatuses.get(statusKey);
+      return unlockStatus?.isUnlockable || false;
+    });
+
+    const totalAmount = unlockable.reduce(
+      (sum, withdrawal) => sum + withdrawal.grossWithdrawalAmount,
+      0,
+    );
+    const operatorIds = [...new Set(unlockable.map(w => w.operatorId))];
+
+    return {
+      withdrawals: unlockable,
+      totalAmount,
+      count: unlockable.length,
+      operatorIds,
+    };
+  }, [allPendingWithdrawals, withdrawalStatuses]);
 
   // Check withdrawal unlock statuses
   useEffect(() => {
@@ -204,28 +263,28 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
     return () => clearInterval(interval);
   }, [allPendingWithdrawals]);
 
-  // Handle unlock success
+  // Handle batch unlock success
   useEffect(() => {
-    if (unlockState === 'success') {
+    if (batchUnlockState === 'success') {
       // Refresh positions data
       refetch();
-      // Reset unlock state
-      resetUnlock();
-      setUnlockingOperator(null);
+      // Reset batch unlock state after a short delay
+      setTimeout(() => {
+        resetBatchUnlock();
+      }, 3000);
     }
-  }, [unlockState, refetch, resetUnlock]);
+  }, [batchUnlockState, refetch, resetBatchUnlock]);
 
-  const handleUnlock = async (operatorId: string) => {
-    setUnlockingOperator(operatorId);
+  const handleClaimAll = async () => {
+    if (unlockableData.operatorIds.length === 0) return;
 
     try {
-      await executeUnlock({
-        operatorId,
-        unlockType: 'funds', // Default to unlockFunds
+      await executeBatchUnlock({
+        operatorIds: unlockableData.operatorIds,
+        unlockType: 'funds',
       });
     } catch (error) {
-      console.error('Unlock failed:', error);
-      setUnlockingOperator(null);
+      console.error('Batch claim failed:', error);
     }
   };
 
@@ -292,11 +351,34 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Error display for unlock failures */}
-          {unlockError && (
+          {/* Error display for batch unlock failures */}
+          {batchUnlockError && (
             <div className="p-3 bg-red-50/50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700 font-sans">Unlock failed: {unlockError}</p>
+              <p className="text-sm text-red-700 font-sans">
+                Batch claim failed: {batchUnlockError}
+              </p>
             </div>
+          )}
+
+          {/* Success display for batch unlock results */}
+          {batchUnlockResult && batchUnlockState === 'success' && (
+            <div className="p-3 bg-green-50/50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700 font-sans">
+                Successfully claimed {batchUnlockResult.totalSuccess} of{' '}
+                {batchUnlockResult.results.length} withdrawals
+              </p>
+            </div>
+          )}
+
+          {/* Unlockable Summary */}
+          {unlockableData.count > 0 && (
+            <UnlockableSummary
+              totalAmount={unlockableData.totalAmount}
+              count={unlockableData.count}
+              onClaimAll={handleClaimAll}
+              isClaimingAll={batchUnlockState === 'signing' || batchUnlockState === 'pending'}
+              progress={batchUnlockProgress}
+            />
           )}
 
           {/* Pending Deposits */}
@@ -340,10 +422,7 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
                       key={`${withdrawal.operatorName}-${withdrawal.unlockAtBlock}-${index}`}
                       withdrawal={withdrawal}
                       operatorName={withdrawal.operatorName}
-                      operatorId={withdrawal.operatorId}
                       unlockStatus={unlockStatus}
-                      onUnlock={handleUnlock}
-                      isUnlocking={unlockingOperator === withdrawal.operatorId}
                     />
                   );
                 })}
