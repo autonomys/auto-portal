@@ -134,7 +134,6 @@ export const createStatusBadge = (
 /**
  * Utility function to properly add hover prefix to background classes
  * Handles cases where bg classes might contain variants like 'dark:'
- * Correctly positions hover modifier after existing modifiers
  */
 const addHoverToClasses = (classes: string | null | undefined): string => {
   if (!classes) return '';
