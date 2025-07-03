@@ -5,6 +5,15 @@ export const shortenAddress = (addr?: string, length = 4) => {
   return `${addr.slice(0, length + 2)}…${addr.slice(-length)}`;
 };
 
+// Typography utilities
+export { typography, getTypographyClasses, type TypographyVariant } from './typography';
+
+// Spacing utilities
+export { spacing, getSpacingClasses, type SpacingSize } from './spacing';
+
+// Layout utilities
+export { layout, getLayoutClasses } from './layout';
+
 // Re-export semantic color utilities for convenience
 export {
   // Types
