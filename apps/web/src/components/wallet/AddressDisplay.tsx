@@ -41,7 +41,7 @@ export const AddressDisplay: React.FC<AddressDisplayProps> = ({
           title="Copy address"
         >
           {copied ? (
-            <Check className="w-3 h-3 text-green-600" />
+            <Check className="w-3 h-3 text-success-600" />
           ) : (
             <Copy className="w-3 h-3 text-gray-500 hover:text-gray-700" />
           )}
