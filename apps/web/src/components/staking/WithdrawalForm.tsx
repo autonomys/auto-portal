@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
@@ -120,7 +121,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             </div>
             <div className="flex justify-between">
               <span className="text-sm">Storage Fee Refund:</span>
-              <span className="font-mono text-green-600">
+              <span className="font-mono text-success-600">
                 +{formatAI3(withdrawalPreview.storageFeeRefund, 4)}
               </span>
             </div>
@@ -131,7 +132,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <hr className="border-border" />
             <div className="flex justify-between font-medium">
               <span>Total to Receive:</span>
-              <span className="font-mono text-green-600">
+              <span className="font-mono text-success-600">
                 {formatAI3(withdrawalPreview.grossWithdrawalAmount, 4)}
               </span>
             </div>
@@ -147,9 +148,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
           {/* Error Display */}
           {withdrawalError && (
-            <div className="p-3 bg-red-50/50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700 font-sans">{withdrawalError}</p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>{withdrawalError}</AlertDescription>
+            </Alert>
           )}
 
           {/* Action Buttons */}
@@ -254,7 +255,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             </div>
             <div className="flex justify-between text-sm">
               <span>Storage Fee Refund:</span>
-              <span className="font-mono text-green-600">
+              <span className="font-mono text-success-600">
                 +{formatAI3(withdrawalPreview.storageFeeRefund, 4)}
               </span>
             </div>
@@ -273,7 +274,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <hr className="border-border" />
             <div className="flex justify-between text-sm font-medium">
               <span>Total to Receive:</span>
-              <span className="font-mono text-green-600">
+              <span className="font-mono text-success-600">
                 {formatAI3(withdrawalPreview.grossWithdrawalAmount, 4)}
               </span>
             </div>
@@ -281,18 +282,18 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         )}
 
         {/* Warning about two-step process */}
-        <div className="p-3 bg-yellow-50/50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800 font-sans">
+        <Alert variant="warning">
+          <AlertDescription>
             <span className="font-medium">Two-step process:</span> After withdrawal request, funds
             will have a locking period before you can claim them.
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
 
         {/* Error Display */}
         {withdrawalError && (
-          <div className="p-3 bg-red-50/50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-700 font-sans">{withdrawalError}</p>
-          </div>
+          <Alert variant="destructive">
+            <AlertDescription>{withdrawalError}</AlertDescription>
+          </Alert>
         )}
 
         {/* Action Buttons */}
