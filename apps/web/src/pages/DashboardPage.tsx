@@ -85,7 +85,7 @@ export const DashboardPage: React.FC = () => {
             <CardTitle className="text-label">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-h2 font-mono relative">
+            <div className="text-2xl font-mono font-bold leading-tight relative">
               <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
                 {balance ? formatAI3(balance.free) : '0.00 AI3'}
               </span>
@@ -104,7 +104,7 @@ export const DashboardPage: React.FC = () => {
             <CardTitle className="text-label">Total Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-h2 font-mono relative">
+            <div className="text-2xl font-mono font-bold leading-tight relative">
               <Tooltip content={<TotalBalanceBreakdown />} side="top">
                 <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
                   {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
