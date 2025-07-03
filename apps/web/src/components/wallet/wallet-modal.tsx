@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { WalletOption } from './wallet-option';
 import { useWallet } from '@/hooks/use-wallet';
@@ -77,68 +78,70 @@ export const WalletModal: React.FC<WalletModalProps> = ({ open, onOpenChange }) 
         <div className="space-y-4">
           {/* Show initialization status */}
           {isInitializing && (
-            <div className="p-3 text-sm bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span className="font-medium text-blue-800">
-                  Reconnecting to {selectedWallet}...
-                </span>
-              </div>
-              <div className="text-blue-700 text-xs mt-1">
-                Attempting to restore your previous wallet connection
-              </div>
-            </div>
+            <Alert variant="info">
+              <AlertDescription>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <span className="font-medium">Reconnecting to {selectedWallet}...</span>
+                </div>
+                <div className="text-xs mt-1">
+                  Attempting to restore your previous wallet connection
+                </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* Connection error display */}
           {connectionError && (
-            <div className="p-3 text-sm bg-red-50 border border-red-200 rounded-lg">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="font-medium text-red-800 mb-1">Connection Failed</div>
-                  <div className="text-red-700 whitespace-pre-line">{connectionError}</div>
-                  {isRetryableError && (
-                    <div className="mt-2 text-xs text-red-600">
-                      {connectionError.includes('timeout')
-                        ? '⏱️ Connection timed out. Please try again and approve the request quickly.'
-                        : '💡 Make sure to approve the connection request in your wallet extension popup'}
-                    </div>
-                  )}
-                </div>
-                <div className="flex space-x-1 ml-2">
-                  {isRetryableError && (
+            <Alert variant="destructive">
+              <AlertDescription>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-medium mb-1">Connection Failed</div>
+                    <div className="whitespace-pre-line">{connectionError}</div>
+                    {isRetryableError && (
+                      <div className="mt-2 text-xs">
+                        {connectionError.includes('timeout')
+                          ? '⏱️ Connection timed out. Please try again and approve the request quickly.'
+                          : '💡 Make sure to approve the connection request in your wallet extension popup'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex space-x-1 ml-2">
+                    {isRetryableError && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          clearError();
+                          // Find and retry the failed wallet
+                          const failedWallet = availableWallets.find(
+                            w =>
+                              connectionError.includes(w.title) ||
+                              connectionError.includes('timeout'),
+                          );
+                          if (failedWallet) {
+                            handleConnect(failedWallet.extensionName);
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="h-auto px-2 py-1 text-xs hover:bg-background/50 disabled:opacity-50"
+                      >
+                        Retry
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        clearError();
-                        // Find and retry the failed wallet
-                        const failedWallet = availableWallets.find(
-                          w =>
-                            connectionError.includes(w.title) ||
-                            connectionError.includes('timeout'),
-                        );
-                        if (failedWallet) {
-                          handleConnect(failedWallet.extensionName);
-                        }
-                      }}
-                      disabled={isLoading}
-                      className="h-auto px-2 py-1 text-xs text-red-600 hover:text-red-700 hover:bg-red-100 disabled:opacity-50"
+                      onClick={clearError}
+                      className="h-auto p-0 hover:bg-background/50"
                     >
-                      Retry
+                      ×
                     </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearError}
-                    className="h-auto p-0 text-red-600 hover:text-red-700"
-                  >
-                    ×
-                  </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* No wallets message */}

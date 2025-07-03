@@ -56,7 +56,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 title="Copy address"
               >
                 {copiedAddress === account.address ? (
-                  <Check className="w-3 h-3 text-green-600" />
+                  <Check className="w-3 h-3 text-success-600" />
                 ) : (
                   <Copy className="w-3 h-3 text-gray-500" />
                 )}
@@ -70,7 +70,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
         <div className="border-t mt-2 pt-2">
           <button
             onClick={onDisconnect}
-            className="w-full text-left px-2 py-1 rounded text-sm text-red-600 hover:bg-red-50"
+            className="w-full text-left px-2 py-1 rounded text-sm text-error-600 hover:bg-error-50"
           >
             Disconnect
           </button>
@@ -130,7 +130,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
           className="flex items-center space-x-3"
         >
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="w-2 h-2 bg-success-500 rounded-full" />
             <div className="flex flex-col items-start">
               <span className="text-sm font-medium">
                 {selectedAccount.name || shortenAddress(selectedAccount.address)}

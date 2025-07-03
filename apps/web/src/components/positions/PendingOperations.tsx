@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -34,9 +35,9 @@ interface UnlockableSummaryProps {
 }
 
 const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operatorName }) => (
-  <div className="flex items-center justify-between p-3 bg-yellow-50/50 border border-yellow-200 rounded-lg">
+  <div className="flex items-center justify-between p-3 bg-warning-50 border border-warning-200 rounded-lg">
     <div className="flex items-center gap-3">
-      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
       <div>
         <div className="font-medium font-sans text-sm">{operatorName}</div>
         <div className="text-xs text-muted-foreground font-sans">
@@ -45,8 +46,10 @@ const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operat
       </div>
     </div>
     <div className="text-right">
-      <div className="font-mono font-semibold text-yellow-700">+{formatAI3(deposit.amount, 4)}</div>
-      <Badge variant="secondary" className="text-xs">
+      <div className="font-mono font-semibold text-warning-700">
+        +{formatAI3(deposit.amount, 4)}
+      </div>
+      <Badge variant="warning" size="sm">
         Pending
       </Badge>
     </div>
@@ -64,21 +67,21 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
     <div
       className={`flex items-center justify-between p-3 rounded-lg ${
         isUnlockable
-          ? 'bg-green-50/50 border border-green-200'
-          : 'bg-orange-50/50 border border-orange-200'
+          ? 'bg-success-50 border border-success-200'
+          : 'bg-warning-50 border border-warning-200'
       }`}
     >
       <div className="flex items-center gap-3">
         <div
           className={`w-2 h-2 rounded-full ${
-            isUnlockable ? 'bg-green-500' : 'bg-orange-500 animate-pulse'
+            isUnlockable ? 'bg-success-500' : 'bg-warning-500 animate-pulse'
           }`}
         ></div>
         <div className="text-left">
           <div className="font-medium font-sans text-sm text-left">{operatorName}</div>
           <div className="text-xs text-muted-foreground font-sans text-left">
             {isUnlockable ? (
-              <span className="text-green-600 font-medium text-sm">Ready to unlock</span>
+              <span className="text-success-600 font-medium text-sm">Ready to unlock</span>
             ) : unlockStatus?.estimatedTimeRemaining ? (
               <div className="flex items-center gap-2 text-left">
                 <div className="text-sm font-medium text-foreground">
@@ -110,10 +113,7 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
           Stake: {formatAI3(withdrawal.stakeWithdrawalAmount, 2)} + Refund:{' '}
           {formatAI3(withdrawal.storageFeeRefund, 2)}
         </div>
-        <Badge
-          variant={isUnlockable ? 'default' : 'destructive'}
-          className={`text-xs ${isUnlockable ? 'bg-green-100 text-green-800' : ''}`}
-        >
+        <Badge variant={isUnlockable ? 'success' : 'warning'} size="sm">
           {isUnlockable ? 'Unlockable' : 'Withdrawing'}
         </Badge>
       </div>
@@ -128,17 +128,17 @@ const UnlockableSummary: React.FC<UnlockableSummaryProps> = ({
   isClaimingAll,
   progress,
 }) => (
-  <div className="mb-4 p-3 bg-green-50/50 border border-green-200 rounded-lg">
+  <div className="mb-4 p-3 bg-success-50 border border-success-200 rounded-lg">
     <div className="flex items-center justify-between">
       <div>
-        <div className="text-sm font-medium text-green-800">
+        <div className="text-sm font-medium text-success-800">
           Total Unlockable: {formatAI3(totalAmount, 4)} AI3
         </div>
-        <div className="text-xs text-green-600">
+        <div className="text-xs text-success-600">
           {count} withdrawal{count > 1 ? 's' : ''} ready
         </div>
         {progress && progress.total > 0 && (
-          <div className="text-xs text-green-600 mt-1">
+          <div className="text-xs text-success-600 mt-1">
             Progress: {progress.completed}/{progress.total}
             {progress.current && ` (Processing ${progress.current})`}
           </div>
@@ -353,21 +353,19 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
         <div className="space-y-4">
           {/* Error display for batch unlock failures */}
           {batchUnlockError && (
-            <div className="p-3 bg-red-50/50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700 font-sans">
-                Batch claim failed: {batchUnlockError}
-              </p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>Batch claim failed: {batchUnlockError}</AlertDescription>
+            </Alert>
           )}
 
           {/* Success display for batch unlock results */}
           {batchUnlockResult && batchUnlockState === 'success' && (
-            <div className="p-3 bg-green-50/50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700 font-sans">
+            <Alert variant="success">
+              <AlertDescription>
                 Successfully claimed {batchUnlockResult.totalSuccess} of{' '}
                 {batchUnlockResult.results.length} withdrawals
-              </p>
-            </div>
+              </AlertDescription>
+            </Alert>
           )}
 
           {/* Unlockable Summary */}

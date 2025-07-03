@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
 import { TransactionPreview } from './TransactionPreview';
@@ -201,27 +202,32 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
           {/* Transaction Status */}
           {txHash && (
-            <div
-              className={`p-4 border rounded-lg ${
-                isSuccess ? 'bg-green-50 border-green-200' : 'bg-primary/5 border-primary/20'
-              }`}
-            >
-              <h4
-                className={`text-sm font-semibold font-sans mb-2 ${
-                  isSuccess ? 'text-green-800' : 'text-primary'
-                }`}
-              >
-                {isSuccess ? 'Transaction Successful!' : 'Transaction Status'}
-              </h4>
-              <div className="space-y-1 text-xs font-mono">
-                <div className={isSuccess ? 'text-green-700' : 'text-primary/80'}>
-                  Hash: {txHash}
-                </div>
-                {stakingError && (
-                  <div className={`text-red-700 font-sans mt-2 font-medium`}>{stakingError}</div>
-                )}
-              </div>
-            </div>
+            <>
+              {isSuccess ? (
+                <Alert variant="success">
+                  <AlertTitle>Transaction Successful!</AlertTitle>
+                  <AlertDescription>
+                    <div className="space-y-1 text-xs font-mono">
+                      <div>Hash: {txHash}</div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert variant="info">
+                  <AlertTitle>Transaction Status</AlertTitle>
+                  <AlertDescription>
+                    <div className="space-y-1 text-xs font-mono">
+                      <div>Hash: {txHash}</div>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+              {stakingError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{stakingError}</AlertDescription>
+                </Alert>
+              )}
+            </>
           )}
 
           {/* Action Buttons */}
