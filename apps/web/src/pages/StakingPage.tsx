@@ -106,7 +106,7 @@ export const StakingPage: React.FC = () => {
             </h2>
             <p className="text-muted-foreground font-sans mb-6">
               You have successfully staked {stakedAmount} AI3 to {operator.name}. Your stake will
-              become active after the next epoch (~10 minutes).
+              become active after the next epoch transition (~10 minutes).
             </p>
             <div className="flex gap-4 justify-center">
               <Button variant="outline" onClick={handleGoBack} className="font-sans">
