@@ -46,7 +46,7 @@ export const TransactionSuccess: React.FC<TransactionSuccessProps> = ({
           </div>
           <h2 className="text-2xl font-serif font-bold text-foreground mb-2">{title}</h2>
           <p className="text-muted-foreground font-sans mb-6">{description}</p>
-          
+
           {txHash && (
             <div className="mb-6 p-3 bg-muted/30 rounded-lg">
               <p className="text-sm text-muted-foreground font-sans mb-1">Transaction Hash</p>

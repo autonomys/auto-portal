@@ -17,9 +17,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       <CardHeader>
         <CardTitle className="text-lg font-serif">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {children}
-      </CardContent>
+      <CardContent className="space-y-6">{children}</CardContent>
     </Card>
   );
 };

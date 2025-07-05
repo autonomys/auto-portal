@@ -12,11 +12,11 @@ import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 
 export const WithdrawalPage: React.FC = () => {
-  const { operatorId, positionId } = useParams<{ operatorId: string; positionId: string }>();
+  const { operatorId } = useParams<{ operatorId: string; positionId: string }>();
   const navigate = useNavigate();
   const { allOperators: operators, loading: operatorsLoading } = useOperators();
   const { positions, loading: positionsLoading } = usePositions();
-  
+
   const [operator, setOperator] = useState<Operator | null>(null);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
@@ -164,7 +164,11 @@ export const WithdrawalPage: React.FC = () => {
         <WithdrawalForm
           position={position!}
           onCancel={handleGoBack}
-          onSuccess={() => handleWithdrawalSubmit(formatAI3(position!.positionValue + position!.storageFeeDeposit, 4))}
+          onSuccess={() =>
+            handleWithdrawalSubmit(
+              formatAI3(position!.positionValue + position!.storageFeeDeposit, 4),
+            )
+          }
         />
       </div>
     </div>

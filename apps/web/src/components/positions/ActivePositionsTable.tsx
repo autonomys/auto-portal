@@ -244,8 +244,6 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
           </div>
         </CardContent>
       </Card>
-
-
     </>
   );
 };

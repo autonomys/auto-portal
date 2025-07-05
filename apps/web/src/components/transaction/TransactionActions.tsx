@@ -53,11 +53,7 @@ export const TransactionActions: React.FC<TransactionActionsProps> = ({
       >
         {cancelText}
       </Button>
-      <Button
-        onClick={onSubmit}
-        disabled={!isValid || isSubmitting}
-        className="flex-1 font-sans"
-      >
+      <Button onClick={onSubmit} disabled={!isValid || isSubmitting} className="flex-1 font-sans">
         {isSubmitting ? loadingText : submitText}
       </Button>
     </div>
