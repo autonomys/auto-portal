@@ -63,7 +63,18 @@ export const positionService = async (networkId: string = 'taurus') => {
     try {
       const positionData = await nominatorPosition(api, operatorId, address);
 
-      if (positionData.knownValue > 0n) {
+      // Check if there's any position data to display:
+      // - Known value > 0 (existing shares)
+      // - Pending deposits (first-time staking)
+      // - Storage fee deposits (from pending or known deposits)
+      // - Pending withdrawals (active withdrawal requests)
+      const hasPosition =
+        positionData.knownValue > 0n ||
+        positionData.pendingDeposits.length > 0 ||
+        positionData.storageFeeDeposit > 0n ||
+        positionData.pendingWithdrawals.length > 0;
+
+      if (hasPosition) {
         const pendingDeposits: PendingDeposit[] = positionData.pendingDeposits.map(deposit => ({
           amount: shannonsToAI3(deposit.amount.toString()),
           effectiveEpoch: deposit.effectiveEpoch,
