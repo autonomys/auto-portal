@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
 import { formatAI3 } from '@/lib/formatting';
 import { getWithdrawalPreview } from '@/lib/withdrawal-utils';
+import { UnifiedTransactionPreview } from '@/components/transaction/UnifiedTransactionPreview';
 import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
@@ -100,79 +101,101 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     (amount > 0 && amount <= position.positionValue + position.storageFeeDeposit);
 
   if (showPreview) {
+    const withdrawalItems: Array<{
+      label: string;
+      value: number;
+      precision?: number;
+      isPositive?: boolean;
+      isNegative?: boolean;
+      tooltip?: string;
+    }> = [
+      {
+        label: 'Net Stake Withdrawal',
+        value: withdrawalPreview.netStakeWithdrawal,
+        precision: 4,
+      },
+      {
+        label: 'Storage Fee Refund',
+        value: withdrawalPreview.storageFeeRefund,
+        precision: 4,
+        isPositive: true,
+        tooltip: 'Storage fees are refunded proportionally based on storage fund performance.',
+      },
+      {
+        label: 'Transaction Fee',
+        value: estimatedWithdrawalFee || 0,
+        precision: 6,
+        isNegative: true,
+      },
+    ];
+
+    if (withdrawalMethod === 'partial') {
+      withdrawalItems.push({
+        label: 'Remaining Position',
+        value: withdrawalPreview.remainingPosition,
+        precision: 4,
+        tooltip: 'The amount that will remain staked after this withdrawal.',
+      });
+    }
+
+    const additionalInfo = (
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground font-sans">Operator:</span>
+          <span className="font-medium">{position.operatorName}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground font-sans">Withdrawal Percentage:</span>
+          <span className="font-mono font-medium">{withdrawalPreview.percentage}%</span>
+        </div>
+      </div>
+    );
+
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="font-serif">Confirm Withdrawal</CardTitle>
-          <p className="text-sm text-muted-foreground">Review withdrawal details</p>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Withdrawal Summary */}
-          <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-            <div className="flex justify-between">
-              <span className="text-sm">Operator:</span>
-              <span className="font-medium">{position.operatorName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Net Stake Withdrawal:</span>
-              <span className="font-mono">
-                {formatAI3(withdrawalPreview.netStakeWithdrawal, 4)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Storage Fee Refund:</span>
-              <span className="font-mono text-success-600">
-                +{formatAI3(withdrawalPreview.storageFeeRefund, 4)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm">Transaction Fee:</span>
-              <span className="font-mono">{formatAI3(estimatedWithdrawalFee || 0, 6)}</span>
-            </div>
-            <hr className="border-border" />
-            <div className="flex justify-between font-medium">
-              <span>Total to Receive:</span>
-              <span className="font-mono text-success-600">
-                {formatAI3(withdrawalPreview.grossWithdrawalAmount, 4)}
-              </span>
-            </div>
-            {withdrawalMethod === 'partial' && (
-              <div className="flex justify-between">
-                <span className="text-sm">Remaining Position:</span>
-                <span className="font-mono">
-                  {formatAI3(withdrawalPreview.remainingPosition, 4)}
-                </span>
-              </div>
-            )}
-          </div>
+      <div className="w-full max-w-2xl space-y-6">
+        <UnifiedTransactionPreview
+          type="withdrawal"
+          title="Confirm Withdrawal"
+          items={withdrawalItems}
+          totalLabel="Total to Receive"
+          totalValue={withdrawalPreview.grossWithdrawalAmount}
+          additionalInfo={additionalInfo}
+          notes={[
+            'Withdrawal requests are processed according to the protocol schedule',
+            'Storage fee refunds depend on storage fund performance',
+            'There is a locking period before funds can be claimed',
+            withdrawalMethod === 'partial'
+              ? 'Remaining stake will continue earning rewards'
+              : 'This will close your entire position with this operator',
+          ]}
+        />
 
-          {/* Error Display */}
-          {withdrawalError && (
-            <Alert variant="destructive">
-              <AlertDescription>{withdrawalError}</AlertDescription>
-            </Alert>
-          )}
+        {/* Error Display */}
+        {withdrawalError && (
+          <Alert variant="destructive">
+            <AlertDescription>{withdrawalError}</AlertDescription>
+          </Alert>
+        )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowPreview(false)}
-              className="flex-1"
-              disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
-            >
-              Back
-            </Button>
-            <Button onClick={handleSubmit} disabled={!canExecuteWithdrawal} className="flex-1">
-              {withdrawalState === 'signing'
-                ? 'Signing...'
-                : withdrawalState === 'pending'
-                  ? 'Broadcasting...'
-                  : 'Confirm Withdrawal'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setShowPreview(false)}
+            className="flex-1"
+            disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
+          >
+            Back
+          </Button>
+          <Button onClick={handleSubmit} disabled={!canExecuteWithdrawal} className="flex-1">
+            {withdrawalState === 'signing'
+              ? 'Signing...'
+              : withdrawalState === 'pending'
+                ? 'Broadcasting...'
+                : 'Confirm Withdrawal'}
+          </Button>
+        </div>
+      </div>
     );
   }
 
