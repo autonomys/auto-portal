@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
-import { TransactionPreview } from './TransactionPreview';
+import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
@@ -271,7 +271,60 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Transaction Preview */}
       <div>
         {formState.showPreview ? (
-          <TransactionPreview calculations={calculations} feeLoading={stakingLoading} />
+          <TransactionPreview
+            type="staking"
+            items={[
+              {
+                label: 'Staking Portion',
+                value: calculations.netStaking,
+                precision: 4,
+              },
+              {
+                label: 'Storage Fund (20%)',
+                value: calculations.storageFund,
+                precision: 4,
+                tooltip:
+                  '20% of your stake is reserved as storage fees and refunded proportionally when you withdraw. Actual refund depends on storage fund performance.',
+              },
+              {
+                label: 'Transaction Fee',
+                value: calculations.transactionFee,
+                precision: 8,
+                loading: stakingLoading,
+              },
+            ]}
+            totalLabel="Total Required"
+            totalValue={calculations.totalRequired}
+            totalLoading={stakingLoading}
+            additionalInfo={
+              calculations.expectedRewards > 0 && (
+                <Card className="bg-success-50 border-success-200">
+                  <CardContent className="pt-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm text-success-700 font-sans">
+                          Estimated Annual Rewards
+                        </p>
+                        <p className="text-xs text-success-600 font-sans mt-1">
+                          Based on current staking configuration
+                        </p>
+                      </div>
+                      <p className="text-xl font-bold text-success-700 font-mono">
+                        ~{formatAI3(calculations.expectedRewards, 4)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            }
+            notes={[
+              'Storage fund (20%) is held by the protocol and refunded when you withdraw',
+              'Only the net staking amount (80%) earns rewards',
+              'Rewards are automatically compounded to your position',
+              'Stake will be active after next epoch transition (~10 minutes)',
+              'Your stake will appear as "Pending" until the epoch transition occurs',
+            ]}
+          />
         ) : (
           <Card>
             <CardContent className="pt-6">
