@@ -160,17 +160,15 @@ export const WithdrawalPage: React.FC = () => {
       </Card>
 
       {/* Withdrawal Form */}
-      <div className="flex justify-center">
-        <WithdrawalForm
-          position={position!}
-          onCancel={handleGoBack}
-          onSuccess={() =>
-            handleWithdrawalSubmit(
-              formatAI3(position!.positionValue + position!.storageFeeDeposit, 4),
-            )
-          }
-        />
-      </div>
+      <WithdrawalForm
+        position={position!}
+        onCancel={handleGoBack}
+        onSuccess={() =>
+          handleWithdrawalSubmit(
+            formatAI3(position!.positionValue + position!.storageFeeDeposit, 4),
+          )
+        }
+      />
     </div>
   );
 };
