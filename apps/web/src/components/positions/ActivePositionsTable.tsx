@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Tooltip } from '@/components/ui/tooltip';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
-import { WithdrawalForm } from '@/components/staking';
 import { PositionBreakdown } from './PositionBreakdown';
 import type { UserPosition } from '@/types/position';
 
@@ -20,12 +19,14 @@ interface PositionRowProps {
   position: UserPosition;
   onOperatorClick?: (operatorId: string) => void;
   onWithdrawClick?: (position: UserPosition) => void;
+  onAddStakeClick?: (position: UserPosition) => void;
 }
 
 const PositionRow: React.FC<PositionRowProps> = ({
   position,
   onOperatorClick,
   onWithdrawClick,
+  onAddStakeClick,
 }) => {
   const getStatusVariant = (status: UserPosition['status']) => {
     switch (status) {
@@ -120,6 +121,16 @@ const PositionRow: React.FC<PositionRowProps> = ({
               View Details
             </Button>
           )}
+          {position.positionValue > 0 && onAddStakeClick && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onAddStakeClick(position)}
+              className="text-xs font-sans text-primary hover:text-primary/80 border-primary/20 hover:border-primary/40"
+            >
+              Add Stake
+            </Button>
+          )}
           {position.positionValue > 0 && onWithdrawClick && (
             <Button
               variant="outline"
@@ -141,29 +152,20 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   networkId,
   onOperatorClick,
 }) => {
-  const { positions, loading, error, lastUpdated, refetch } = usePositions({
+  const { positions, loading, error, lastUpdated } = usePositions({
     refreshInterval,
     networkId,
   });
-
-  const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<UserPosition | null>(null);
+  const navigate = useNavigate();
 
   const handleWithdrawClick = (position: UserPosition) => {
-    setSelectedPosition(position);
-    setWithdrawalDialogOpen(true);
+    // Navigate to the full-page withdrawal experience
+    navigate(`/withdraw/${position.operatorId}/${position.operatorId}`);
   };
 
-  const handleWithdrawalSuccess = () => {
-    setWithdrawalDialogOpen(false);
-    setSelectedPosition(null);
-    // Refresh positions to show updated data
-    refetch();
-  };
-
-  const handleWithdrawalCancel = () => {
-    setWithdrawalDialogOpen(false);
-    setSelectedPosition(null);
+  const handleAddStakeClick = (position: UserPosition) => {
+    // Navigate to the staking page with position context
+    navigate(`/staking/${position.operatorId}?fromPosition=true`);
   };
 
   if (loading && positions.length === 0) {
@@ -236,24 +238,14 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
                 position={position}
                 onOperatorClick={onOperatorClick}
                 onWithdrawClick={handleWithdrawClick}
+                onAddStakeClick={handleAddStakeClick}
               />
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Withdrawal Dialog */}
-      <Dialog open={withdrawalDialogOpen} onOpenChange={setWithdrawalDialogOpen}>
-        <DialogContent className="p-0 max-w-md">
-          {selectedPosition && (
-            <WithdrawalForm
-              position={selectedPosition}
-              onSuccess={handleWithdrawalSuccess}
-              onCancel={handleWithdrawalCancel}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+
     </>
   );
 };
