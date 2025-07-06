@@ -97,10 +97,14 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     if (!canExecuteWithdrawal || !validationResult.isValid) return;
 
     try {
+      // Check if this should be treated as a full withdrawal
+      const isEffectivelyFullWithdrawal =
+        withdrawalMethod === 'all' || validationResult.willWithdrawAll;
+
       await executeWithdraw({
         operatorId: position.operatorId,
-        amount: withdrawalMethod === 'all' ? undefined : withdrawalPreview.netStakeWithdrawal,
-        withdrawalType: withdrawalMethod,
+        amount: isEffectivelyFullWithdrawal ? undefined : withdrawalPreview.netStakeWithdrawal,
+        withdrawalType: isEffectivelyFullWithdrawal ? 'all' : 'partial',
       });
     } catch (error) {
       console.error('Withdrawal failed:', error);
