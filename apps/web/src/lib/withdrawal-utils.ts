@@ -1,6 +1,7 @@
 import { headDomainNumber } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from '@/services/api-service';
 import { ESTIMATED_BLOCK_TIME_SECONDS } from '@/constants/blockchain';
+import type { Operator } from '@/types/operator';
 
 export interface WithdrawalUnlockStatus {
   isUnlockable: boolean;
@@ -9,6 +10,65 @@ export interface WithdrawalUnlockStatus {
   blocksRemaining: number;
   estimatedTimeRemaining?: string; // Human readable time estimate
 }
+
+export interface WithdrawalValidationResult {
+  isValid: boolean;
+  warning?: string;
+  willWithdrawAll?: boolean;
+  actualWithdrawalAmount?: number;
+}
+
+/**
+ * Validate withdrawal amount against minimum nominator stake requirements
+ * @param withdrawAmount - Amount user wants to withdraw
+ * @param currentStake - Current total stake value (position + storage fee)
+ * @param operator - Operator information containing minimum stake requirements
+ * @param isOperator - Whether the user is the operator owner
+ * @returns Validation result with warnings
+ */
+export const validateWithdrawal = (
+  withdrawAmount: number,
+  currentStake: number,
+  operator: Operator,
+  isOperator: boolean = false,
+): WithdrawalValidationResult => {
+  const minNominatorStake = parseFloat(operator.minimumNominatorStake);
+  const remaining = currentStake - withdrawAmount;
+
+  // Handle full withdrawal (remaining is 0 or negative)
+  if (remaining <= 0) {
+    return {
+      isValid: true,
+      actualWithdrawalAmount: currentStake,
+    };
+  }
+
+  if (isOperator) {
+    // Operators cannot go below minimum nominator stake (same as nominator requirement)
+    // Note: In the future, if operator has different minimum, this logic can be updated
+    if (remaining < minNominatorStake) {
+      return {
+        isValid: false,
+        warning: `Cannot leave less than ${minNominatorStake} AI3. Either withdraw less or withdraw all.`,
+      };
+    }
+  } else {
+    // Nominators: warn about forced full withdrawal
+    if (remaining < minNominatorStake) {
+      return {
+        isValid: true,
+        warning: `Remaining amount would be below minimum (${minNominatorStake} AI3). The system will withdraw ALL your stake (${currentStake} AI3) instead.`,
+        willWithdrawAll: true,
+        actualWithdrawalAmount: currentStake,
+      };
+    }
+  }
+
+  return {
+    isValid: true,
+    actualWithdrawalAmount: withdrawAmount,
+  };
+};
 
 /**
  * Get the current block number from the blockchain
