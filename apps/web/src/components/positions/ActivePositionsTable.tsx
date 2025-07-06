@@ -160,7 +160,7 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
 
   const handleWithdrawClick = (position: UserPosition) => {
     // Navigate to the full-page withdrawal experience
-    navigate(`/withdraw/${position.operatorId}/${position.operatorId}`);
+    navigate(`/withdraw/${position.operatorId}`);
   };
 
   const handleAddStakeClick = (position: UserPosition) => {

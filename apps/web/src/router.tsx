@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
         element: <StakingPage />,
       },
       {
-        path: 'withdraw/:operatorId/:positionId',
+        path: 'withdraw/:operatorId',
         element: <WithdrawalPage />,
       },
     ],
