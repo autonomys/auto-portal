@@ -32,11 +32,11 @@ export const TransactionActions: React.FC<TransactionActionsProps> = ({
 }) => {
   if (isSuccess && onContinue && onReset) {
     return (
-      <div className="flex gap-4 pt-4">
-        <Button variant="outline" onClick={onReset} className="flex-1 font-sans">
+      <div className="inline-md pt-4">
+        <Button variant="outline" onClick={onReset} className="flex-1">
           {resetText}
         </Button>
-        <Button onClick={onContinue} className="flex-1 font-sans">
+        <Button onClick={onContinue} className="flex-1">
           {continueText}
         </Button>
       </div>
@@ -44,16 +44,11 @@ export const TransactionActions: React.FC<TransactionActionsProps> = ({
   }
 
   return (
-    <div className="flex gap-4 pt-4">
-      <Button
-        variant="outline"
-        onClick={onCancel}
-        disabled={isSubmitting}
-        className="flex-1 font-sans"
-      >
+    <div className="inline-md pt-4">
+      <Button variant="outline" onClick={onCancel} disabled={isSubmitting} className="flex-1">
         {cancelText}
       </Button>
-      <Button onClick={onSubmit} disabled={!isValid || isSubmitting} className="flex-1 font-sans">
+      <Button onClick={onSubmit} disabled={!isValid || isSubmitting} className="flex-1">
         {isSubmitting ? loadingText : submitText}
       </Button>
     </div>
