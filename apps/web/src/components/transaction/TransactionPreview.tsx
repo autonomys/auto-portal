@@ -52,15 +52,15 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-lg font-serif">{displayTitle}</CardTitle>
+        <CardTitle className="text-h3">{displayTitle}</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="stack-md">
         {/* Transaction Items */}
-        <div className="space-y-3">
+        <div className="stack-sm">
           {items.map((item, index) => (
             <div key={index} className="flex justify-between items-center">
-              <div className="flex items-center space-x-1">
-                <span className="text-sm text-muted-foreground font-sans">{item.label}</span>
+              <div className="inline-xs">
+                <span className="text-label text-muted-foreground">{item.label}</span>
                 {item.tooltip && (
                   <Tooltip content={item.tooltip} side="top">
                     <InfoIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
@@ -68,9 +68,9 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
                 )}
               </div>
               <span
-                className={`font-mono font-medium ${
+                className={`text-code ${
                   item.isPositive
-                    ? 'text-success-600'
+                    ? 'text-success'
                     : item.isNegative
                       ? 'text-destructive'
                       : 'text-foreground'
@@ -88,12 +88,12 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
 
         {/* Total */}
         <div className="flex justify-between items-center">
-          <span className="font-sans font-semibold text-foreground">{totalLabel}</span>
-          <span className="font-mono font-bold text-foreground text-lg">
+          <span className="text-body font-semibold">{totalLabel}</span>
+          <span className="text-code font-bold text-lg">
             {totalLoading ? (
               <span className="animate-pulse text-muted-foreground">Calculating...</span>
             ) : (
-              <span className={type === 'withdrawal' ? 'text-success-600' : 'text-foreground'}>
+              <span className={type === 'withdrawal' ? 'text-success' : 'text-foreground'}>
                 {type === 'withdrawal' && '+'}
                 {formatAI3(totalValue, 4)}
               </span>
@@ -107,8 +107,8 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
         {/* Important Notes */}
         {notes && notes.length > 0 && (
           <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-            <h4 className="text-sm font-semibold text-primary font-sans mb-2">Important Notes</h4>
-            <ul className="text-xs text-primary/80 space-y-1 font-sans">
+            <h4 className="text-label font-semibold text-primary mb-2">Important Notes</h4>
+            <ul className="text-caption text-primary/80 stack-xs">
               {notes.map((note, index) => (
                 <li key={index}>• {note}</li>
               ))}

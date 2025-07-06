@@ -38,8 +38,8 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-foreground font-sans">Amount to Stake</label>
+    <div className="stack-sm">
+      <label className="block text-label">Amount to Stake</label>
       <div className="relative">
         <Input
           type="text"
@@ -47,26 +47,26 @@ export const AmountInput: React.FC<AmountInputProps> = ({
           onChange={handleInputChange}
           placeholder="0.00"
           disabled={disabled}
-          className={`font-mono text-lg pr-20 ${errors.length > 0 ? 'border-destructive' : ''}`}
+          className={`text-code text-lg pr-20 ${errors.length > 0 ? 'border-destructive' : ''}`}
         />
-        <div className="absolute inset-y-0 right-0 flex items-center space-x-2 pr-3">
+        <div className="absolute inset-y-0 right-0 inline-sm pr-3">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleMaxClick}
             disabled={disabled || availableBalance <= feeToUse}
-            className="h-7 px-3 text-xs font-sans"
+            className="h-7 px-3 text-caption"
           >
             MAX
           </Button>
-          <span className="text-muted-foreground font-mono text-sm">AI3</span>
+          <span className="text-muted-foreground text-code">AI3</span>
         </div>
       </div>
       {errors.length > 0 && (
-        <div className="space-y-1">
+        <div className="stack-xs">
           {errors.map((error, index) => (
-            <p key={index} className="text-sm text-destructive font-sans">
+            <p key={index} className="text-body-small text-destructive">
               {error}
             </p>
           ))}

@@ -16,8 +16,8 @@ export const FeeDisplay: React.FC<FeeDisplayProps> = ({
 }) => {
   return (
     <div className={`flex justify-between items-center ${className}`}>
-      <span className="text-sm text-muted-foreground font-sans">{label}</span>
-      <span className="font-mono font-medium text-foreground">
+      <span className="text-label text-muted-foreground">{label}</span>
+      <span className="text-code">
         {loading ? (
           <span className="animate-pulse text-muted-foreground">Estimating...</span>
         ) : (

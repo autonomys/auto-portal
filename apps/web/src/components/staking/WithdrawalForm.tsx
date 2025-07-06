@@ -99,33 +99,31 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
       {/* Withdrawal Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">
-            Withdraw from {position.operatorName}
-          </CardTitle>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Stake Value:</span>
-              <span className="font-mono font-semibold">
+          <CardTitle className="text-h3">Withdraw from {position.operatorName}</CardTitle>
+          <div className="stack-xs">
+            <div className="inline-sm">
+              <span className="text-label text-muted-foreground">Stake Value:</span>
+              <span className="text-code font-semibold">
                 {formatAI3(position.positionValue, 4)}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Storage Fee Deposit:</span>
-              <span className="font-mono text-sm">{formatAI3(position.storageFeeDeposit, 4)}</span>
+            <div className="inline-sm">
+              <span className="text-label text-muted-foreground">Storage Fee Deposit:</span>
+              <span className="text-code">{formatAI3(position.storageFeeDeposit, 4)}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground font-medium">Total Position:</span>
-              <span className="font-mono font-semibold">
+            <div className="inline-sm">
+              <span className="text-label text-muted-foreground font-medium">Total Position:</span>
+              <span className="text-code font-semibold">
                 {formatAI3(position.positionValue + position.storageFeeDeposit, 4)}
               </span>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="stack-lg">
           {/* Withdrawal Method Selection */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium font-sans">Withdrawal Method</label>
-            <div className="flex gap-2">
+          <div className="stack-sm">
+            <label className="text-label">Withdrawal Method</label>
+            <div className="inline-sm">
               <Button
                 variant={withdrawalMethod === 'partial' ? 'default' : 'outline'}
                 size="sm"
@@ -147,8 +145,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
           {/* Amount Input for Partial Withdrawal */}
           {withdrawalMethod === 'partial' && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium font-sans">Total Amount to Receive</label>
+            <div className="stack-sm">
+              <label className="text-label">Total Amount to Receive</label>
               <div className="relative">
                 <Input
                   type="number"
@@ -156,15 +154,17 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   onChange={e => handleAmountChange(Number(e.target.value) || 0)}
                   placeholder="Enter total amount you want to receive"
                   max={position.positionValue + position.storageFeeDeposit}
-                  className="font-mono pr-12"
+                  className="text-code pr-12"
                   disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
                 />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-muted-foreground">
+                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-label text-muted-foreground">
                   AI3
                 </span>
               </div>
               {amount > position.positionValue + position.storageFeeDeposit && (
-                <p className="text-sm text-destructive">Amount exceeds your total position value</p>
+                <p className="text-body-small text-destructive">
+                  Amount exceeds your total position value
+                </p>
               )}
             </div>
           )}
@@ -185,11 +185,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="inline-md pt-4">
             <Button
               variant="outline"
               onClick={onCancel}
-              className="flex-1 font-sans"
+              className="flex-1"
               disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
             >
               Cancel
@@ -202,7 +202,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 withdrawalState === 'pending' ||
                 !canExecuteWithdrawal
               }
-              className="flex-1 font-sans"
+              className="flex-1"
             >
               {withdrawalState === 'signing'
                 ? 'Signing...'
@@ -257,16 +257,14 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             }
 
             const additionalInfo = (
-              <div className="space-y-3">
+              <div className="stack-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground font-sans">Operator:</span>
-                  <span className="font-medium">{position.operatorName}</span>
+                  <span className="text-label text-muted-foreground">Operator:</span>
+                  <span className="text-body font-medium">{position.operatorName}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground font-sans">
-                    Withdrawal Percentage:
-                  </span>
-                  <span className="font-mono font-medium">{withdrawalPreview.percentage}%</span>
+                  <span className="text-label text-muted-foreground">Withdrawal Percentage:</span>
+                  <span className="text-code font-medium">{withdrawalPreview.percentage}%</span>
                 </div>
               </div>
             );
@@ -293,7 +291,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           <Card>
             <CardContent className="pt-6">
               <div className="text-center text-muted-foreground">
-                <p className="font-sans">
+                <p className="text-body">
                   {withdrawalMethod === 'partial'
                     ? 'Enter an amount to see withdrawal preview'
                     : 'Review withdrawal details'}
