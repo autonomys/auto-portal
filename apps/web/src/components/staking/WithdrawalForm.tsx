@@ -11,7 +11,7 @@ import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
   position: UserPosition;
-  onSuccess?: () => void;
+  onSuccess?: (withdrawalAmount: number) => void;
   onCancel?: () => void;
 }
 
@@ -66,9 +66,10 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   // Handle successful withdrawal
   useEffect(() => {
     if (withdrawalState === 'success') {
-      onSuccess?.();
+      // Pass the actual gross withdrawal amount to the success callback
+      onSuccess?.(withdrawalPreview.grossWithdrawalAmount);
     }
-  }, [withdrawalState, onSuccess]);
+  }, [withdrawalState, onSuccess, withdrawalPreview.grossWithdrawalAmount]);
 
   const handleSubmit = async () => {
     if (!canExecuteWithdrawal) return;
