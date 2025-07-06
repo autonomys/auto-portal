@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
 import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
-import { usePositions } from '@/hooks/use-positions';
+import { usePositions, useOperatorPosition } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
 import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
@@ -26,6 +26,7 @@ interface StakingFormProps {
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
+  const { position: currentPosition, loading: positionLoading } = useOperatorPosition(operator.id);
   const {
     execute,
     isSigning,
@@ -62,7 +63,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   // Update validation and calculations when amount changes
   useEffect(() => {
     const availableBalance = balance ? parseFloat(balance.free) : 0;
-    const validationRules = getValidationRules(operator, availableBalance);
+    const validationRules = getValidationRules(operator, availableBalance, currentPosition);
     const validation = validateStakingAmount(
       formState.amount,
       validationRules,
@@ -85,7 +86,15 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator, balance, stakingLoading, stakingError, estimatedFee]);
+  }, [
+    formState.amount,
+    operator,
+    balance,
+    currentPosition,
+    stakingLoading,
+    stakingError,
+    estimatedFee,
+  ]);
 
   // Update current amount ref when form amount changes
   useEffect(() => {
@@ -164,12 +173,28 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     onSubmit(submittedAmount.current);
   };
 
+  // Get helpful messaging for the user
+  const isFirstNomination = !currentPosition || currentPosition.positionValue === 0;
+  const hasExistingPosition = currentPosition && currentPosition.positionValue > 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Stake Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-h3">Amount to Stake</CardTitle>
+          <CardTitle className="text-h3">
+            {isFirstNomination ? 'Initial Stake' : 'Add to Stake'}
+          </CardTitle>
+          {hasExistingPosition && (
+            <div className="p-3 bg-accent/10 rounded-lg text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Current Position:</span>
+                <span className="font-semibold">
+                  {formatAI3(currentPosition.positionValue + currentPosition.storageFeeDeposit)}
+                </span>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="stack-lg">
           {/* Available Balance */}
@@ -188,12 +213,23 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             </div>
           </div>
 
+          {/* Minimum Stake Info */}
+          {isFirstNomination && (
+            <Alert variant="info">
+              <AlertTitle>Minimum Initial Stake</AlertTitle>
+              <AlertDescription>
+                Your first nomination must be at least {operator.minimumNominatorStake} AI3. After
+                that, you can add any amount to your position.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Amount Input */}
           <AmountInput
             amount={formState.amount}
             onAmountChange={handleAmountChange}
             errors={formState.errors}
-            disabled={formState.isSubmitting}
+            disabled={formState.isSubmitting || positionLoading}
             availableBalance={balance ? parseFloat(balance.free) : 0}
             estimatedFee={estimatedFee ?? undefined}
           />
@@ -253,12 +289,14 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!formState.isValid || formState.isSubmitting || !canExecute}
+                  disabled={
+                    !formState.isValid || formState.isSubmitting || !canExecute || positionLoading
+                  }
                   className="flex-1"
                 >
                   {isSigning && 'Awaiting signature...'}
                   {isPending && 'Submitting...'}
-                  {!stakingLoading && 'Stake Tokens'}
+                  {!stakingLoading && (isFirstNomination ? 'Stake Tokens' : 'Add to Stake')}
                 </Button>
               </>
             )}
@@ -319,6 +357,9 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
               'Rewards are automatically compounded to your position',
               'Stake will be active after next epoch transition (~10 minutes)',
               'Your stake will appear as "Pending" until the epoch transition occurs',
+              ...(hasExistingPosition
+                ? ['This amount will be added to your existing position']
+                : ['This is your initial nomination to this operator']),
             ]}
           />
         ) : (

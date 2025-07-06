@@ -19,6 +19,7 @@ export interface StakingValidation {
   maximum: number; // AI3 (available balance)
   required: boolean;
   decimals: number; // Maximum decimal places
+  isFirstNomination: boolean; // Whether this is the first nomination for this operator
 }
 
 export interface UserBalance {

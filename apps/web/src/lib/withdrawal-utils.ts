@@ -1,6 +1,8 @@
 import { headDomainNumber } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from '@/services/api-service';
 import { ESTIMATED_BLOCK_TIME_SECONDS } from '@/constants/blockchain';
+import type { Operator } from '@/types/operator';
+import type { UserPosition } from '@/types/position';
 
 export interface WithdrawalUnlockStatus {
   isUnlockable: boolean;
@@ -9,6 +11,72 @@ export interface WithdrawalUnlockStatus {
   blocksRemaining: number;
   estimatedTimeRemaining?: string; // Human readable time estimate
 }
+
+export interface WithdrawalValidationResult {
+  isValid: boolean;
+  warning?: string;
+  willWithdrawAll?: boolean;
+  errors: string[];
+}
+
+/**
+ * Validate withdrawal amount against minimum stake requirements
+ * @param withdrawAmount - Amount user wants to withdraw
+ * @param currentPosition - User's current position with the operator
+ * @param operator - Operator information including minimum stakes
+ * @param isOperator - Whether the user is the operator owner
+ * @returns Validation result with warnings and errors
+ */
+export const validateWithdrawal = (
+  withdrawAmount: number,
+  currentPosition: UserPosition,
+  operator: Operator,
+  isOperator: boolean = false,
+): WithdrawalValidationResult => {
+  const errors: string[] = [];
+  let warning: string | undefined;
+  let willWithdrawAll = false;
+
+  if (withdrawAmount <= 0) {
+    errors.push('Withdrawal amount must be greater than 0');
+    return { isValid: false, errors };
+  }
+
+  const currentStake = currentPosition.positionValue;
+  const totalPosition = currentStake + currentPosition.storageFeeDeposit;
+
+  if (withdrawAmount > totalPosition) {
+    errors.push('Withdrawal amount exceeds your total position');
+    return { isValid: false, errors };
+  }
+
+  // Calculate what would remain after withdrawal
+  const remainingAmount = totalPosition - withdrawAmount;
+  const minNominatorStake = parseFloat(operator.minimumNominatorStake);
+
+  if (isOperator) {
+    // Operators cannot go below minimum stake (use same minimum as nominators)
+    if (remainingAmount < minNominatorStake && remainingAmount > 0) {
+      errors.push(
+        `Cannot leave less than ${minNominatorStake} AI3. Either withdraw less or withdraw all.`,
+      );
+      return { isValid: false, errors };
+    }
+  } else {
+    // Nominators: warn about forced full withdrawal
+    if (remainingAmount < minNominatorStake && remainingAmount > 0) {
+      warning = `Remaining amount would be below minimum (${minNominatorStake} AI3). The system will withdraw ALL your stake instead.`;
+      willWithdrawAll = true;
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    warning,
+    willWithdrawAll,
+    errors,
+  };
+};
 
 /**
  * Get the current block number from the blockchain

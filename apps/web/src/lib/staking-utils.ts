@@ -1,5 +1,6 @@
 import type { StakingCalculations, StakingValidation } from '@/types/staking';
 import type { Operator } from '@/types/operator';
+import type { UserPosition } from '@/types/position';
 
 export const TRANSACTION_FEE = 0.0001; // Fallback fee
 const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
@@ -24,12 +25,18 @@ export const calculateStakingAmounts = (
 export const getValidationRules = (
   operator: Operator,
   availableBalance: number,
+  currentPosition?: UserPosition | null,
 ): StakingValidation => {
+  // Only enforce minimum stake on first nomination (when user has no current shares)
+  const hasExistingPosition = currentPosition && currentPosition.positionValue > 0;
+  const effectiveMinimum = hasExistingPosition ? 0 : parseFloat(operator.minimumNominatorStake);
+
   return {
-    minimum: parseFloat(operator.minimumNominatorStake), // Already in AI3 format
+    minimum: effectiveMinimum,
     maximum: availableBalance,
     required: true,
     decimals: 8,
+    isFirstNomination: !hasExistingPosition,
   };
 };
 
@@ -53,8 +60,9 @@ export const validateStakingAmount = (
     return { isValid: false, errors };
   }
 
-  if (numericAmount < validation.minimum) {
-    errors.push(`Amount must be at least ${validation.minimum} AI3`);
+  // Only enforce minimum on first nomination
+  if (validation.isFirstNomination && numericAmount < validation.minimum) {
+    errors.push(`Initial nomination must be at least ${validation.minimum} AI3`);
   }
 
   if (numericAmount > validation.maximum) {
