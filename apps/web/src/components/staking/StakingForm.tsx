@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
-import { UnifiedTransactionPreview } from '@/components/transaction/UnifiedTransactionPreview';
+import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
@@ -271,7 +271,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Transaction Preview */}
       <div>
         {formState.showPreview ? (
-          <UnifiedTransactionPreview
+          <TransactionPreview
             type="staking"
             items={[
               {

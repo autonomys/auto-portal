@@ -16,7 +16,7 @@ interface TransactionItem {
   precision?: number;
 }
 
-interface UnifiedTransactionPreviewProps {
+interface TransactionPreviewProps {
   type: TransactionType;
   title?: string;
   items: TransactionItem[];
@@ -28,7 +28,7 @@ interface UnifiedTransactionPreviewProps {
   className?: string;
 }
 
-export const UnifiedTransactionPreview: React.FC<UnifiedTransactionPreviewProps> = ({
+export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
   type,
   title,
   items,

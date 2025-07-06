@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
 import { formatAI3 } from '@/lib/formatting';
 import { getWithdrawalPreview } from '@/lib/withdrawal-utils';
-import { UnifiedTransactionPreview } from '@/components/transaction/UnifiedTransactionPreview';
+import { TransactionPreview } from '@/components/transaction';
 import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
@@ -272,7 +272,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             );
 
             return (
-              <UnifiedTransactionPreview
+              <TransactionPreview
                 type="withdrawal"
                 items={withdrawalItems}
                 totalLabel="Total to Receive"
