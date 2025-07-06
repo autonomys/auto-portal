@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
 import { useOperators } from '@/hooks/use-operators';
+import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3 } from '@/lib/formatting';
 import { getWithdrawalPreview, validateWithdrawal } from '@/lib/withdrawal-utils';
 import { TransactionPreview } from '@/components/transaction';
@@ -26,6 +27,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const [withdrawalMethod, setWithdrawalMethod] = useState<WithdrawalMethod>('partial');
   const [amount, setAmount] = useState<number>(0);
   const { operators } = useOperators();
+  const { selectedAccount } = useWallet();
 
   const {
     executeWithdraw,
@@ -48,14 +50,19 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   );
 
   // Validate withdrawal for minimum stake requirements
-  const validationResult = operator
+  const validationResult = operator && selectedAccount
     ? validateWithdrawal(
         withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amount,
         position.positionValue + position.storageFeeDeposit,
         operator,
-        false, // Assume user is nominator, not operator owner
+        selectedAccount.address === operator.ownerAccount, // Check if user is the operator owner
       )
-    : { isValid: true };
+    : {
+        isValid: false,
+        warning: operator
+          ? 'Unable to validate withdrawal: wallet not connected'
+          : 'Unable to validate withdrawal: operator data not loaded',
+      };
 
   // Estimate fee when amount changes
   useEffect(() => {
