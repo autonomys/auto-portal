@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
-import { TransactionPreview } from './TransactionPreview';
+import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
@@ -169,16 +169,14 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Stake Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-serif">Amount to Stake</CardTitle>
+          <CardTitle className="text-h3">Amount to Stake</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="stack-lg">
           {/* Available Balance */}
           <div className="p-4 bg-accent/10 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-muted-foreground font-sans">
-                Available Balance
-              </span>
-              <span className="text-lg font-mono font-semibold text-foreground">
+              <span className="text-label text-muted-foreground">Available Balance</span>
+              <span className="text-code font-semibold">
                 {balanceLoading ? (
                   <span className="animate-pulse">Loading...</span>
                 ) : balance ? (
@@ -207,7 +205,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 <Alert variant="success">
                   <AlertTitle>Transaction Successful!</AlertTitle>
                   <AlertDescription>
-                    <div className="space-y-1 text-xs font-mono">
+                    <div className="stack-xs text-code">
                       <div>Hash: {txHash}</div>
                     </div>
                   </AlertDescription>
@@ -216,7 +214,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 <Alert variant="info">
                   <AlertTitle>Transaction Status</AlertTitle>
                   <AlertDescription>
-                    <div className="space-y-1 text-xs font-mono">
+                    <div className="stack-xs text-code">
                       <div>Hash: {txHash}</div>
                     </div>
                   </AlertDescription>
@@ -231,14 +229,14 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="inline-md pt-4">
             {isSuccess ? (
               // Success state buttons
               <>
-                <Button variant="outline" onClick={() => reset()} className="flex-1 font-sans">
+                <Button variant="outline" onClick={() => reset()} className="flex-1">
                   Stake More
                 </Button>
-                <Button onClick={handleContinue} className="flex-1 font-sans">
+                <Button onClick={handleContinue} className="flex-1">
                   Continue
                 </Button>
               </>
@@ -249,14 +247,14 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                   variant="outline"
                   onClick={onCancel}
                   disabled={formState.isSubmitting}
-                  className="flex-1 font-sans"
+                  className="flex-1"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSubmit}
                   disabled={!formState.isValid || formState.isSubmitting || !canExecute}
-                  className="flex-1 font-sans"
+                  className="flex-1"
                 >
                   {isSigning && 'Awaiting signature...'}
                   {isPending && 'Submitting...'}
@@ -271,12 +269,63 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
       {/* Transaction Preview */}
       <div>
         {formState.showPreview ? (
-          <TransactionPreview calculations={calculations} feeLoading={stakingLoading} />
+          <TransactionPreview
+            type="staking"
+            items={[
+              {
+                label: 'Staking Portion',
+                value: calculations.netStaking,
+                precision: 4,
+              },
+              {
+                label: 'Storage Fund (20%)',
+                value: calculations.storageFund,
+                precision: 4,
+                tooltip:
+                  '20% of your stake is reserved as storage fees and refunded proportionally when you withdraw. Actual refund depends on storage fund performance.',
+              },
+              {
+                label: 'Transaction Fee',
+                value: calculations.transactionFee,
+                precision: 8,
+                loading: stakingLoading,
+              },
+            ]}
+            totalLabel="Total Required"
+            totalValue={calculations.totalRequired}
+            totalLoading={stakingLoading}
+            additionalInfo={
+              calculations.expectedRewards > 0 && (
+                <Card className="bg-success/10 border-success/20">
+                  <CardContent className="pt-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-body-small text-success">Estimated Annual Rewards</p>
+                        <p className="text-caption text-success/80 mt-1">
+                          Based on current staking configuration
+                        </p>
+                      </div>
+                      <p className="text-code font-bold text-success text-xl">
+                        ~{formatAI3(calculations.expectedRewards, 4)}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            }
+            notes={[
+              'Storage fund (20%) is held by the protocol and refunded when you withdraw',
+              'Only the net staking amount (80%) earns rewards',
+              'Rewards are automatically compounded to your position',
+              'Stake will be active after next epoch transition (~10 minutes)',
+              'Your stake will appear as "Pending" until the epoch transition occurs',
+            ]}
+          />
         ) : (
           <Card>
             <CardContent className="pt-6">
               <div className="text-center text-muted-foreground">
-                <p className="font-sans">Enter an amount to see transaction preview</p>
+                <p className="text-body">Enter an amount to see transaction preview</p>
               </div>
             </CardContent>
           </Card>

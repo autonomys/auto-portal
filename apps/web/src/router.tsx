@@ -3,6 +3,7 @@ import { Layout } from './components/layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { OperatorsPage } from './pages/OperatorsPage';
 import { StakingPage } from './pages/StakingPage';
+import { WithdrawalPage } from './pages/WithdrawalPage';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
       {
         path: 'staking/:operatorId',
         element: <StakingPage />,
+      },
+      {
+        path: 'withdraw/:operatorId',
+        element: <WithdrawalPage />,
       },
     ],
   },

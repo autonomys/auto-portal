@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,10 +10,14 @@ import type { Operator } from '@/types/operator';
 export const StakingPage: React.FC = () => {
   const { operatorId } = useParams<{ operatorId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { allOperators: operators, loading, error, refetch: fetchOperators } = useOperators();
   const [operator, setOperator] = useState<Operator | null>(null);
   const [stakingSuccess, setStakingSuccess] = useState(false);
   const [stakedAmount, setStakedAmount] = useState<string>('');
+
+  // Check if coming from a position (adding more stake)
+  const fromPosition = searchParams.get('fromPosition') === 'true';
 
   useEffect(() => {
     const foundOperator = operators.find(op => op.id === operatorId);
@@ -32,7 +36,8 @@ export const StakingPage: React.FC = () => {
   };
 
   const handleGoBack = () => {
-    navigate('/operators');
+    // If coming from a position, go back to dashboard; otherwise go to operators
+    navigate(fromPosition ? '/dashboard' : '/operators');
   };
 
   // Loading state
@@ -133,7 +138,7 @@ export const StakingPage: React.FC = () => {
         </Button>
         <div className="h-6 w-px bg-border"></div>
         <h1 className="text-xl font-serif font-semibold text-foreground">
-          Stake to {operator.name}
+          {fromPosition ? `Add Stake to ${operator.name}` : `Stake to ${operator.name}`}
         </h1>
       </div>
 
