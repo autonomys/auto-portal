@@ -12,7 +12,7 @@ import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 
 export const WithdrawalPage: React.FC = () => {
-  const { operatorId } = useParams<{ operatorId: string; positionId: string }>();
+  const { operatorId } = useParams<{ operatorId: string }>();
   const navigate = useNavigate();
   const { allOperators: operators, loading: operatorsLoading } = useOperators();
   const { positions, loading: positionsLoading } = usePositions();
