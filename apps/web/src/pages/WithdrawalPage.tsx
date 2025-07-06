@@ -45,6 +45,11 @@ export const WithdrawalPage: React.FC = () => {
     setWithdrawalSuccess(true);
   };
 
+  const handleWithdrawalSuccess = (actualWithdrawalAmount: number) => {
+    const formattedAmount = formatAI3(actualWithdrawalAmount, 4);
+    handleWithdrawalSubmit(formattedAmount);
+  };
+
   const handleBackToDashboard = () => {
     navigate('/dashboard');
   };
@@ -163,11 +168,7 @@ export const WithdrawalPage: React.FC = () => {
       <WithdrawalForm
         position={position!}
         onCancel={handleGoBack}
-        onSuccess={() =>
-          handleWithdrawalSubmit(
-            formatAI3(position!.positionValue + position!.storageFeeDeposit, 4),
-          )
-        }
+        onSuccess={handleWithdrawalSuccess}
       />
     </div>
   );
