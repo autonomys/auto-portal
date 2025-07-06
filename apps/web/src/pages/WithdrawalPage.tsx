@@ -167,6 +167,7 @@ export const WithdrawalPage: React.FC = () => {
       {/* Withdrawal Form */}
       <WithdrawalForm
         position={position!}
+        operator={operator!}
         onCancel={handleGoBack}
         onSuccess={handleWithdrawalSuccess}
       />
