@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
 import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
-import { usePositions } from '@/hooks/use-positions';
+import { usePositions, useOperatorPosition } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
 import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
@@ -26,6 +26,7 @@ interface StakingFormProps {
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
+  const { position: currentPosition } = useOperatorPosition(operator.id);
   const {
     execute,
     isSigning,
@@ -62,7 +63,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   // Update validation and calculations when amount changes
   useEffect(() => {
     const availableBalance = balance ? parseFloat(balance.free) : 0;
-    const validationRules = getValidationRules(operator, availableBalance);
+    const validationRules = getValidationRules(operator, availableBalance, currentPosition);
     const validation = validateStakingAmount(
       formState.amount,
       validationRules,
@@ -85,7 +86,15 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }));
 
     setCalculations(newCalculations);
-  }, [formState.amount, operator, balance, stakingLoading, stakingError, estimatedFee]);
+  }, [
+    formState.amount,
+    operator,
+    balance,
+    currentPosition,
+    stakingLoading,
+    stakingError,
+    estimatedFee,
+  ]);
 
   // Update current amount ref when form amount changes
   useEffect(() => {
@@ -172,6 +181,21 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
           <CardTitle className="text-h3">Amount to Stake</CardTitle>
         </CardHeader>
         <CardContent className="stack-lg">
+          {/* Current Position Info */}
+          {currentPosition && currentPosition.positionValue > 0 && (
+            <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-label text-muted-foreground">Current Position</span>
+                <span className="text-code font-semibold text-success">
+                  {formatAI3(currentPosition.positionValue + currentPosition.storageFeeDeposit)}
+                </span>
+              </div>
+              <p className="text-body-small text-muted-foreground mt-1">
+                You can stake any amount for subsequent nominations
+              </p>
+            </div>
+          )}
+
           {/* Available Balance */}
           <div className="p-4 bg-accent/10 rounded-lg">
             <div className="flex justify-between items-center">
