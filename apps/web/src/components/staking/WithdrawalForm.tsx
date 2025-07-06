@@ -50,19 +50,20 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   );
 
   // Validate withdrawal for minimum stake requirements
-  const validationResult = operator && selectedAccount
-    ? validateWithdrawal(
-        withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amount,
-        position.positionValue + position.storageFeeDeposit,
-        operator,
-        selectedAccount.address === operator.ownerAccount, // Check if user is the operator owner
-      )
-    : {
-        isValid: false,
-        warning: operator
-          ? 'Unable to validate withdrawal: wallet not connected'
-          : 'Unable to validate withdrawal: operator data not loaded',
-      };
+  const validationResult =
+    operator && selectedAccount
+      ? validateWithdrawal(
+          withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amount,
+          position.positionValue + position.storageFeeDeposit,
+          operator,
+          selectedAccount.address === operator.ownerAccount, // Check if user is the operator owner
+        )
+      : {
+          isValid: false,
+          warning: operator
+            ? 'Unable to validate withdrawal: wallet not connected'
+            : 'Unable to validate withdrawal: operator data not loaded',
+        };
 
   // Estimate fee when amount changes
   useEffect(() => {
