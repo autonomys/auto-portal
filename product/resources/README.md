@@ -95,6 +95,25 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Understanding RPC connection patterns
 - Following integration best practices
 
+### `astral-indexer-schema.md`
+
+**Purpose:** Documentation for Autonomys Astral indexer GraphQL schema  
+**Contents:**
+
+- Complete entity type documentation
+- Use cases for each data type
+- Advanced GraphQL query examples
+- Integration benefits and strategies
+- Performance optimization guidelines
+- Technical implementation considerations
+
+**Use Cases:**
+
+- Understanding available indexed data
+- Planning rich UX features beyond RPC capabilities
+- Implementing historical data and analytics
+- Optimizing query performance
+
 ---
 
 ## How to Use These Resources
@@ -119,6 +138,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Plan component architecture based on UX patterns
 - Anticipate technical challenges from current state analysis
 - Follow Auto SDK integration guidelines for real data
+- Leverage indexed data for enhanced UX capabilities
 
 ---
 
@@ -151,6 +171,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Design patterns evolve
 - Auto SDK updates or changes
 - New integration patterns discovered
+- Astral indexer schema changes or additions
 
 ### How to Update
 
@@ -174,6 +195,10 @@ This folder contains research findings, UX patterns, and insights gathered durin
 
 - `../user-stories/staking-form-mockup.md` - UI implementation story
 - `../user-stories/auto-sdk-integration.md` - Real data integration story
+
+### In Current Directory
+
+- `astral-indexer-schema.md` - Indexed data schema documentation
 
 ### External References
 
