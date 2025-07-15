@@ -15,11 +15,11 @@ export const positionService = async (networkId: string = 'taurus') => {
    * Determine position status based on pending operations
    */
   const getPositionStatus = (
-    pendingDeposits: PendingDeposit[],
+    pendingDeposit: PendingDeposit | null,
     pendingWithdrawals: PendingWithdrawal[],
   ): 'active' | 'pending' | 'withdrawing' => {
     if (pendingWithdrawals.length > 0) return 'withdrawing';
-    if (pendingDeposits.length > 0) return 'pending';
+    if (pendingDeposit) return 'pending';
     return 'active';
   };
 
@@ -35,7 +35,7 @@ export const positionService = async (networkId: string = 'taurus') => {
     const totalStorageFee = positions.reduce((sum, pos) => sum + pos.storageFeeDeposit, 0);
 
     const totalPendingDeposits = positions.reduce(
-      (sum, pos) => sum + pos.pendingDeposits.length,
+      (sum, pos) => sum + (pos.pendingDeposit ? 1 : 0),
       0,
     );
     const totalPendingWithdrawals = positions.reduce(
@@ -69,16 +69,18 @@ export const positionService = async (networkId: string = 'taurus') => {
       // - Storage fee deposits (from pending or known deposits)
       // - Pending withdrawals (active withdrawal requests)
       const hasPosition =
-        positionData.knownValue > 0n ||
-        positionData.pendingDeposits.length > 0 ||
-        positionData.storageFeeDeposit > 0n ||
+        positionData.currentStakedValue > 0n ||
+        positionData.pendingDeposit !== null ||
+        positionData.storageFeeDeposit.totalDeposited > 0n ||
         positionData.pendingWithdrawals.length > 0;
 
       if (hasPosition) {
-        const pendingDeposits: PendingDeposit[] = positionData.pendingDeposits.map(deposit => ({
-          amount: shannonsToAI3(deposit.amount.toString()),
-          effectiveEpoch: deposit.effectiveEpoch,
-        }));
+        const pendingDeposit: PendingDeposit | null = positionData.pendingDeposit
+          ? {
+              amount: shannonsToAI3(positionData.pendingDeposit.amount.toString()),
+              effectiveEpoch: positionData.pendingDeposit.effectiveEpoch,
+            }
+          : null;
 
         const pendingWithdrawals: PendingWithdrawal[] = positionData.pendingWithdrawals.map(
           withdrawal => {
@@ -94,7 +96,7 @@ export const positionService = async (networkId: string = 'taurus') => {
               grossWithdrawalAmount, // Total gross amount user will receive
               stakeWithdrawalAmount, // Net stake amount being withdrawn
               storageFeeRefund, // Storage fee refund
-              unlockAtBlock: withdrawal.unlockAtDomainBlock,
+              unlockAtBlock: withdrawal.unlockAtBlock,
             };
           },
         );
@@ -102,11 +104,13 @@ export const positionService = async (networkId: string = 'taurus') => {
         return {
           operatorId,
           operatorName: `Operator ${operatorId}`,
-          positionValue: shannonsToAI3(positionData.knownValue.toString()),
-          storageFeeDeposit: shannonsToAI3(positionData.storageFeeDeposit.toString()),
-          pendingDeposits,
+          positionValue: shannonsToAI3(positionData.currentStakedValue.toString()),
+          storageFeeDeposit: shannonsToAI3(
+            positionData.storageFeeDeposit.totalDeposited.toString(),
+          ),
+          pendingDeposit,
           pendingWithdrawals,
-          status: getPositionStatus(pendingDeposits, pendingWithdrawals),
+          status: getPositionStatus(pendingDeposit, pendingWithdrawals),
           lastUpdated: new Date(),
         };
       }

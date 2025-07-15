@@ -80,15 +80,12 @@ const PositionRow: React.FC<PositionRowProps> = ({
         </div>
 
         {/* Pending Operations */}
-        {(position.pendingDeposits.length > 0 || position.pendingWithdrawals.length > 0) && (
+        {(position.pendingDeposit || position.pendingWithdrawals.length > 0) && (
           <div className="flex gap-4 text-sm">
-            {position.pendingDeposits.length > 0 && (
+            {position.pendingDeposit && (
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
-                <span className={getStatusColor('pending')}>
-                  {position.pendingDeposits.length} pending deposit
-                  {position.pendingDeposits.length > 1 ? 's' : ''}
-                </span>
+                <span className={getStatusColor('pending')}>1 pending deposit</span>
               </div>
             )}
             {position.pendingWithdrawals.length > 0 && (

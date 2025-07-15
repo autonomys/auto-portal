@@ -84,8 +84,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@auto-portal/web@workspace:apps/web"
   dependencies:
-    "@autonomys/auto-consensus": "npm:1.5.8"
-    "@autonomys/auto-utils": "npm:1.5.8"
+    "@autonomys/auto-consensus": "npm:1.5.9"
+    "@autonomys/auto-utils": "npm:1.5.9"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
@@ -118,12 +118,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@autonomys/auto-consensus@npm:1.5.8":
-  version: 1.5.8
-  resolution: "@autonomys/auto-consensus@npm:1.5.8"
+"@autonomys/auto-consensus@npm:1.5.9":
+  version: 1.5.9
+  resolution: "@autonomys/auto-consensus@npm:1.5.9"
   dependencies:
-    "@autonomys/auto-utils": "npm:^1.5.8"
-  checksum: 10c0/6f5ab69e27fe8bfa046fb40533bd2964416cec239747e0acdde841e8e6a636442471f40f69edd8eb64a6b516ac65f22a27e0f7da0a9f47b3b1d5931432c7bd86
+    "@autonomys/auto-utils": "npm:^1.5.9"
+  checksum: 10c0/e491553ee2b76f7d84d1e1def0574660d55ff4f2717660d4a503d1344a4a935051a1790953a00a83a2b575442867edfc69adfc8471e62d06e26f21c043c27891
   languageName: node
   linkType: hard
 
@@ -136,13 +136,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@autonomys/auto-utils@npm:1.5.8, @autonomys/auto-utils@npm:^1.5.8":
-  version: 1.5.8
-  resolution: "@autonomys/auto-utils@npm:1.5.8"
+"@autonomys/auto-utils@npm:1.5.9, @autonomys/auto-utils@npm:^1.5.9":
+  version: 1.5.9
+  resolution: "@autonomys/auto-utils@npm:1.5.9"
   dependencies:
     "@polkadot/api": "npm:^15.8.1"
     "@polkadot/extension-dapp": "npm:^0.58.6"
-  checksum: 10c0/1d0d357fc19c3ff65d14f495ccb4cd92412d8322ed1afeb4fdebdee6db020769f792f54a4f6464bb84f4c40b5adcbd5259cfcbdb7bd1e7336a97be14d56e3096
+  checksum: 10c0/c84d2e3cdc3f94c6a7ac3b5a060536d0764cce4fcdb852b21a6d0b4dade67016db8a679a1bcaf0ab85d83a4f52971cd1983a7a25f1f6dede67cde9f7ad98bd3a
   languageName: node
   linkType: hard
 

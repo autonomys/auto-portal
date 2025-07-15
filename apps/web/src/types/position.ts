@@ -15,7 +15,7 @@ export interface UserPosition {
   operatorName: string;
   positionValue: number; // Current value in AI3 (raw numeric value)
   storageFeeDeposit: number; // Storage fee deposit in AI3 (raw numeric value)
-  pendingDeposits: PendingDeposit[];
+  pendingDeposit: PendingDeposit | null;
   pendingWithdrawals: PendingWithdrawal[];
   status: 'active' | 'pending' | 'withdrawing';
   lastUpdated: Date;

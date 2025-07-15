@@ -182,9 +182,9 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
   const allPendingDeposits = useMemo(() => {
     const deps: Array<PendingDeposit & { operatorName: string }> = [];
     positions.forEach(position => {
-      position.pendingDeposits.forEach(deposit => {
-        deps.push({ ...deposit, operatorName: position.operatorName });
-      });
+      if (position.pendingDeposit) {
+        deps.push({ ...position.pendingDeposit, operatorName: position.operatorName });
+      }
     });
     deps.sort((a, b) => a.effectiveEpoch - b.effectiveEpoch);
     return deps;
