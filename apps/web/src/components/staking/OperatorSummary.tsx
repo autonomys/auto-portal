@@ -45,7 +45,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
     const userStake =
       userPosition.positionValue +
-      userPosition.pendingDeposits.reduce((sum, deposit) => sum + deposit.amount, 0);
+      (userPosition.pendingDeposit ? userPosition.pendingDeposit.amount : 0);
     const sharePercentage = (userStake / totalStaked) * 100;
 
     return sharePercentage.toFixed(2);
@@ -87,29 +87,19 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
                     'You have no position with this operator'
                   ) : (
                     <div>
-                      {userPosition.pendingDeposits.length > 0 ? (
+                      {userPosition.pendingDeposit ? (
                         <>
                           <div>
                             Active: {formatAI3AmountWithCommas(userPosition.positionValue)} AI3
                           </div>
                           <div>
-                            Pending:{' '}
-                            {formatAI3AmountWithCommas(
-                              userPosition.pendingDeposits.reduce(
-                                (sum, deposit) => sum + deposit.amount,
-                                0,
-                              ),
-                            )}{' '}
+                            Pending: {formatAI3AmountWithCommas(userPosition.pendingDeposit.amount)}{' '}
                             AI3
                           </div>
                           <div className="border-t border-gray-600 pt-1 mt-1 font-medium">
                             Total:{' '}
                             {formatAI3AmountWithCommas(
-                              userPosition.positionValue +
-                                userPosition.pendingDeposits.reduce(
-                                  (sum, deposit) => sum + deposit.amount,
-                                  0,
-                                ),
+                              userPosition.positionValue + userPosition.pendingDeposit.amount,
                             )}{' '}
                             AI3
                           </div>

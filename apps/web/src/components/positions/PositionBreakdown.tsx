@@ -17,10 +17,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
   if (position) {
     const totalStaked = position.positionValue;
     const storageFund = position.storageFeeDeposit;
-    const pendingStaked = position.pendingDeposits.reduce(
-      (sum, deposit) => sum + deposit.amount,
-      0,
-    );
+    const pendingStaked = position.pendingDeposit ? position.pendingDeposit.amount : 0;
     const pendingWithdrawal = position.pendingWithdrawals.reduce(
       (sum, withdrawal) => sum + withdrawal.grossWithdrawalAmount,
       0,
@@ -74,7 +71,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
     const totalStaked = positions.reduce((sum, pos) => sum + pos.positionValue, 0);
     const totalStorageFund = portfolioSummary.totalStorageFee;
     const totalPendingStaked = positions.reduce(
-      (sum, pos) => sum + pos.pendingDeposits.reduce((pSum, deposit) => pSum + deposit.amount, 0),
+      (sum, pos) => sum + (pos.pendingDeposit ? pos.pendingDeposit.amount : 0),
       0,
     );
     const totalPendingWithdrawal = positions.reduce(
