@@ -9,8 +9,6 @@
   ],
   "scripts": {
     "dev": "yarn workspace @auto-portal/web dev",
-    "dev:indexer": "yarn workspace @auto-portal/indexer dev",
-    "dev:all": "concurrently \"yarn dev:indexer\" \"yarn dev\"",
     "build": "yarn workspaces foreach -Apt run build",
     "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspace @auto-portal/web lint",
