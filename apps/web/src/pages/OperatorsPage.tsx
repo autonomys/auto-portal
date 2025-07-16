@@ -100,15 +100,6 @@ export const OperatorsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Summary Stats (when data is loaded) */}
-      {!loading && operators.length > 0 && (
-        <div className="mb-6">
-          <p className="text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{operatorCount} operators</span>
-          </p>
-        </div>
-      )}
-
       {/* Operator Display */}
       {viewMode === 'grid' ? (
         <OperatorGrid
