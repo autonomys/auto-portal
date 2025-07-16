@@ -124,8 +124,7 @@ export const DashboardPage: React.FC = () => {
       {/* Active Positions */}
       <ActivePositionsTable
         onOperatorClick={operatorId => {
-          console.log('Navigate to operator details:', operatorId);
-          // Future: Navigate to operator details page
+          navigate(`/operators/${operatorId}`);
         }}
       />
 
