@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AddressDisplay } from '@/components/wallet/AddressDisplay';
 import type { Operator } from '@/types/operator';
@@ -28,42 +29,38 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({ op
   };
 
   return (
-    <div className="border border-border rounded-xl p-6 mb-6">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">
+    <Card>
+      <CardContent className="pt-6">
+        <div className="inline-lg mb-6">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+            <span className="text-primary font-bold text-2xl text-code">
               {getOperatorInitial(operator.name)}
             </span>
           </div>
+          <div className="flex-1">
+            <h1 className="text-h1">{operator.name}</h1>
+            <p className="text-body text-muted-foreground">Domain: {operator.domainName}</p>
+          </div>
+          <Badge variant={getStatusVariant(operator.status)} className="text-sm">
+            {operator.status}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{operator.name}</h1>
-            <p className="text-lg text-muted-foreground">{operator.domainName}</p>
+            <span className="text-label text-muted-foreground block mb-1">Operator ID</span>
+            <span className="text-code">{operator.id}</span>
+          </div>
+          <div>
+            <span className="text-label text-muted-foreground block mb-1">Domain ID</span>
+            <span className="text-code">{operator.domainId}</span>
+          </div>
+          <div className="md:col-span-2">
+            <span className="text-label text-muted-foreground block mb-1">Signing Key</span>
+            <AddressDisplay address={operator.ownerAccount} showCopy={true} className="text-code" />
           </div>
         </div>
-        <Badge variant={getStatusVariant(operator.status)} className="text-sm">
-          {operator.status}
-        </Badge>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div>
-          <span className="block text-muted-foreground mb-1">Operator ID</span>
-          <span className="font-mono text-foreground">{operator.id}</span>
-        </div>
-        <div>
-          <span className="block text-muted-foreground mb-1">Domain ID</span>
-          <span className="font-mono text-foreground">{operator.domainId}</span>
-        </div>
-        <div className="md:col-span-2">
-          <span className="block text-muted-foreground mb-1">Signing Key</span>
-          <AddressDisplay
-            address={operator.ownerAccount}
-            showCopy={true}
-            className="font-mono text-foreground"
-          />
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

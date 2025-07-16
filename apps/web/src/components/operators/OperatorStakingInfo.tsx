@@ -32,15 +32,15 @@ export const OperatorStakingInfo: React.FC<OperatorStakingInfoProps> = ({
   };
 
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader>
-        <CardTitle>Staking Information</CardTitle>
+        <CardTitle className="text-h3">Staking Information</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="stack-md">
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Minimum Stake Required:</span>
-            <span className="font-mono font-medium">
+            <span className="text-label text-muted-foreground">Minimum Stake Required:</span>
+            <span className="text-code font-medium">
               {formatNumber(operator.minimumNominatorStake)} AI3
             </span>
           </div>
@@ -48,8 +48,8 @@ export const OperatorStakingInfo: React.FC<OperatorStakingInfoProps> = ({
           {userPosition && userPosition.positionValue > 0 ? (
             <>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Your Current Stake:</span>
-                <span className="font-mono font-medium text-primary">
+                <span className="text-label text-muted-foreground">Your Current Stake:</span>
+                <span className="text-code font-medium text-primary">
                   {formatNumber(userPosition.positionValue.toString())} AI3 (
                   {calculateUserStakePercentage()}%)
                 </span>
@@ -57,8 +57,8 @@ export const OperatorStakingInfo: React.FC<OperatorStakingInfoProps> = ({
 
               {userPosition.pendingDeposit && (
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Pending Deposit:</span>
-                  <span className="font-mono font-medium text-warning">
+                  <span className="text-label text-muted-foreground">Pending Deposit:</span>
+                  <span className="text-code font-medium text-warning">
                     {formatNumber(userPosition.pendingDeposit.amount.toString())} AI3
                   </span>
                 </div>
@@ -66,15 +66,15 @@ export const OperatorStakingInfo: React.FC<OperatorStakingInfoProps> = ({
             </>
           ) : (
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Your Current Stake:</span>
-              <span className="font-mono font-medium">0.00 AI3 (0.00%)</span>
+              <span className="text-label text-muted-foreground">Your Current Stake:</span>
+              <span className="text-code font-medium">0.00 AI3 (0.00%)</span>
             </div>
           )}
 
           <div className="pt-4 border-t border-border">
-            <div className="space-y-2">
-              <h4 className="font-medium text-foreground">Storage Fund Information</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="stack-sm">
+              <h4 className="text-h4">Storage Fund Information</h4>
+              <p className="text-body-small text-muted-foreground">
                 20% of your stake supports network infrastructure through the storage fund. This
                 helps maintain the network's data availability and consensus mechanism.
               </p>
@@ -82,9 +82,9 @@ export const OperatorStakingInfo: React.FC<OperatorStakingInfoProps> = ({
           </div>
 
           <div className="pt-4 border-t border-border">
-            <div className="space-y-2">
-              <h4 className="font-medium text-foreground">Stake Activation</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="stack-sm">
+              <h4 className="text-h4">Stake Activation</h4>
+              <p className="text-body-small text-muted-foreground">
                 New stakes are activated in the next epoch. Your rewards will start accumulating
                 once your stake becomes active in the consensus process.
               </p>

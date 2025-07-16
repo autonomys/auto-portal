@@ -27,17 +27,17 @@ export const OperatorPoolStats: React.FC<OperatorPoolStatsProps> = ({ operator }
   ];
 
   return (
-    <Card className="mb-6">
+    <Card>
       <CardHeader>
-        <CardTitle>Pool Statistics</CardTitle>
+        <CardTitle className="text-h3">Pool Statistics</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map(stat => (
             <div key={stat.label} className="text-center">
-              <div className="text-2xl font-mono font-bold text-foreground mb-1">{stat.value}</div>
-              <div className="text-sm font-medium text-foreground mb-1">{stat.label}</div>
-              <div className="text-xs text-muted-foreground">{stat.description}</div>
+              <div className="text-2xl font-bold text-code mb-1">{stat.value}</div>
+              <div className="text-label mb-1">{stat.label}</div>
+              <div className="text-caption">{stat.description}</div>
             </div>
           ))}
         </div>

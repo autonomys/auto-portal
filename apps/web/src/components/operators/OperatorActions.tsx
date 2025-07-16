@@ -28,19 +28,29 @@ export const OperatorActions: React.FC<OperatorActionsProps> = ({ operator, user
     <Card>
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button className="flex-1" onClick={handleStake} disabled={!isOperatorActive} size="lg">
+          <Button
+            className="flex-1 font-sans"
+            onClick={handleStake}
+            disabled={!isOperatorActive}
+            size="lg"
+          >
             {hasPosition ? 'Add More Stake' : 'Stake to this Operator'}
           </Button>
 
           {hasPosition && (
-            <Button variant="outline" className="flex-1" onClick={handleWithdraw} size="lg">
+            <Button
+              variant="outline"
+              className="flex-1 font-sans"
+              onClick={handleWithdraw}
+              size="lg"
+            >
               Withdraw
             </Button>
           )}
         </div>
 
         {!isOperatorActive && (
-          <p className="text-sm text-muted-foreground mt-3 text-center">
+          <p className="text-body-small text-muted-foreground mt-3 text-center">
             This operator is currently {operator.status} and not accepting new stakes.
           </p>
         )}
