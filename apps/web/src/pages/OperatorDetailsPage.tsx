@@ -7,8 +7,6 @@ import { useOperatorDetails } from '@/hooks/use-operator-details';
 import { useOperatorPosition } from '@/hooks/use-positions';
 import {
   OperatorDetailsHeader,
-  OperatorPoolStats,
-  OperatorStakingInfo,
   OperatorActions,
   OperatorDetailsLoading,
 } from '@/components/operators';
@@ -78,16 +76,14 @@ export const OperatorDetailsPage: React.FC = () => {
           Operators
         </Button>
         <div className="h-6 w-px bg-border" />
-        <h1 className="text-h2 font-semibold">{operator.name}</h1>
+        <h1 className="text-xl font-serif font-semibold text-foreground">{operator.name}</h1>
       </div>
 
-      {/* Operator Details */}
-      <div className="stack-lg">
-        <OperatorDetailsHeader operator={operator} />
-        <OperatorPoolStats operator={operator} />
-        <OperatorStakingInfo operator={operator} userPosition={position} />
-        <OperatorActions operator={operator} userPosition={position} />
-      </div>
+      {/* Operator Summary - Consolidated into single card */}
+      <OperatorDetailsHeader operator={operator} userPosition={position} />
+
+      {/* Actions */}
+      <OperatorActions operator={operator} userPosition={position} />
     </div>
   );
 };

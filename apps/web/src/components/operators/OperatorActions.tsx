@@ -44,14 +44,15 @@ export const OperatorActions: React.FC<OperatorActionsProps> = ({ operator, user
               onClick={handleWithdraw}
               size="lg"
             >
-              Withdraw
+              Withdraw Stake
             </Button>
           )}
         </div>
 
         {!isOperatorActive && (
-          <p className="text-body-small text-muted-foreground mt-3 text-center">
-            This operator is currently {operator.status} and not accepting new stakes.
+          <p className="text-body-small text-muted-foreground mt-4 text-center">
+            This operator is currently <span className="font-medium">{operator.status}</span> and
+            not accepting new stakes.
           </p>
         )}
       </CardContent>
