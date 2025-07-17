@@ -1,0 +1,176 @@
+# To improve query performance, we strongly suggest adding indexes to any field that you plan to filter or sort by
+# Add the `@index` or `@index(unique: true)` annotation after any non-key field
+# https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
+
+# Events driven entities
+
+type RuntimeCreation @entity {
+  id: ID!
+  name: String!
+  type: String!
+  createdBy: String!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+}
+
+type DomainInstantiation @entity {
+  id: ID!
+  name: String!
+  runtimeId: Int!
+  runtime: String!
+  runtimeInfo: String!
+  createdBy: String!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+}
+
+type OperatorRegistration @entity {
+  id: ID!
+  owner: String!
+  domainId: String!
+  signingKey: String!
+  minimumNominatorStake: BigInt!
+  nominationTax: Int!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+type OperatorReward @entity {
+  id: ID!
+  domainId: String!
+  operatorId: String!
+  amount: BigInt!
+  atBlockNumber: BigInt!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+type OperatorTaxCollection @entity {
+  id: ID!
+  domainId: String!
+  operatorId: String!
+  amount: BigInt!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+type BundleSubmission @entity {
+  id: ID!
+  proposer: String!
+  bundleId: String!
+  domainId: String!
+  operatorId: String!
+  domainBlockNumber: BigInt!
+  epoch: BigInt!
+  consensusBlockNumber: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  blockHeight: BigInt!
+  processed: Boolean! @index
+}
+
+type UnlockedEvent @entity {
+  id: ID!
+  domainId: String!
+  operatorId: String!
+  address: String!
+  nominatorId: String!
+  amount: BigInt!
+  storageFee: BigInt!
+  timestamp: Date!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+type NominatorsUnlockedEvent @entity {
+  id: ID!
+  domainId: String!
+  operatorId: String!
+  address: String! @index
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+type OperatorDeregistration @entity {
+  id: ID!
+  owner: String!
+  domainId: String!
+  blockHeight: BigInt!
+  extrinsicId: String!
+  eventId: String!
+  processed: Boolean! @index
+}
+
+
+type OperatorEpochSharePrice @entity {
+  id: ID! # Format: operatorId-domainId-epochIndex
+  operatorId: String! @index
+  domainId: String! @index
+  epochIndex: Int! @index
+  sharePrice: BigInt!
+  totalStake: BigInt!
+  totalShares: BigInt!
+  timestamp: Date!
+  blockHeight: BigInt!
+}
+
+type NominatorDeposit @entity {
+  id: ID!
+  address: String! @index
+  operatorId: String! @index
+  domainId: String! @index
+  knownShares: BigInt!
+  knownStorageFeeDeposit: BigInt!
+  pendingAmount: BigInt!
+  pendingStorageFeeDeposit: BigInt!
+  pendingEffectiveDomainEpoch: BigInt!
+  extrinsicIds: String!
+  eventIds: String!
+  timestamp: Date!
+  blockHeights: String!
+  blockHeight: BigInt!
+  processed: Boolean! @index
+}
+
+type NominatorWithdrawal @entity {
+  id: ID!
+  address: String! @index
+  operatorId: String! @index
+  domainId: String! @index
+  withdrawalInSharesAmount: BigInt!
+  withdrawalInSharesStorageFeeRefund: BigInt!
+  withdrawalInSharesDomainEpoch: String!
+  withdrawalInSharesUnlockBlock: BigInt!
+  totalWithdrawalAmount: BigInt!
+  totalStorageFeeWithdrawal: BigInt!
+  withdrawalsJson: String!
+  totalPendingWithdrawals: BigInt!
+  extrinsicIds: String!
+  eventIds: String!
+  timestamp: Date!
+  blockHeight: BigInt!
+  blockHeights: String!
+  processed: Boolean! @index
+
+}
+
+type StorageFundAccount @entity {
+  id: ID!
+  operatorId: String! @index
+  address: String!
+  balance: BigInt!
+  timestamp: Date!
+  blockHeight: BigInt!
+}
