@@ -4,15 +4,9 @@ import assert from 'assert';
 
 
 
-export type OperatorRewardProps = Omit<OperatorReward, NonNullable<FunctionPropertyNames<OperatorReward>> | '_name'>;
+export type OperatorRewardProps = Omit<OperatorReward, NonNullable<FunctionPropertyNames<OperatorReward>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatOperatorRewardProps = Omit<OperatorRewardProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class OperatorReward implements CompatEntity {
+export class OperatorReward implements Entity {
 
     constructor(
         
@@ -24,6 +18,7 @@ export class OperatorReward implements CompatEntity {
         blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        processed: boolean,
     ) {
         this.id = id;
         this.domainId = domainId;
@@ -33,6 +28,7 @@ export class OperatorReward implements CompatEntity {
         this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.processed = processed;
         
     }
 
@@ -44,31 +40,37 @@ export class OperatorReward implements CompatEntity {
     public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'OperatorReward';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save OperatorReward entity without an ID");
-        await store.set('OperatorReward', id.toString(), this as unknown as CompatOperatorRewardProps);
+        await store.set('OperatorReward', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove OperatorReward entity without an ID");
         await store.remove('OperatorReward', id.toString());
     }
 
-    static async get(id: string): Promise<OperatorReward | undefined> {
+    static async get(id:string): Promise<OperatorReward | undefined>{
         assert((id !== null && id !== undefined), "Cannot get OperatorReward entity without an ID");
         const record = await store.get('OperatorReward', id.toString());
         if (record) {
-            return this.create(record as unknown as OperatorRewardProps);
+            return this.create(record as OperatorRewardProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<OperatorReward[] | undefined>{
+      const records = await store.getByField('OperatorReward', 'processed', processed);
+      return records.map(record => this.create(record as OperatorRewardProps));
     }
 
 
@@ -77,14 +79,14 @@ export class OperatorReward implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<OperatorRewardProps>[], options: GetOptions<OperatorRewardProps>): Promise<OperatorReward[]> {
-        const records = await store.getByFields<CompatOperatorRewardProps>('OperatorReward', filter  as unknown as FieldsExpression<CompatOperatorRewardProps>[], options as unknown as GetOptions<CompatOperatorRewardProps>);
-        return records.map(record => this.create(record as unknown as OperatorRewardProps));
+    static async getByFields(filter: FieldsExpression<OperatorRewardProps>[], options?: GetOptions<OperatorRewardProps>): Promise<OperatorReward[]> {
+        const records = await store.getByFields('OperatorReward', filter, options);
+        return records.map(record => this.create(record as OperatorRewardProps));
     }
 
     static create(record: OperatorRewardProps): OperatorReward {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
             record.domainId,
             record.operatorId,
@@ -93,6 +95,7 @@ export class OperatorReward implements CompatEntity {
             record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;

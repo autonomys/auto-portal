@@ -4,128 +4,82 @@ import assert from 'assert';
 
 
 
-export type BundleSubmissionProps = Omit<BundleSubmission, NonNullable<FunctionPropertyNames<BundleSubmission>> | '_name'>;
+export type BundleSubmissionProps = Omit<BundleSubmission, NonNullable<FunctionPropertyNames<BundleSubmission>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatBundleSubmissionProps = Omit<BundleSubmissionProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class BundleSubmission implements CompatEntity {
+export class BundleSubmission implements Entity {
 
     constructor(
         
         id: string,
-        accountId: string,
+        proposer: string,
         bundleId: string,
         domainId: string,
-        domainBlockId: string,
         operatorId: string,
         domainBlockNumber: bigint,
-        domainBlockHash: string,
-        domainBlockExtrinsicRoot: string,
         epoch: bigint,
         consensusBlockNumber: bigint,
-        consensusBlockHash: string,
-        totalTransfersIn: bigint,
-        transfersInCount: bigint,
-        totalTransfersOut: bigint,
-        transfersOutCount: bigint,
-        totalRejectedTransfersClaimed: bigint,
-        rejectedTransfersClaimedCount: bigint,
-        totalTransfersRejected: bigint,
-        transfersRejectedCount: bigint,
-        totalVolume: bigint,
-        consensusStorageFee: bigint,
-        domainExecutionFee: bigint,
-        burnedBalance: bigint,
-        blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        blockHeight: bigint,
+        processed: boolean,
     ) {
         this.id = id;
-        this.accountId = accountId;
+        this.proposer = proposer;
         this.bundleId = bundleId;
         this.domainId = domainId;
-        this.domainBlockId = domainBlockId;
         this.operatorId = operatorId;
         this.domainBlockNumber = domainBlockNumber;
-        this.domainBlockHash = domainBlockHash;
-        this.domainBlockExtrinsicRoot = domainBlockExtrinsicRoot;
         this.epoch = epoch;
         this.consensusBlockNumber = consensusBlockNumber;
-        this.consensusBlockHash = consensusBlockHash;
-        this.totalTransfersIn = totalTransfersIn;
-        this.transfersInCount = transfersInCount;
-        this.totalTransfersOut = totalTransfersOut;
-        this.transfersOutCount = transfersOutCount;
-        this.totalRejectedTransfersClaimed = totalRejectedTransfersClaimed;
-        this.rejectedTransfersClaimedCount = rejectedTransfersClaimedCount;
-        this.totalTransfersRejected = totalTransfersRejected;
-        this.transfersRejectedCount = transfersRejectedCount;
-        this.totalVolume = totalVolume;
-        this.consensusStorageFee = consensusStorageFee;
-        this.domainExecutionFee = domainExecutionFee;
-        this.burnedBalance = burnedBalance;
-        this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.blockHeight = blockHeight;
+        this.processed = processed;
         
     }
 
     public id: string;
-    public accountId: string;
+    public proposer: string;
     public bundleId: string;
     public domainId: string;
-    public domainBlockId: string;
     public operatorId: string;
     public domainBlockNumber: bigint;
-    public domainBlockHash: string;
-    public domainBlockExtrinsicRoot: string;
     public epoch: bigint;
     public consensusBlockNumber: bigint;
-    public consensusBlockHash: string;
-    public totalTransfersIn: bigint;
-    public transfersInCount: bigint;
-    public totalTransfersOut: bigint;
-    public transfersOutCount: bigint;
-    public totalRejectedTransfersClaimed: bigint;
-    public rejectedTransfersClaimedCount: bigint;
-    public totalTransfersRejected: bigint;
-    public transfersRejectedCount: bigint;
-    public totalVolume: bigint;
-    public consensusStorageFee: bigint;
-    public domainExecutionFee: bigint;
-    public burnedBalance: bigint;
-    public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public blockHeight: bigint;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'BundleSubmission';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save BundleSubmission entity without an ID");
-        await store.set('BundleSubmission', id.toString(), this as unknown as CompatBundleSubmissionProps);
+        await store.set('BundleSubmission', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove BundleSubmission entity without an ID");
         await store.remove('BundleSubmission', id.toString());
     }
 
-    static async get(id: string): Promise<BundleSubmission | undefined> {
+    static async get(id:string): Promise<BundleSubmission | undefined>{
         assert((id !== null && id !== undefined), "Cannot get BundleSubmission entity without an ID");
         const record = await store.get('BundleSubmission', id.toString());
         if (record) {
-            return this.create(record as unknown as BundleSubmissionProps);
+            return this.create(record as BundleSubmissionProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<BundleSubmission[] | undefined>{
+      const records = await store.getByField('BundleSubmission', 'processed', processed);
+      return records.map(record => this.create(record as BundleSubmissionProps));
     }
 
 
@@ -134,41 +88,26 @@ export class BundleSubmission implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<BundleSubmissionProps>[], options: GetOptions<BundleSubmissionProps>): Promise<BundleSubmission[]> {
-        const records = await store.getByFields<CompatBundleSubmissionProps>('BundleSubmission', filter  as unknown as FieldsExpression<CompatBundleSubmissionProps>[], options as unknown as GetOptions<CompatBundleSubmissionProps>);
-        return records.map(record => this.create(record as unknown as BundleSubmissionProps));
+    static async getByFields(filter: FieldsExpression<BundleSubmissionProps>[], options?: GetOptions<BundleSubmissionProps>): Promise<BundleSubmission[]> {
+        const records = await store.getByFields('BundleSubmission', filter, options);
+        return records.map(record => this.create(record as BundleSubmissionProps));
     }
 
     static create(record: BundleSubmissionProps): BundleSubmission {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
-            record.accountId,
+            record.proposer,
             record.bundleId,
             record.domainId,
-            record.domainBlockId,
             record.operatorId,
             record.domainBlockNumber,
-            record.domainBlockHash,
-            record.domainBlockExtrinsicRoot,
             record.epoch,
             record.consensusBlockNumber,
-            record.consensusBlockHash,
-            record.totalTransfersIn,
-            record.transfersInCount,
-            record.totalTransfersOut,
-            record.transfersOutCount,
-            record.totalRejectedTransfersClaimed,
-            record.rejectedTransfersClaimedCount,
-            record.totalTransfersRejected,
-            record.transfersRejectedCount,
-            record.totalVolume,
-            record.consensusStorageFee,
-            record.domainExecutionFee,
-            record.burnedBalance,
-            record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.blockHeight,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;

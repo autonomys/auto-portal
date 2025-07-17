@@ -8,10 +8,6 @@ export {DomainInstantiation} from "./DomainInstantiation"
 
 export {OperatorRegistration} from "./OperatorRegistration"
 
-export {DepositEvent} from "./DepositEvent"
-
-export {WithdrawEvent} from "./WithdrawEvent"
-
 export {OperatorReward} from "./OperatorReward"
 
 export {OperatorTaxCollection} from "./OperatorTaxCollection"
@@ -24,9 +20,11 @@ export {NominatorsUnlockedEvent} from "./NominatorsUnlockedEvent"
 
 export {OperatorDeregistration} from "./OperatorDeregistration"
 
-export {DomainBlockHistory} from "./DomainBlockHistory"
+export {OperatorEpochSharePrice} from "./OperatorEpochSharePrice"
 
-export {DomainStakingHistory} from "./DomainStakingHistory"
+export {NominatorDeposit} from "./NominatorDeposit"
 
-export {OperatorStakingHistory} from "./OperatorStakingHistory"
+export {NominatorWithdrawal} from "./NominatorWithdrawal"
+
+export {StorageFundAccount} from "./StorageFundAccount"
 

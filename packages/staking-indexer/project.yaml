@@ -5,20 +5,17 @@ name: autonomys-staking
 description: Autonomys Network - Staking
 runner:
   node:
-    name: "@subql/node"
-    version: ">=5.2.9"
+    name: '@subql/node'
+    version: '>=5.2.9'
   query:
-    name: "@subql/query"
-    version: "*"
+    name: '@subql/query'
+    version: '*'
 schema:
   file: ./schema.graphql
-network:
-  chainId: "0x296aab9fb53eeb37a1757b35ed4c4b6c6f903d6b996cf7cd908a753f6eb762d5"
-  endpoint:
-    - ws://node:9944
+network: {}
 dataSources:
   - kind: substrate/Runtime
-    startBlock: 402030
+    startBlock: null
     mapping:
       file: ./dist/index.js
       handlers:

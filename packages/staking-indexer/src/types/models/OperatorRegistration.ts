@@ -4,20 +4,13 @@ import assert from 'assert';
 
 
 
-export type OperatorRegistrationProps = Omit<OperatorRegistration, NonNullable<FunctionPropertyNames<OperatorRegistration>> | '_name'>;
+export type OperatorRegistrationProps = Omit<OperatorRegistration, NonNullable<FunctionPropertyNames<OperatorRegistration>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatOperatorRegistrationProps = Omit<OperatorRegistrationProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class OperatorRegistration implements CompatEntity {
+export class OperatorRegistration implements Entity {
 
     constructor(
         
         id: string,
-        sortId: string,
         owner: string,
         domainId: string,
         signingKey: string,
@@ -26,9 +19,9 @@ export class OperatorRegistration implements CompatEntity {
         blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        processed: boolean,
     ) {
         this.id = id;
-        this.sortId = sortId;
         this.owner = owner;
         this.domainId = domainId;
         this.signingKey = signingKey;
@@ -37,11 +30,11 @@ export class OperatorRegistration implements CompatEntity {
         this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.processed = processed;
         
     }
 
     public id: string;
-    public sortId: string;
     public owner: string;
     public domainId: string;
     public signingKey: string;
@@ -50,31 +43,37 @@ export class OperatorRegistration implements CompatEntity {
     public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'OperatorRegistration';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save OperatorRegistration entity without an ID");
-        await store.set('OperatorRegistration', id.toString(), this as unknown as CompatOperatorRegistrationProps);
+        await store.set('OperatorRegistration', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove OperatorRegistration entity without an ID");
         await store.remove('OperatorRegistration', id.toString());
     }
 
-    static async get(id: string): Promise<OperatorRegistration | undefined> {
+    static async get(id:string): Promise<OperatorRegistration | undefined>{
         assert((id !== null && id !== undefined), "Cannot get OperatorRegistration entity without an ID");
         const record = await store.get('OperatorRegistration', id.toString());
         if (record) {
-            return this.create(record as unknown as OperatorRegistrationProps);
+            return this.create(record as OperatorRegistrationProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<OperatorRegistration[] | undefined>{
+      const records = await store.getByField('OperatorRegistration', 'processed', processed);
+      return records.map(record => this.create(record as OperatorRegistrationProps));
     }
 
 
@@ -83,16 +82,15 @@ export class OperatorRegistration implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<OperatorRegistrationProps>[], options: GetOptions<OperatorRegistrationProps>): Promise<OperatorRegistration[]> {
-        const records = await store.getByFields<CompatOperatorRegistrationProps>('OperatorRegistration', filter  as unknown as FieldsExpression<CompatOperatorRegistrationProps>[], options as unknown as GetOptions<CompatOperatorRegistrationProps>);
-        return records.map(record => this.create(record as unknown as OperatorRegistrationProps));
+    static async getByFields(filter: FieldsExpression<OperatorRegistrationProps>[], options?: GetOptions<OperatorRegistrationProps>): Promise<OperatorRegistration[]> {
+        const records = await store.getByFields('OperatorRegistration', filter, options);
+        return records.map(record => this.create(record as OperatorRegistrationProps));
     }
 
     static create(record: OperatorRegistrationProps): OperatorRegistration {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
-            record.sortId,
             record.owner,
             record.domainId,
             record.signingKey,
@@ -101,6 +99,7 @@ export class OperatorRegistration implements CompatEntity {
             record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;

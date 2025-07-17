@@ -4,20 +4,13 @@ import assert from 'assert';
 
 
 
-export type RuntimeCreationProps = Omit<RuntimeCreation, NonNullable<FunctionPropertyNames<RuntimeCreation>> | '_name'>;
+export type RuntimeCreationProps = Omit<RuntimeCreation, NonNullable<FunctionPropertyNames<RuntimeCreation>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatRuntimeCreationProps = Omit<RuntimeCreationProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class RuntimeCreation implements CompatEntity {
+export class RuntimeCreation implements Entity {
 
     constructor(
         
         id: string,
-        sortId: string,
         name: string,
         type: string,
         createdBy: string,
@@ -26,7 +19,6 @@ export class RuntimeCreation implements CompatEntity {
         eventId: string,
     ) {
         this.id = id;
-        this.sortId = sortId;
         this.name = name;
         this.type = type;
         this.createdBy = createdBy;
@@ -37,7 +29,6 @@ export class RuntimeCreation implements CompatEntity {
     }
 
     public id: string;
-    public sortId: string;
     public name: string;
     public type: string;
     public createdBy: string;
@@ -50,22 +41,22 @@ export class RuntimeCreation implements CompatEntity {
         return 'RuntimeCreation';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save RuntimeCreation entity without an ID");
-        await store.set('RuntimeCreation', id.toString(), this as unknown as CompatRuntimeCreationProps);
+        await store.set('RuntimeCreation', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove RuntimeCreation entity without an ID");
         await store.remove('RuntimeCreation', id.toString());
     }
 
-    static async get(id: string): Promise<RuntimeCreation | undefined> {
+    static async get(id:string): Promise<RuntimeCreation | undefined>{
         assert((id !== null && id !== undefined), "Cannot get RuntimeCreation entity without an ID");
         const record = await store.get('RuntimeCreation', id.toString());
         if (record) {
-            return this.create(record as unknown as RuntimeCreationProps);
+            return this.create(record as RuntimeCreationProps);
         } else {
             return;
         }
@@ -77,16 +68,15 @@ export class RuntimeCreation implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<RuntimeCreationProps>[], options: GetOptions<RuntimeCreationProps>): Promise<RuntimeCreation[]> {
-        const records = await store.getByFields<CompatRuntimeCreationProps>('RuntimeCreation', filter  as unknown as FieldsExpression<CompatRuntimeCreationProps>[], options as unknown as GetOptions<CompatRuntimeCreationProps>);
-        return records.map(record => this.create(record as unknown as RuntimeCreationProps));
+    static async getByFields(filter: FieldsExpression<RuntimeCreationProps>[], options?: GetOptions<RuntimeCreationProps>): Promise<RuntimeCreation[]> {
+        const records = await store.getByFields('RuntimeCreation', filter, options);
+        return records.map(record => this.create(record as RuntimeCreationProps));
     }
 
     static create(record: RuntimeCreationProps): RuntimeCreation {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
-            record.sortId,
             record.name,
             record.type,
             record.createdBy,

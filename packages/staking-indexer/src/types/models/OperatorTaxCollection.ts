@@ -4,15 +4,9 @@ import assert from 'assert';
 
 
 
-export type OperatorTaxCollectionProps = Omit<OperatorTaxCollection, NonNullable<FunctionPropertyNames<OperatorTaxCollection>> | '_name'>;
+export type OperatorTaxCollectionProps = Omit<OperatorTaxCollection, NonNullable<FunctionPropertyNames<OperatorTaxCollection>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatOperatorTaxCollectionProps = Omit<OperatorTaxCollectionProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class OperatorTaxCollection implements CompatEntity {
+export class OperatorTaxCollection implements Entity {
 
     constructor(
         
@@ -23,6 +17,7 @@ export class OperatorTaxCollection implements CompatEntity {
         blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        processed: boolean,
     ) {
         this.id = id;
         this.domainId = domainId;
@@ -31,6 +26,7 @@ export class OperatorTaxCollection implements CompatEntity {
         this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.processed = processed;
         
     }
 
@@ -41,31 +37,37 @@ export class OperatorTaxCollection implements CompatEntity {
     public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'OperatorTaxCollection';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save OperatorTaxCollection entity without an ID");
-        await store.set('OperatorTaxCollection', id.toString(), this as unknown as CompatOperatorTaxCollectionProps);
+        await store.set('OperatorTaxCollection', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove OperatorTaxCollection entity without an ID");
         await store.remove('OperatorTaxCollection', id.toString());
     }
 
-    static async get(id: string): Promise<OperatorTaxCollection | undefined> {
+    static async get(id:string): Promise<OperatorTaxCollection | undefined>{
         assert((id !== null && id !== undefined), "Cannot get OperatorTaxCollection entity without an ID");
         const record = await store.get('OperatorTaxCollection', id.toString());
         if (record) {
-            return this.create(record as unknown as OperatorTaxCollectionProps);
+            return this.create(record as OperatorTaxCollectionProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<OperatorTaxCollection[] | undefined>{
+      const records = await store.getByField('OperatorTaxCollection', 'processed', processed);
+      return records.map(record => this.create(record as OperatorTaxCollectionProps));
     }
 
 
@@ -74,14 +76,14 @@ export class OperatorTaxCollection implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<OperatorTaxCollectionProps>[], options: GetOptions<OperatorTaxCollectionProps>): Promise<OperatorTaxCollection[]> {
-        const records = await store.getByFields<CompatOperatorTaxCollectionProps>('OperatorTaxCollection', filter  as unknown as FieldsExpression<CompatOperatorTaxCollectionProps>[], options as unknown as GetOptions<CompatOperatorTaxCollectionProps>);
-        return records.map(record => this.create(record as unknown as OperatorTaxCollectionProps));
+    static async getByFields(filter: FieldsExpression<OperatorTaxCollectionProps>[], options?: GetOptions<OperatorTaxCollectionProps>): Promise<OperatorTaxCollection[]> {
+        const records = await store.getByFields('OperatorTaxCollection', filter, options);
+        return records.map(record => this.create(record as OperatorTaxCollectionProps));
     }
 
     static create(record: OperatorTaxCollectionProps): OperatorTaxCollection {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
             record.domainId,
             record.operatorId,
@@ -89,6 +91,7 @@ export class OperatorTaxCollection implements CompatEntity {
             record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;

@@ -4,15 +4,9 @@ import assert from 'assert';
 
 
 
-export type OperatorDeregistrationProps = Omit<OperatorDeregistration, NonNullable<FunctionPropertyNames<OperatorDeregistration>> | '_name'>;
+export type OperatorDeregistrationProps = Omit<OperatorDeregistration, NonNullable<FunctionPropertyNames<OperatorDeregistration>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatOperatorDeregistrationProps = Omit<OperatorDeregistrationProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class OperatorDeregistration implements CompatEntity {
+export class OperatorDeregistration implements Entity {
 
     constructor(
         
@@ -22,6 +16,7 @@ export class OperatorDeregistration implements CompatEntity {
         blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        processed: boolean,
     ) {
         this.id = id;
         this.owner = owner;
@@ -29,6 +24,7 @@ export class OperatorDeregistration implements CompatEntity {
         this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.processed = processed;
         
     }
 
@@ -38,31 +34,37 @@ export class OperatorDeregistration implements CompatEntity {
     public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'OperatorDeregistration';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save OperatorDeregistration entity without an ID");
-        await store.set('OperatorDeregistration', id.toString(), this as unknown as CompatOperatorDeregistrationProps);
+        await store.set('OperatorDeregistration', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove OperatorDeregistration entity without an ID");
         await store.remove('OperatorDeregistration', id.toString());
     }
 
-    static async get(id: string): Promise<OperatorDeregistration | undefined> {
+    static async get(id:string): Promise<OperatorDeregistration | undefined>{
         assert((id !== null && id !== undefined), "Cannot get OperatorDeregistration entity without an ID");
         const record = await store.get('OperatorDeregistration', id.toString());
         if (record) {
-            return this.create(record as unknown as OperatorDeregistrationProps);
+            return this.create(record as OperatorDeregistrationProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<OperatorDeregistration[] | undefined>{
+      const records = await store.getByField('OperatorDeregistration', 'processed', processed);
+      return records.map(record => this.create(record as OperatorDeregistrationProps));
     }
 
 
@@ -71,20 +73,21 @@ export class OperatorDeregistration implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<OperatorDeregistrationProps>[], options: GetOptions<OperatorDeregistrationProps>): Promise<OperatorDeregistration[]> {
-        const records = await store.getByFields<CompatOperatorDeregistrationProps>('OperatorDeregistration', filter  as unknown as FieldsExpression<CompatOperatorDeregistrationProps>[], options as unknown as GetOptions<CompatOperatorDeregistrationProps>);
-        return records.map(record => this.create(record as unknown as OperatorDeregistrationProps));
+    static async getByFields(filter: FieldsExpression<OperatorDeregistrationProps>[], options?: GetOptions<OperatorDeregistrationProps>): Promise<OperatorDeregistration[]> {
+        const records = await store.getByFields('OperatorDeregistration', filter, options);
+        return records.map(record => this.create(record as OperatorDeregistrationProps));
     }
 
     static create(record: OperatorDeregistrationProps): OperatorDeregistration {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
             record.owner,
             record.domainId,
             record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;

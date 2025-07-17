@@ -4,22 +4,16 @@ import assert from 'assert';
 
 
 
-export type UnlockedEventProps = Omit<UnlockedEvent, NonNullable<FunctionPropertyNames<UnlockedEvent>> | '_name'>;
+export type UnlockedEventProps = Omit<UnlockedEvent, NonNullable<FunctionPropertyNames<UnlockedEvent>>| '_name'>;
 
-/*
- * Compat types allows for support of alternative `id` types without refactoring the node
- */
-type CompatUnlockedEventProps = Omit<UnlockedEventProps, 'id'> & { id: string; };
-type CompatEntity = Omit<Entity, 'id'> & { id: string; };
-
-export class UnlockedEvent implements CompatEntity {
+export class UnlockedEvent implements Entity {
 
     constructor(
         
         id: string,
         domainId: string,
         operatorId: string,
-        accountId: string,
+        address: string,
         nominatorId: string,
         amount: bigint,
         storageFee: bigint,
@@ -27,11 +21,12 @@ export class UnlockedEvent implements CompatEntity {
         blockHeight: bigint,
         extrinsicId: string,
         eventId: string,
+        processed: boolean,
     ) {
         this.id = id;
         this.domainId = domainId;
         this.operatorId = operatorId;
-        this.accountId = accountId;
+        this.address = address;
         this.nominatorId = nominatorId;
         this.amount = amount;
         this.storageFee = storageFee;
@@ -39,13 +34,14 @@ export class UnlockedEvent implements CompatEntity {
         this.blockHeight = blockHeight;
         this.extrinsicId = extrinsicId;
         this.eventId = eventId;
+        this.processed = processed;
         
     }
 
     public id: string;
     public domainId: string;
     public operatorId: string;
-    public accountId: string;
+    public address: string;
     public nominatorId: string;
     public amount: bigint;
     public storageFee: bigint;
@@ -53,31 +49,37 @@ export class UnlockedEvent implements CompatEntity {
     public blockHeight: bigint;
     public extrinsicId: string;
     public eventId: string;
+    public processed: boolean;
     
 
     get _name(): string {
         return 'UnlockedEvent';
     }
 
-    async save(): Promise<void> {
-        const id = this.id;
+    async save(): Promise<void>{
+        let id = this.id;
         assert(id !== null, "Cannot save UnlockedEvent entity without an ID");
-        await store.set('UnlockedEvent', id.toString(), this as unknown as CompatUnlockedEventProps);
+        await store.set('UnlockedEvent', id.toString(), this);
     }
 
-    static async remove(id: string): Promise<void> {
+    static async remove(id:string): Promise<void>{
         assert(id !== null, "Cannot remove UnlockedEvent entity without an ID");
         await store.remove('UnlockedEvent', id.toString());
     }
 
-    static async get(id: string): Promise<UnlockedEvent | undefined> {
+    static async get(id:string): Promise<UnlockedEvent | undefined>{
         assert((id !== null && id !== undefined), "Cannot get UnlockedEvent entity without an ID");
         const record = await store.get('UnlockedEvent', id.toString());
         if (record) {
-            return this.create(record as unknown as UnlockedEventProps);
+            return this.create(record as UnlockedEventProps);
         } else {
             return;
         }
+    }
+
+    static async getByProcessed(processed: boolean): Promise<UnlockedEvent[] | undefined>{
+      const records = await store.getByField('UnlockedEvent', 'processed', processed);
+      return records.map(record => this.create(record as UnlockedEventProps));
     }
 
 
@@ -86,18 +88,18 @@ export class UnlockedEvent implements CompatEntity {
      *
      * ⚠️ This function will first search cache data followed by DB data. Please consider this when using order and offset options.⚠️
      * */
-    static async getByFields(filter: FieldsExpression<UnlockedEventProps>[], options: GetOptions<UnlockedEventProps>): Promise<UnlockedEvent[]> {
-        const records = await store.getByFields<CompatUnlockedEventProps>('UnlockedEvent', filter  as unknown as FieldsExpression<CompatUnlockedEventProps>[], options as unknown as GetOptions<CompatUnlockedEventProps>);
-        return records.map(record => this.create(record as unknown as UnlockedEventProps));
+    static async getByFields(filter: FieldsExpression<UnlockedEventProps>[], options?: GetOptions<UnlockedEventProps>): Promise<UnlockedEvent[]> {
+        const records = await store.getByFields('UnlockedEvent', filter, options);
+        return records.map(record => this.create(record as UnlockedEventProps));
     }
 
     static create(record: UnlockedEventProps): UnlockedEvent {
-        assert(record.id !== undefined && record.id !== null, "id must be provided");
-        const entity = new this(
+        assert(typeof record.id === 'string', "id must be provided");
+        let entity = new this(
             record.id,
             record.domainId,
             record.operatorId,
-            record.accountId,
+            record.address,
             record.nominatorId,
             record.amount,
             record.storageFee,
@@ -105,6 +107,7 @@ export class UnlockedEvent implements CompatEntity {
             record.blockHeight,
             record.extrinsicId,
             record.eventId,
+            record.processed,
         );
         Object.assign(entity,record);
         return entity;
