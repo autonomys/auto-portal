@@ -1,17 +1,17 @@
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy workspace configuration from the parent directory (indexers)
-COPY package.json yarn.lock lerna.json ./
-COPY workers/staking-worker/package.json ./workers/staking-worker/package.json
+# Copy package files
+COPY package.json yarn.lock tsconfig.json ./
 
-# Install only production dependencies
-RUN yarn install --frozen-lockfile
+# Install dependencies
+RUN yarn install --frozen-lockfile --production
 
-# Copy pre-built application
-COPY workers/staking-worker/dist ./workers/staking-worker/dist/
+# Copy source code
+COPY src ./src
 
-# Set working directory
-WORKDIR /app/workers/staking-worker
+# Build the application
+RUN yarn build
 
-CMD ["yarn", "start"] 
+# Run the application
+CMD ["node", "dist/main.js"] 

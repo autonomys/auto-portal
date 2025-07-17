@@ -132,7 +132,7 @@ services:
   # Staking Indexer
   staking-indexer:
     build:
-      context: ./staking
+      context: ../../packages/staking-indexer
     depends_on:
       pgcat-staking:
         condition: service_healthy
@@ -154,8 +154,8 @@ services:
   # Staking Worker
   staking-worker:
     build:
-      context: .
-      dockerfile: staking-worker/Dockerfile
+      context: ../../packages/staking-worker
+      dockerfile: Dockerfile
     depends_on:
       pgcat-staking:
         condition: service_healthy
