@@ -1,5 +1,6 @@
 {
-  "buildCommand": "yarn build",
+  "installCommand": "YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
+  "buildCommand": "cd apps/web && yarn install && yarn build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     {

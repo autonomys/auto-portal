@@ -1,0 +1,23 @@
+# Exclude indexer packages from Vercel deployment
+packages/staking-indexer/
+packages/staking-worker/
+infra/
+
+# Development files
+*.log
+.env
+.env.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+node_modules/.cache/ 

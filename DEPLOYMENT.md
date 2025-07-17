@@ -80,8 +80,12 @@ The web frontend is deployed automatically to Vercel:
 1. **Automatic Deployment**: Connected to GitHub, deploys on push to `main`
 2. **Custom Domain**: `auto-portal-web.vercel.app`
 3. **Environment Variables**: Configure in Vercel dashboard
-4. **Build Command**: `yarn build`
+4. **Build Command**: `yarn workspace @auto-portal/web build` (web app only)
 5. **Output Directory**: `apps/web/dist`
+6. **Bundle Optimization**: Automatic code splitting for better performance
+   - Main app bundle: ~741 kB
+   - Polkadot dependencies: ~815 kB (separate chunk)
+   - React/vendor: ~12 kB (separate chunk)
 
 ### Indexer Infrastructure Deployment
 
@@ -208,6 +212,22 @@ The monorepo provides convenient scripts for development:
 - **Indexer Status**: http://localhost:3000
 - **Database**: postgresql://postgres:postgres@localhost:5432/staking
 - **Redis**: redis://localhost:6379
+
+## Vercel Configuration
+
+The project includes optimized Vercel deployment settings:
+
+- **`.vercelignore`**: Excludes indexer packages and infrastructure from deployment
+- **`vercel.json`**: Configures web-only build command and SPA routing
+- **Bundle optimization**: Automatic code splitting for large dependencies
+
+```json
+{
+  "installCommand": "YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
+  "buildCommand": "cd apps/web && yarn install && yarn build",
+  "outputDirectory": "apps/web/dist"
+}
+```
 
 ## Troubleshooting
 
