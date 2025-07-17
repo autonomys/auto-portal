@@ -295,7 +295,7 @@
 
 ### 9.3 Post-Production Enhancements 🎯 READY
 
-- 🎯 **Enhanced Operator Details**: Rich analytics with Astral indexer integration
+- 🎯 **Enhanced Operator Details**: Rich analytics with Auto Portal indexer integration
 - 🎯 **Historical Analytics**: Performance charts and reward tracking
 - 🎯 **Batch Operations**: Multi-operator staking and bulk withdrawals
 - 🎯 **Governance Integration**: Voting with staked tokens

@@ -2,14 +2,14 @@
 
 **Priority:** Medium  
 **Type:** Frontend + GraphQL Integration  
-**Prerequisites:** ✅ Basic Operator Details Page, ✅ Astral Indexer Schema Documentation  
+**Prerequisites:** ✅ Basic Operator Details Page, ✅ Auto Portal Indexer Schema Documentation  
 **Status:** 📋 **READY FOR IMPLEMENTATION** (Requires Indexer Deployment)
 
 ---
 
 ## 📋 Summary
 
-Enhance the operator details page with rich historical analytics and performance metrics using the Astral indexer. This provides users with comprehensive data to evaluate operator performance over time and make informed long-term staking decisions.
+Enhance the operator details page with rich historical analytics and performance metrics using the Auto Portal indexer. This provides users with comprehensive data to evaluate operator performance over time and make informed long-term staking decisions.
 
 **Current State:**
 
@@ -253,11 +253,11 @@ export const useOperatorAnalytics = (operatorId: string, timeRange: string = '30
 
 ---
 
-## 📊 Data Integration with Astral Indexer
+## 📊 Data Integration with Auto Portal Indexer
 
 ### **Required GraphQL Queries**
 
-Based on the [Astral Indexer Schema](../resources/astral-indexer-schema.md):
+Based on the [Auto Portal Indexer Schema](../resources/auto-portal-indexer-schema.md):
 
 - ✅ **OperatorEpochSharePrice** - Historical share price and APR calculations
 - ✅ **OperatorReward** - Reward distribution history and patterns
@@ -427,7 +427,7 @@ const calculateRiskScore = (rewardHistory: RewardData[], uptimeMetrics: UptimeDa
 ## 📚 References
 
 - **[Basic Operator Details](./operator-details-basic.md)** - Foundation implementation
-- **[Astral Indexer Schema](../resources/astral-indexer-schema.md)** - Data source documentation
+- **[Auto Portal Indexer Schema](../resources/auto-portal-indexer-schema.md)** - Data source documentation
 - **[GraphQL Integration Patterns](../technical-architecture.md)** - API integration guidelines
 - **[Chart Component Library](../design-system.md)** - Visualization standards
 

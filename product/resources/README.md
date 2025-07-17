@@ -95,9 +95,9 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Understanding RPC connection patterns
 - Following integration best practices
 
-### `astral-indexer-schema.md`
+### `auto-portal-indexer-schema.md`
 
-**Purpose:** Documentation for Autonomys Astral indexer GraphQL schema  
+**Purpose:** Documentation for Auto Portal indexer GraphQL schema  
 **Contents:**
 
 - Complete entity type documentation
@@ -171,7 +171,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 - Design patterns evolve
 - Auto SDK updates or changes
 - New integration patterns discovered
-- Astral indexer schema changes or additions
+- Auto Portal indexer schema changes or additions
 
 ### How to Update
 
@@ -198,7 +198,7 @@ This folder contains research findings, UX patterns, and insights gathered durin
 
 ### In Current Directory
 
-- `astral-indexer-schema.md` - Indexed data schema documentation
+- `auto-portal-indexer-schema.md` - Indexed data schema documentation
 
 ### External References
 

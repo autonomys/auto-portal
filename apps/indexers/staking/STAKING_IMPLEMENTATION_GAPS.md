@@ -1,24 +1,24 @@
-# Astral Staking Indexer - Implementation Gaps & Action Plan
+# Auto Portal Staking Indexer - Implementation Gaps & Action Plan
 
 ## Overview
 
-This document analyzes the current staking indexer implementation against the Astral Staking specification and identifies critical gaps that need to be addressed to properly display staking information in the Astral explorer.
+This document analyzes the current staking indexer implementation against the Auto Portal Staking specification and identifies critical gaps that need to be addressed to properly display staking information in the Auto Portal.
 
 ## Current Implementation vs. Specification Gaps
 
-| # | Area | Spec Requirement | Current Implementation | Gap/Problem |
-|---|------|------------------|------------------------|-------------|
-| 1 | **Operator-epoch share price** | On every epoch boundary, store `OperatorEpochSharePrice(operatorId, domainId, epoch, sharePrice, totals...)` to enable post-pending deposit/withdrawal evaluation | `detectEpochTransitions` finds boundaries, but we need to read the blocks to get the instant price for each operator | **CRITICAL**: No `OperatorEpochSharePrice` rows are written → impossible to convert pending deposits or withdrawals |
-| 2 | **Deposit state tracking** | Track both `known` and `pending` parts of `domains.Deposits` struct. When epoch ends, lazily convert `pending` → `known` using share price at `pending.effectiveDomainEpoch` | Deposits only captured through events (`OperatorRegistered`/`OperatorNominated` → `DepositEvent`). On-chain state isn't queried, no entity exists for current positions | **CRITICAL**: Cannot compute Current Position, Staked Amount, Storage Fund, Total Reward |
-| 3 | **Withdrawal state tracking** | Track `withdrawalInShares` and `withdrawals[]` list. Value = `shares * share_price + storageFeeRefund`. Use `instant_share_price` if epoch not ended | Optional query of `domains.withdrawals.entries()` exists but only stores raw objects. `WithdrewStake` handler estimates using current share price only | **HIGH**: No entity for outstanding withdrawals. Wrong withdrawal values (especially `withdrawalInShares`) |
-| 4 | **Instant share price** | `instant_share_price = (operator.current_total_stake + taxed_reward) / current_total_shares` where `taxed_reward = currentEpochRewards[op] - nomination_tax * reward` | `OperatorStakingHistory.sharePrice` = `current_total_stake / current_total_shares` (ignores taxed reward). `DomainStakingSummary.currentEpochRewards` map never parsed | **MEDIUM**: Under-estimates share price within epoch → wrong pending withdrawal estimates |
-| 5 | **Storage-fund account** | Needed to compute Storage Fund part of Current Position using `bundle_storage_fund_account.total_balance` | Only logs `storageFeeDeposit` from events. Derived account not stored | **MEDIUM**: Can't calculate nominator's storage-fund value |
-| 6 | **GraphQL schema** | Must expose: `NominatorDeposit` (known, pending, post_pending), `NominatorWithdrawal` (withdrawalInShares, withdrawals list), `StorageFundAccount` balance | Only historical `DepositEvent`/`WithdrawEvent` present | **HIGH**: Front-end has to guess → displayed numbers are wrong |
-| 7 | **Build issues** | Code should compile and run without errors | `utils.detectEpochTransitions()` uses `logger` without import | **LOW**: Build breaks due to missing import |
+| #   | Area                           | Spec Requirement                                                                                                                                                             | Current Implementation                                                                                                                                                  | Gap/Problem                                                                                                         |
+| --- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Operator-epoch share price** | On every epoch boundary, store `OperatorEpochSharePrice(operatorId, domainId, epoch, sharePrice, totals...)` to enable post-pending deposit/withdrawal evaluation            | `detectEpochTransitions` finds boundaries, but we need to read the blocks to get the instant price for each operator                                                    | **CRITICAL**: No `OperatorEpochSharePrice` rows are written → impossible to convert pending deposits or withdrawals |
+| 2   | **Deposit state tracking**     | Track both `known` and `pending` parts of `domains.Deposits` struct. When epoch ends, lazily convert `pending` → `known` using share price at `pending.effectiveDomainEpoch` | Deposits only captured through events (`OperatorRegistered`/`OperatorNominated` → `DepositEvent`). On-chain state isn't queried, no entity exists for current positions | **CRITICAL**: Cannot compute Current Position, Staked Amount, Storage Fund, Total Reward                            |
+| 3   | **Withdrawal state tracking**  | Track `withdrawalInShares` and `withdrawals[]` list. Value = `shares * share_price + storageFeeRefund`. Use `instant_share_price` if epoch not ended                         | Optional query of `domains.withdrawals.entries()` exists but only stores raw objects. `WithdrewStake` handler estimates using current share price only                  | **HIGH**: No entity for outstanding withdrawals. Wrong withdrawal values (especially `withdrawalInShares`)          |
+| 4   | **Instant share price**        | `instant_share_price = (operator.current_total_stake + taxed_reward) / current_total_shares` where `taxed_reward = currentEpochRewards[op] - nomination_tax * reward`        | `OperatorStakingHistory.sharePrice` = `current_total_stake / current_total_shares` (ignores taxed reward). `DomainStakingSummary.currentEpochRewards` map never parsed  | **MEDIUM**: Under-estimates share price within epoch → wrong pending withdrawal estimates                           |
+| 5   | **Storage-fund account**       | Needed to compute Storage Fund part of Current Position using `bundle_storage_fund_account.total_balance`                                                                    | Only logs `storageFeeDeposit` from events. Derived account not stored                                                                                                   | **MEDIUM**: Can't calculate nominator's storage-fund value                                                          |
+| 6   | **GraphQL schema**             | Must expose: `NominatorDeposit` (known, pending, post_pending), `NominatorWithdrawal` (withdrawalInShares, withdrawals list), `StorageFundAccount` balance                   | Only historical `DepositEvent`/`WithdrawEvent` present                                                                                                                  | **HIGH**: Front-end has to guess → displayed numbers are wrong                                                      |
+| 7   | **Build issues**               | Code should compile and run without errors                                                                                                                                   | `utils.detectEpochTransitions()` uses `logger` without import                                                                                                           | **LOW**: Build breaks due to missing import                                                                         |
 
 ## Detailed Action Items
 
-<!-- ### --- DONE --- 1. Fix Operator-Epoch Share Price Indexing ⚠️ **CRITICAL** 
+<!-- ### --- DONE --- 1. Fix Operator-Epoch Share Price Indexing ⚠️ **CRITICAL**
 
 **Problem**: The epoch transition detection exists but share price storage is commented out.
 
@@ -93,10 +93,16 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Current positions are not tracked, only historical events.
 
 **Tasks**:
+
 - [ ] 3.1 Add conditional query in `handleBlock`:
   ```typescript
-  if (extrinsics.some(e => e.method.section === "domains" && 
-      ["nominateOperator", "registerOperator", "withdrawStake"].includes(e.method.method))) {
+  if (
+    extrinsics.some(
+      e =>
+        e.method.section === 'domains' &&
+        ['nominateOperator', 'registerOperator', 'withdrawStake'].includes(e.method.method),
+    )
+  ) {
     query.push(api.query.domains.deposits.entries());
   }
   ```
@@ -112,6 +118,7 @@ This document analyzes the current staking indexer implementation against the As
 - [ ] 3.4 Create/update `NominatorDeposit` entities
 
 **Code locations**:
+
 - `indexers/staking/src/mappings/mappingHandlers.ts:50-60` (query section)
 
 ### 4. Index `domains.withdrawals` State ⚠️ **HIGH**
@@ -119,18 +126,22 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Withdrawal values calculated incorrectly, no entity for current withdrawals.
 
 **Tasks**:
+
 - [ ] 4.1 Enhance existing withdrawal query parsing
 - [ ] 4.2 Implement correct `withdrawalInShares` valuation:
   ```typescript
-  const sharePrice = findOperatorEpochSharePrice(operatorId, withdrawalInShares.domainEpoch) 
-    ?? calculateInstantSharePrice(operatorId, domainId);
-  const value = (withdrawalInShares.shares * sharePrice) / SHARES_CALCULATION_MULTIPLIER 
-    + withdrawalInShares.storageFeeRefund;
+  const sharePrice =
+    findOperatorEpochSharePrice(operatorId, withdrawalInShares.domainEpoch) ??
+    calculateInstantSharePrice(operatorId, domainId);
+  const value =
+    (withdrawalInShares.shares * sharePrice) / SHARES_CALCULATION_MULTIPLIER +
+    withdrawalInShares.storageFeeRefund;
   ```
 - [ ] 4.3 Aggregate `withdrawals[]` list for totals
 - [ ] 4.4 Create/update `NominatorWithdrawal` entities
 
 **Code locations**:
+
 - `indexers/staking/src/mappings/mappingHandlers.ts:70` (withdrawal query)
 - `indexers/staking/src/mappings/eventHandler.ts:200-220` (`WithdrewStake` handler)
 
@@ -139,22 +150,26 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Share price calculation ignores current epoch rewards and nomination tax.
 
 **Tasks**:
+
 - [ ] 5.1 Parse `domainStakingSummary.currentEpochRewards` map
 - [ ] 5.2 Implement helper function:
+
   ```typescript
   function calculateInstantSharePrice(operatorId: string, domainId: string): bigint {
     const operator = findOperatorFromCache(operatorId);
     const domainSummary = findDomainStakingSummary(domainId);
-    
+
     const reward = domainSummary.currentEpochRewards.get(operatorId) ?? ZERO_BIGINT;
-    const taxedReward = reward - (operator.nominationTax * reward);
-    
+    const taxedReward = reward - operator.nominationTax * reward;
+
     return (operator.currentTotalStake + taxedReward) / operator.currentTotalShares;
   }
   ```
+
 - [ ] 5.3 Use in withdrawal valuation and pending deposit conversion
 
 **Code locations**:
+
 - `indexers/staking/src/mappings/mappingHandlers.ts:115` (domain staking summary parsing)
 
 ### 6. Track Storage Fund Accounts ⚠️ **MEDIUM**
@@ -162,13 +177,15 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Cannot calculate storage fund portion of Current Position.
 
 **Tasks**:
+
 - [ ] 6.1 Listen to `domains.StorageFeeDeposited` events to identify storage fund account addresses
 - [ ] 6.2 Query account balances for identified storage fund accounts
 - [ ] 6.3 Create/update `StorageFundAccount` entities
 - [ ] 6.4 Implement proportional calculation:
   ```typescript
-  const storageFund = (nominator.totalStorageFeeDeposit / operator.totalStorageFeeDeposit) 
-    * storageFundAccount.balance;
+  const storageFund =
+    (nominator.totalStorageFeeDeposit / operator.totalStorageFeeDeposit) *
+    storageFundAccount.balance;
   ```
 
 ### 7. Fix Import Issues ⚠️ **LOW**
@@ -176,10 +193,12 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Build fails due to missing logger import.
 
 **Tasks**:
+
 - [ ] 7.1 Add import to `utils.ts`: `import { logger } from '@subql/logger';`
 - [ ] 7.2 Verify build passes
 
 **Code locations**:
+
 - `indexers/staking/src/mappings/utils.ts:1` (imports section)
 
 ### 8. Update Front-end Integration ⚠️ **HIGH**
@@ -187,6 +206,7 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Explorer displays incorrect staking information.
 
 **Tasks**:
+
 - [ ] 8.1 Update GraphQL queries to use new entities
 - [ ] 8.2 Implement Current Position calculation:
   ```typescript
@@ -202,6 +222,7 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Schema changes require migration.
 
 **Tasks**:
+
 - [ ] 9.1 Bump `project.yaml` schema version
 - [ ] 9.2 Generate new SubQuery project
 - [ ] 9.3 Plan production database migration
@@ -212,6 +233,7 @@ This document analyzes the current staking indexer implementation against the As
 **Problem**: Complex logic needs thorough testing.
 
 **Tasks**:
+
 - [ ] 10.1 Create unit tests for:
   - Epoch transition detection
   - Share price calculations
@@ -229,7 +251,7 @@ This document analyzes the current staking indexer implementation against the As
 
 ## Success Criteria
 
-- [ ] Astral displays correct "Current Position" values matching manual calculations
+- [ ] Auto Portal displays correct "Current Position" values matching manual calculations
 - [ ] Individual withdrawal amounts are accurate (not showing duplicate high values)
 - [ ] Pending deposits show correct conversion timeline
 - [ ] Storage fund calculations work properly
@@ -240,4 +262,4 @@ This document analyzes the current staking indexer implementation against the As
 - Original staking specification document
 - `indexers/staking/src/mappings/mappingHandlers.ts` - Main indexing logic
 - `indexers/staking/schema.graphql` - Current GraphQL schema
-- `indexers/staking/src/mappings/eventHandler.ts` - Event processing 
+- `indexers/staking/src/mappings/eventHandler.ts` - Event processing

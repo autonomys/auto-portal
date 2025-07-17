@@ -1,10 +1,10 @@
-# Autonomys Astral Explorer Staking
+# Auto Portal Staking Indexer
 
-The Autonomys Astral Explorer Staking is a specialized SubQuery project that indexes all staking-related events on the Autonomys Network. This project is designed to support the staking functionality for the Astral Explorer, providing real-time data on user staking activities and rewards.
+The Auto Portal Staking Indexer is a specialized SubQuery project that indexes all staking-related events on the Autonomys Network. This project is designed to support the staking functionality for the Auto Portal, providing real-time data on user staking activities and rewards.
 
 ## Overview
 
-This SubQuery project is tailored specifically for the Autonomys Astral Explorer, focusing on:
+This SubQuery project is tailored specifically for the Auto Portal, focusing on:
 
 1. Indexing all staking events using the staking pallet
 2. Capturing system remarks for additional staking actions
@@ -30,8 +30,8 @@ The project consists of the following key components:
 To run this project locally:
 
 1. Ensure you have Node.js and Docker installed on your system.
-2. Clone the repository: `git clone https://github.com/autonomys/astral.git`
-3. Navigate to the project directory: `cd astral/indexers/staking`
+2. Clone the repository: `git clone https://github.com/jfrank-summit/auto-portal.git`
+3. Navigate to the project directory: `cd auto-portal/apps/indexers/staking`
 4. Install dependencies: `yarn install`
 5. Start the project: `yarn dev`
 

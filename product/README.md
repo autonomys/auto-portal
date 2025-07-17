@@ -48,7 +48,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
   - `keplr-validator-selection.md` - Validator marketplace UX
   - `protocol-insights.md` - Technical constraints and opportunities
   - `auto-sdk-integration.md` - Auto SDK integration guide
-  - `astral-indexer-schema.md` - Indexed data schema documentation
+  - `auto-portal-indexer-schema.md` - Indexed data schema documentation
 
 ### Implementation Tracking
 
@@ -125,7 +125,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 - [x] **✅ Complete Core Platform** - All essential staking functionality delivered
 - [x] **✅ Production Deployment** - Live application ready for users
-- [ ] **Advanced Analytics** - Historical data integration with Astral indexer
+- [ ] **Advanced Analytics** - Historical data integration with Auto Portal indexer
 - [ ] **Enhanced Operator Details** - Rich operator profiles with performance metrics
 - [ ] **Batch Operations** - Multi-operator staking capabilities
 - [ ] **Governance Integration** - Voting with staked tokens
@@ -190,7 +190,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 ### **For Developers**
 
 - **Production Architecture**: Scalable, maintainable codebase ready for feature additions
-- **Indexer Integration**: Infrastructure for advanced analytics with Astral indexer
+- **Indexer Integration**: Infrastructure for advanced analytics with Auto Portal indexer
 - **Extension Points**: Clear patterns for adding new features and capabilities
 
 ---
@@ -232,7 +232,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 ### **Next Phase Priorities**
 
-1. **Enhanced Analytics** - Astral indexer integration for historical data
+1. **Enhanced Analytics** - Auto Portal indexer integration for historical data
 2. **Operator Details** - Rich operator profiles with performance metrics
 3. **Advanced Features** - Batch operations and governance integration
 4. **Mobile Optimization** - Progressive Web App capabilities

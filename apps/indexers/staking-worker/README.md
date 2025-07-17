@@ -12,7 +12,9 @@ The staking worker processes two main types of conversions:
 ## Important: Table Management
 
 ### Indexer-Managed Tables (Read-Only for Worker)
+
 These tables are populated by the SubQuery indexer and reflect the exact on-chain state:
+
 - `staking.nominator_deposits` - Raw deposit data from blockchain
 - `staking.nominator_withdrawals` - Raw withdrawal data from blockchain
 - `staking.operator_epoch_share_prices` - Historical share prices
@@ -20,7 +22,9 @@ These tables are populated by the SubQuery indexer and reflect the exact on-chai
 **The worker ONLY updates the `processed` flag in these tables and NEVER modifies any other fields.**
 
 ### Worker-Managed Tables
+
 These tables are updated by the worker with calculated values:
+
 - `staking.nominators` - Aggregated nominator state with converted values
   - `known_shares` - Total shares after conversions
   - `known_storage_fee_deposit` - Total storage deposits after conversions
@@ -28,6 +32,7 @@ These tables are updated by the worker with calculated values:
   - `unlock_at_confirmed_domain_block_number` - JSONB array of pending unlocks
 
 This separation ensures:
+
 - Data integrity is maintained
 - On-chain state can always be traced
 - Calculated values are clearly separated from raw data
@@ -37,10 +42,12 @@ This separation ensures:
 ### Lazy Conversion Process
 
 In the Subspace runtime, conversions happen lazily - meaning pending deposits and withdrawals in shares are only converted when:
+
 - A new deposit/withdrawal/unlock action occurs for that nominator
 - The share price for the relevant epoch becomes available
 
 This worker replicates that behavior by:
+
 1. Periodically checking for unprocessed deposits and withdrawals (where `processed = false`)
 2. Checking if the share price for the relevant epoch is available
 3. Performing the conversion calculations
@@ -49,6 +56,7 @@ This worker replicates that behavior by:
 ### Deposit Processing
 
 For each unprocessed deposit with `pending_amount > 0`:
+
 1. Check if `OperatorEpochSharePrice` exists for the `pending_effective_domain_epoch`
 2. If available, convert: `shares = pending_amount * MULTIPLIER / share_price`
 3. Update records:
@@ -58,6 +66,7 @@ For each unprocessed deposit with `pending_amount > 0`:
 ### Withdrawal Processing
 
 For each unprocessed withdrawal with `withdrawal_in_shares_amount > 0`:
+
 1. Check if `OperatorEpochSharePrice` exists for the `withdrawal_in_shares_domain_epoch`
 2. If available, convert: `amount = shares * share_price / MULTIPLIER`
 3. Update records:
@@ -72,7 +81,7 @@ The worker is configured via environment variables:
 # Database connection
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=astral
+DB_NAME=staking
 DB_USER=postgres
 DB_PASSWORD=postgres
 
@@ -91,12 +100,14 @@ EPOCH_TRANSITION_CHECK_INTERVAL_MS=60000
 The worker interacts with these main tables:
 
 ### Read-Only (Indexer-Managed)
+
 - `staking.nominator_deposits` - Tracks deposit state (only `processed` flag is updated)
 - `staking.nominator_withdrawals` - Tracks withdrawal state (only `processed` flag is updated)
 - `staking.operator_epoch_share_prices` - Historical share prices (read-only)
 - `staking.operator_staking_histories` - Operator state history (read-only)
 
 ### Read-Write (Worker-Managed)
+
 - `staking.nominators` - Aggregated nominator state with all calculated values
 
 ## Notes
