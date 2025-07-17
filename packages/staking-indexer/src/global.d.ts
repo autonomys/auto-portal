@@ -42,6 +42,8 @@ declare global {
   const redis: SafeRedisClient | undefined;
   const store: any; // SubQuery store
   const logger: any; // SubQuery logger
+  const unsafeApi: any; // SubQuery unsafe API
+  const api: any; // SubQuery API
 }
 
 export {};
