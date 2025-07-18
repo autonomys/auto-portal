@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json yarn.lock tsconfig.json ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile --production
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY src ./src
