@@ -22,8 +22,8 @@ export const processOperatorTasksBatch = async (
   // Group tasks by operatorId to avoid conflicts
   const results = await processGroupedInParallel(
     tasks,
-    (task) => task.operatorId, // Group by operatorId
-    async (operatorTasks) => {
+    task => task.operatorId, // Group by operatorId
+    async operatorTasks => {
       // Process all tasks for this operator in a single transaction
       try {
         await retryWithBackoff(async () => {

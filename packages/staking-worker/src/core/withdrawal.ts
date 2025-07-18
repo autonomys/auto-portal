@@ -27,7 +27,7 @@ export const processWithdrawalBatch = async (tasks: WithdrawalTask[]): Promise<n
   // Process withdrawals in parallel with concurrency limit
   const results = await processInParallel(
     sortedTasks,
-    async (task) => {
+    async task => {
       try {
         return await retryWithBackoff(async () => {
           return await dbService.withTransaction(async (client: PoolClient) => {
@@ -47,7 +47,7 @@ export const processWithdrawalBatch = async (tasks: WithdrawalTask[]): Promise<n
     parallelism,
   );
 
-  const successCount = results.filter((r) => r.hasConverted).length;
+  const successCount = results.filter(r => r.hasConverted).length;
   monitor.endBatch(batchId, successCount);
 
   return successCount;

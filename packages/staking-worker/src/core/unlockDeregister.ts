@@ -20,7 +20,7 @@ export const processNominatorsUnlockedBatch = async (
   // Process nominators unlocked events in parallel
   const results = await processInParallel(
     tasks,
-    async (task) => {
+    async task => {
       try {
         await retryWithBackoff(async () => {
           await dbService.withTransaction(async (client: PoolClient) => {
@@ -41,7 +41,7 @@ export const processNominatorsUnlockedBatch = async (
     parallelism,
   );
 
-  const successCount = results.filter((success) => success).length;
+  const successCount = results.filter(success => success).length;
   monitor.endBatch(batchId, successCount);
 
   return successCount;

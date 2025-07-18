@@ -21,16 +21,16 @@ export const processBatchTasks = async (tasks: StakingProcessingTask[]): Promise
   let successCount = 0;
 
   // Group tasks by type for batch processing
-  const depositTasks = tasks.filter((t) => t.type === 'deposit') as DepositTask[];
-  const withdrawalTasks = tasks.filter((t) => t.type === 'withdrawal') as WithdrawalTask[];
-  const unlockTasks = tasks.filter((t) => t.type === 'unlock') as UnlockTask[];
+  const depositTasks = tasks.filter(t => t.type === 'deposit') as DepositTask[];
+  const withdrawalTasks = tasks.filter(t => t.type === 'withdrawal') as WithdrawalTask[];
+  const unlockTasks = tasks.filter(t => t.type === 'unlock') as UnlockTask[];
   const nominatorsUnlockedTasks = tasks.filter(
-    (t) => t.type === 'nominators-unlocked',
+    t => t.type === 'nominators-unlocked',
   ) as NominatorsUnlockedTask[];
 
   // Group operator tasks by operatorId for consolidated processing
   const operatorTasks = tasks.filter(
-    (t) =>
+    t =>
       t.type === 'operator-registration' ||
       t.type === 'operator-reward' ||
       t.type === 'operator-tax' ||

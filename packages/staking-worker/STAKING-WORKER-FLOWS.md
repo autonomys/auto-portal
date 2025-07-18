@@ -36,42 +36,49 @@ The staking worker is responsible for processing various staking-related events 
 ## Deposit Flow
 
 ### Purpose
+
 Converts pending deposits (in tokens) to known deposits (in shares) when the share price for the effective epoch becomes available.
 
 ### Prerequisites
+
 - Deposit event recorded in `staking.nominator_deposits` table
 - Share price available for `pending_effective_domain_epoch`
 
 ### Step-by-Step Process
 
 1. **Fetch Unprocessed Deposits**
+
    ```sql
-   SELECT * FROM staking.nominator_deposits 
-   WHERE processed = false 
+   SELECT * FROM staking.nominator_deposits
+   WHERE processed = false
    AND pending_amount > 0
    AND block_height <= (chain_tip - finality_threshold)
    ORDER BY block_height ASC
    ```
 
 2. **Check Share Price Availability**
+
    ```sql
    SELECT share_price FROM staking.operator_epoch_share_prices
    WHERE operator_id = ? AND domain_id = ? AND epoch_index = ?
    ```
 
 3. **Calculate Shares** (if share price available)
+
    ```typescript
-   newShares = (pendingAmount * SHARES_CALCULATION_MULTIPLIER) / sharePrice
+   newShares = (pendingAmount * SHARES_CALCULATION_MULTIPLIER) / sharePrice;
    ```
 
 4. **Update Nominator Record**
+
    ```typescript
-   totalKnownShares = existingKnownShares + newShares
-   totalKnownStorageFeeDeposit = existingKnownStorageFeeDeposit + pendingStorageFeeDeposit
-   depositAmount = pendingAmount + pendingStorageFeeDeposit
+   totalKnownShares = existingKnownShares + newShares;
+   totalKnownStorageFeeDeposit = existingKnownStorageFeeDeposit + pendingStorageFeeDeposit;
+   depositAmount = pendingAmount + pendingStorageFeeDeposit;
    ```
 
 5. **Database Updates**
+
    ```sql
    -- Insert or update nominator
    INSERT INTO staking.nominators (
@@ -84,12 +91,13 @@ Converts pending deposits (in tokens) to known deposits (in shares) when the sha
      known_storage_fee_deposit = ?,
      total_deposits = nominators.total_deposits + ?,
      total_deposits_count = nominators.total_deposits_count + 1
-   
+
    -- Mark deposit as processed
    UPDATE staking.nominator_deposits SET processed = true WHERE id = ?
    ```
 
 ### Example Calculation
+
 ```
 Given:
 - pendingAmount = 1000 tokens (1000 * 10^18 smallest units)
@@ -104,15 +112,18 @@ Calculation:
 ## Withdrawal Flow
 
 ### Purpose
+
 Converts withdrawal requests in shares (`withdrawalInShares`) to withdrawal amounts in tokens when the share price becomes available.
 
 ### Prerequisites
+
 - Withdrawal event recorded in `staking.nominator_withdrawals` table
 - Share price available for `withdrawal_in_shares_domain_epoch`
 
 ### Step-by-Step Process
 
 1. **Fetch Unprocessed Withdrawals**
+
    ```sql
    SELECT * FROM staking.nominator_withdrawals
    WHERE processed = false
@@ -120,22 +131,23 @@ Converts withdrawal requests in shares (`withdrawalInShares`) to withdrawal amou
    ```
 
 2. **Parse Withdrawal Data Structure**
+
    ```typescript
    withdrawalData = {
      totalWithdrawalAmount: BigInt,
      totalStorageFeeWithdrawal: BigInt,
      withdrawals: Array<{
-       unlockAtConfirmedDomainBlockNumber: number,
-       amountToUnlock: string,
-       storageFeeRefund: string
+       unlockAtConfirmedDomainBlockNumber: number;
+       amountToUnlock: string;
+       storageFeeRefund: string;
      }>,
      withdrawalInShares: {
        domainEpoch: string,
        unlockAtConfirmedDomainBlockNumber: string,
        shares: BigInt,
-       storageFeeRefund: BigInt
-     }
-   }
+       storageFeeRefund: BigInt,
+     },
+   };
    ```
 
 3. **Check for Shares to Convert**
@@ -143,41 +155,46 @@ Converts withdrawal requests in shares (`withdrawalInShares`) to withdrawal amou
    - Otherwise, fetch share price for the epoch
 
 4. **Calculate Withdrawal Amount**
+
    ```typescript
-   amountToUnlock = (shares * sharePrice) / SHARES_CALCULATION_MULTIPLIER
+   amountToUnlock = (shares * sharePrice) / SHARES_CALCULATION_MULTIPLIER;
    ```
 
 5. **Create New Withdrawal Entry**
+
    ```typescript
    newWithdrawalEntry = {
      unlockAtConfirmedDomainBlockNumber: withdrawalInShares.unlockAtConfirmedDomainBlockNumber,
      amountToUnlock: amountToUnlock.toString(),
-     storageFeeRefund: withdrawalInShares.storageFeeRefund.toString()
-   }
+     storageFeeRefund: withdrawalInShares.storageFeeRefund.toString(),
+   };
    ```
 
 6. **Update Aggregated Values**
+
    ```typescript
-   updatedWithdrawals = [...existingWithdrawals, newWithdrawalEntry]
-   updatedTotalWithdrawalAmount = totalWithdrawalAmount + amountToUnlock
+   updatedWithdrawals = [...existingWithdrawals, newWithdrawalEntry];
+   updatedTotalWithdrawalAmount = totalWithdrawalAmount + amountToUnlock;
    ```
 
 7. **Database Updates**
+
    ```sql
    -- Update nominator
-   INSERT INTO staking.nominators ... 
+   INSERT INTO staking.nominators ...
    ON CONFLICT (id) DO UPDATE SET
      total_withdrawals = ?,
      total_withdrawals_count = nominators.total_withdrawals_count + 1,
      total_storage_fee_refund = ?,
      withdrawn_shares = nominators.withdrawn_shares + ?,
      unlock_at_confirmed_domain_block_number = ?::jsonb
-   
+
    -- Mark withdrawal as processed
    UPDATE staking.nominator_withdrawals SET processed = true WHERE id = ?
    ```
 
 ### Example Calculation
+
 ```
 Given:
 - withdrawalInShares.shares = 250 * 10^18 shares
@@ -192,15 +209,18 @@ Calculation:
 ## Unlock Flow
 
 ### Purpose
+
 Processes unlock claims when nominators unlock their funds after the unlock period.
 
 ### Prerequisites
+
 - Unlock event recorded in `staking.unlocked_events` table
 - Corresponding withdrawal entry exists with matching unlock block
 
 ### Step-by-Step Process
 
 1. **Fetch Unprocessed Unlocks**
+
    ```sql
    SELECT * FROM staking.unlocked_events
    WHERE processed = false
@@ -208,6 +228,7 @@ Processes unlock claims when nominators unlock their funds after the unlock peri
    ```
 
 2. **Update Nominator Claimed Amounts**
+
    ```sql
    INSERT INTO staking.nominators ...
    ON CONFLICT (id) DO UPDATE SET
@@ -221,6 +242,7 @@ Processes unlock claims when nominators unlock their funds after the unlock peri
    ```
 
 ### Database Updates
+
 - Increments `total_claimed_amount` by the unlock amount
 - Increments `total_claimed_storage_fee` by the storage fee refund
 - Updates `updated_at` timestamp
@@ -228,17 +250,20 @@ Processes unlock claims when nominators unlock their funds after the unlock peri
 ## Operator Registration Flow
 
 ### Purpose
+
 Records new operator registrations in the aggregated operators table.
 
 ### Step-by-Step Process
 
 1. **Fetch Unprocessed Registrations**
+
    ```sql
    SELECT * FROM staking.operator_registrations
    WHERE processed = false
    ```
 
 2. **Insert Operator Record**
+
    ```sql
    INSERT INTO staking.operators (
      id, address, domain_id, signing_key,
@@ -257,18 +282,21 @@ Records new operator registrations in the aggregated operators table.
 ## Operator Rewards Flow
 
 ### Purpose
+
 Accumulates operator rewards in the aggregated operators table.
 
 ### Step-by-Step Process
 
 1. **Fetch Unprocessed Rewards**
+
    ```sql
    SELECT * FROM staking.operator_rewards WHERE processed = false
    ```
 
 2. **Update Operator Totals**
+
    ```sql
-   UPDATE staking.operators 
+   UPDATE staking.operators
    SET total_rewards_collected = total_rewards_collected + ?
    WHERE id = ?
    ```
@@ -278,30 +306,36 @@ Accumulates operator rewards in the aggregated operators table.
 ## Operator Tax Collection Flow
 
 ### Purpose
+
 Accumulates tax collections in the aggregated operators table.
 
 ### Process
+
 Similar to rewards flow but updates `total_tax_collected` field.
 
 ## Bundle Submission Flow
 
 ### Purpose
+
 Counts bundle submissions for each operator.
 
 ### Process
+
 Increments `bundle_count` for the operator.
 
 ## Operator Deregistration Flow
 
 ### Purpose
+
 Updates operator status and records deregistration details.
 
 ### Step-by-Step Process
 
 1. **Fetch Operator State at Deregistration Block**
+
    ```typescript
-   const blockHash = await getBlockHash(deregistrationBlockHeight)
-   const operatorData = await queryOperatorById(operatorId, blockHash)
+   const blockHash = await getBlockHash(deregistrationBlockHeight);
+   const operatorData = await queryOperatorById(operatorId, blockHash);
    ```
 
 2. **Extract Deregistration Details**
@@ -320,9 +354,11 @@ Updates operator status and records deregistration details.
 ## Nominators Unlocked Flow
 
 ### Purpose
+
 Processes nominator unlocks after operator deregistration, calculating the final amounts based on remaining shares.
 
 ### Prerequisites
+
 - Operator has been deregistered
 - `NominatorsUnlocked` event triggered
 - Share price available for deregistration epoch
@@ -330,31 +366,36 @@ Processes nominator unlocks after operator deregistration, calculating the final
 ### Step-by-Step Process
 
 1. **Fetch Operator Deregistration Info**
+
    ```sql
    SELECT unlock_at_confirmed_domain_block_number, deregistration_domain_epoch
    FROM staking.operators WHERE id = ?
    ```
 
 2. **Fetch Nominator State**
+
    ```sql
    SELECT known_shares, withdrawn_shares, known_storage_fee_deposit
    FROM staking.nominators WHERE id = ?
    ```
 
 3. **Calculate Remaining Shares**
+
    ```typescript
-   remainingShares = knownShares - withdrawnShares
+   remainingShares = knownShares - withdrawnShares;
    ```
 
 4. **Get Share Price at Deregistration Epoch**
+
    ```sql
    SELECT share_price FROM staking.operator_epoch_share_prices
    WHERE operator_id = ? AND epoch_index = deregistration_epoch
    ```
 
 5. **Calculate Final Amount**
+
    ```typescript
-   amount = (remainingShares * sharePrice) / SHARES_CALCULATION_MULTIPLIER
+   amount = (remainingShares * sharePrice) / SHARES_CALCULATION_MULTIPLIER;
    ```
 
 6. **Update Nominator with Unlock Entry**
@@ -362,11 +403,12 @@ Processes nominator unlocks after operator deregistration, calculating the final
    newUnlockEntry = {
      block: operatorUnlockBlock,
      amount: calculatedAmount,
-     storageFeeRefund: knownStorageFeeDeposit
-   }
+     storageFeeRefund: knownStorageFeeDeposit,
+   };
    ```
 
 ### Example Calculation
+
 ```
 Given:
 - knownShares = 1000 * 10^18
@@ -383,6 +425,7 @@ Calculation:
 ## Error Handling
 
 All flows implement:
+
 - **Retry logic**: Exponential backoff for transient failures
 - **Transaction rollback**: On any error, the entire transaction is rolled back
 - **Deadlock prevention**: Consistent ordering by operatorId → domainId → address
@@ -398,6 +441,7 @@ All flows implement:
 ## Testing Considerations
 
 Each flow should be tested for:
+
 - Happy path scenarios
 - Missing share prices
 - Zero amounts
@@ -409,6 +453,7 @@ Each flow should be tested for:
 ## Visual Flow Diagrams
 
 ### Deposit Flow Diagram
+
 ```mermaid
 graph TD
     A[Fetch Unprocessed Deposits] --> B{Share Price Available?}
@@ -420,6 +465,7 @@ graph TD
 ```
 
 ### Withdrawal Flow Diagram
+
 ```mermaid
 graph TD
     A[Fetch Unprocessed Withdrawals] --> B{Has Shares to Convert?}
@@ -434,6 +480,7 @@ graph TD
 ```
 
 ### Nominators Unlocked Flow Diagram
+
 ```mermaid
 graph TD
     A[NominatorsUnlocked Event] --> B[Get Operator Info]
@@ -454,26 +501,31 @@ graph TD
 ## Common Edge Cases and Solutions
 
 ### 1. Missing Share Prices
+
 **Problem**: Share price not yet available for the epoch  
 **Solution**: Skip processing and retry in next batch  
 **Impact**: Delays conversion but maintains data integrity
 
 ### 2. Zero Amount Transactions
+
 **Problem**: Deposits or withdrawals with zero amounts  
 **Solution**: Process normally but skip calculations  
 **Impact**: Updates counts without affecting balances
 
 ### 3. Concurrent Updates
+
 **Problem**: Multiple workers updating same nominator  
 **Solution**: Row-level locking and consistent ordering  
 **Impact**: Slight performance impact but prevents conflicts
 
 ### 4. Operator Deregistration Race Conditions
+
 **Problem**: Nominator operations during deregistration  
 **Solution**: Check operator status before processing  
 **Impact**: May require additional retries
 
 ### 5. Partial Batch Failures
+
 **Problem**: Some tasks in batch fail while others succeed  
 **Solution**: Individual task transactions, track success count  
 **Impact**: Partial progress is preserved
@@ -481,6 +533,7 @@ graph TD
 ## Database Schema Summary
 
 ### Key Relationships
+
 ```
 nominators (id) = address-domainId-operatorId
 operators (id) = operatorId
@@ -488,6 +541,7 @@ operator_epoch_share_prices (composite key) = operatorId + domainId + epochIndex
 ```
 
 ### Critical Fields for Calculations
+
 - `nominators.known_shares`: Current shares after conversions
 - `nominators.withdrawn_shares`: Shares that have been withdrawn
 - `nominators.unlock_at_confirmed_domain_block_number`: JSONB array of pending unlocks
@@ -496,6 +550,7 @@ operator_epoch_share_prices (composite key) = operatorId + domainId + epochIndex
 ## Monitoring and Observability
 
 ### Key Metrics to Track
+
 1. **Processing Rate**: Tasks processed per second
 2. **Conversion Success Rate**: Successful conversions vs retries
 3. **Share Price Availability**: Percentage of tasks waiting for share prices
@@ -503,6 +558,7 @@ operator_epoch_share_prices (composite key) = operatorId + domainId + epochIndex
 5. **Queue Depth**: Number of unprocessed tasks
 
 ### Log Patterns
+
 ```
 [INFO] Processing batch of X tasks
 [INFO] Converted deposit: operator=X, shares=Y
@@ -516,4 +572,4 @@ operator_epoch_share_prices (composite key) = operatorId + domainId + epochIndex
 2. **Batch Share Price Fetching**: Fetch all required share prices in one query
 3. **Smart Retry Logic**: Prioritize tasks more likely to succeed
 4. **Metrics Dashboard**: Real-time monitoring of worker performance
-5. **Historical Data Migration**: Tool to reprocess historical data if needed 
+5. **Historical Data Migration**: Tool to reprocess historical data if needed

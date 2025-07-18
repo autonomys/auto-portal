@@ -32,7 +32,7 @@ export const processDepositBatch = async (tasks: DepositTask[]): Promise<number>
   // Process deposits in parallel with concurrency limit
   const results = await processInParallel(
     sortedTasks,
-    async (task) => {
+    async task => {
       try {
         return await retryWithBackoff(async () => {
           return await dbService.withTransaction(async (client: PoolClient) => {
@@ -52,7 +52,7 @@ export const processDepositBatch = async (tasks: DepositTask[]): Promise<number>
     parallelism,
   );
 
-  const successCount = results.filter((r) => r.hasConverted).length;
+  const successCount = results.filter(r => r.hasConverted).length;
   monitor.endBatch(batchId, successCount);
 
   return successCount;

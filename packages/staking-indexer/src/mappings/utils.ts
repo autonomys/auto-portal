@@ -13,7 +13,7 @@ export const createHashId = (data: any): string =>
 
 export const findOneExtrinsicEvent = (events: EventRecord[], section: string, method: string) => {
   return events.find(
-    (e) => e.phase.isApplyExtrinsic && e.event.section === section && e.event.method === method,
+    e => e.phase.isApplyExtrinsic && e.event.section === section && e.event.method === method,
   );
 };
 
@@ -51,9 +51,9 @@ export const detectEpochTransitions = async (
   domainEpochMap: Map<string, number>;
 }> => {
   // Extract domain IDs and current epochs from the current block
-  const domainIds = currentDomainStakingSummary.map((data) => (data[0].toPrimitive() as any)[0]);
+  const domainIds = currentDomainStakingSummary.map(data => (data[0].toPrimitive() as any)[0]);
   const currentEpochs = currentDomainStakingSummary.map(
-    (data) => (data[1].toPrimitive() as any).currentEpochIndex,
+    data => (data[1].toPrimitive() as any).currentEpochIndex,
   );
 
   // Build domainEpochMap while we're already iterating
@@ -63,16 +63,16 @@ export const detectEpochTransitions = async (
   });
 
   // Query parent block for epoch indices of each domain
-  const parentEpochPromises = domainIds.map(async (domainId) => {
+  const parentEpochPromises = domainIds.map(async domainId => {
     return parentBlockApi.query.domains.domainStakingSummary(domainId);
   });
 
   const parentEpochs = await Promise.all(parentEpochPromises);
-  const parentSummaries = parentEpochs.map((result) => {
+  const parentSummaries = parentEpochs.map(result => {
     const primitive = result.toPrimitive() as any;
     return primitive ?? null;
   });
-  const parentEpochValues = parentSummaries.map((summary) => {
+  const parentEpochValues = parentSummaries.map(summary => {
     return summary ? summary.currentEpochIndex : null;
   });
 
@@ -124,7 +124,7 @@ export const deriveOperatorEpochSharePrices = (
 
     // Filter operators that currently belong to this domain
     const operatorsInDomain = operators.filter(
-      (op) => op.operatorDetails.currentDomainId.toString() === domainId,
+      op => op.operatorDetails.currentDomainId.toString() === domainId,
     );
 
     for (const operator of operatorsInDomain) {
@@ -171,7 +171,7 @@ export const groupNominatorEvents = (nominatorEvents: any[]) => {
     }
   >();
 
-  nominatorEvents.forEach((eventStr) => {
+  nominatorEvents.forEach(eventStr => {
     const event = JSON.parse(eventStr);
 
     if (!nominatorEventsMap.has(event.operatorId)) {
@@ -226,7 +226,7 @@ export const processNominatorDepositEvents = async (
     }),
   );
 
-  depositsEntries.forEach((d) => {
+  depositsEntries.forEach(d => {
     cache.nominatorDeposit.push(
       db.createNominatorDeposit(
         d.id,
@@ -259,7 +259,7 @@ export const processWithdrawalEvents = async (
   height: bigint,
 ): Promise<any[]> => {
   const withdrawalsEntries = await Promise.all(
-    [...nominatorEventsMap.values()].map(async (d) => {
+    [...nominatorEventsMap.values()].map(async d => {
       const res = await api.query.domains.withdrawals(Number(d.operatorId), d.address.toString());
       const result = res.toHuman() as any;
       logger.info(`Withdrawals result: ${JSON.stringify(result)}`);
@@ -296,7 +296,7 @@ export const processWithdrawalEvents = async (
   );
 
   // Store each withdrawal entry as a NominatorWithdrawal entity
-  withdrawalsEntries.forEach((w) => {
+  withdrawalsEntries.forEach(w => {
     cache.nominatorWithdrawal.push(
       db.createNominatorWithdrawal(
         w.id,
@@ -330,7 +330,7 @@ export const processWithdrawalEvents = async (
  */
 export const createOperatorDomainMap = (operators: any[]): Map<string, string> => {
   const operatorDomainMap = new Map<string, string>();
-  operators.forEach((operator) => {
+  operators.forEach(operator => {
     operatorDomainMap.set(
       operator.operatorId.toString(),
       operator.operatorDetails.currentDomainId.toString(),

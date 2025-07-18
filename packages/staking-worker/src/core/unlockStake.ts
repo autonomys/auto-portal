@@ -26,7 +26,7 @@ export const processUnlockBatch = async (tasks: UnlockTask[]): Promise<number> =
   // Process unlocks in parallel with concurrency limit
   const results = await processInParallel(
     sortedTasks,
-    async (task) => {
+    async task => {
       try {
         await retryWithBackoff(async () => {
           await dbService.withTransaction(async (client: PoolClient) => {
@@ -47,7 +47,7 @@ export const processUnlockBatch = async (tasks: UnlockTask[]): Promise<number> =
     parallelism,
   );
 
-  const successCount = results.filter((success) => success).length;
+  const successCount = results.filter(success => success).length;
   monitor.endBatch(batchId, successCount);
 
   return successCount;

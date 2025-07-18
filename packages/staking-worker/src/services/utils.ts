@@ -75,11 +75,11 @@ export const buildBatchInsertQuery = (
       return `$${paramIndex}`;
     });
     valuesClauses.push(`(${placeholders.join(', ')})`);
-    values.push(...columns.map((col) => record[col]));
+    values.push(...columns.map(col => record[col]));
   });
 
   const query = `
-    INSERT INTO ${tableName} (${columns.map((c) => `"${c}"`).join(', ')})
+    INSERT INTO ${tableName} (${columns.map(c => `"${c}"`).join(', ')})
     VALUES ${valuesClauses.join(', ')}
     ON CONFLICT DO NOTHING
   `;

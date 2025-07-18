@@ -22,7 +22,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
     timestamp,
     events,
   } = _block;
-  if (!extrinsics.find((e) => e.method.section === 'domains')) return;
+  if (!extrinsics.find(e => e.method.section === 'domains')) return;
 
   const height = BigInt(number.toString());
   const blockTimestamp = timestamp ? timestamp : new Date();
@@ -62,9 +62,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
 
   if (extrinsics.length > 0) {
     if (
-      extrinsics.find(
-        (e) => e.method.section === 'domains' && e.method.method === 'unlockNominator',
-      )
+      extrinsics.find(e => e.method.section === 'domains' && e.method.method === 'unlockNominator')
     ) {
       blockHasUnlockNominator = true;
       parentBlockOperatorsIndex = currentQueryIndex;
@@ -72,7 +70,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
       currentQueryIndex++;
     }
     if (
-      extrinsics.find((e) => e.method.section === 'domains' && e.method.method === 'withdrawStake')
+      extrinsics.find(e => e.method.section === 'domains' && e.method.method === 'withdrawStake')
     ) {
       blockHasWithdrawals = true;
       withdrawalsResultId = currentQueryIndex;
@@ -96,7 +94,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
    * withdrawalsInEpoch
    * totalStorageFeeDeposit
    */
-  const operators = queriesResults[0].map((o) => parseOperator(o));
+  const operators = queriesResults[0].map(o => parseOperator(o));
 
   // Create a map of operatorId -> domainId for quick lookups
   const operatorDomainMap = createOperatorDomainMap(operators);
@@ -136,7 +134,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
       height,
     );
 
-    operatorEpochSharePrices.forEach((sharePrice) => {
+    operatorEpochSharePrices.forEach(sharePrice => {
       cache.operatorEpochSharePrice.push(
         db.createOperatorEpochSharePrice(
           sharePrice.operatorId,
@@ -210,12 +208,12 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
   }
 
   if (blockHasUnlockNominator)
-    queriesResults[parentBlockOperatorsIndex!].forEach((o) =>
+    queriesResults[parentBlockOperatorsIndex!].forEach(o =>
       cache.parentBlockOperators.push(parseOperator(o)),
     );
 
   if (blockHasWithdrawals)
-    queriesResults[withdrawalsResultId!].forEach((o) =>
+    queriesResults[withdrawalsResultId!].forEach(o =>
       cache.currentWithdrawal.push(parseWithdrawal(o)),
     );
 
@@ -235,7 +233,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
     const extrinsicEvents = eventsByExtrinsic.get(extrinsicIdx) || [];
     const extrinsicMethodToPrimitive = extrinsic.method.toPrimitive() as ExtrinsicPrimitive;
     const successEvent = extrinsicEvents.findLast(
-      (event) => event.event.section === 'system' && event.event.method === 'ExtrinsicSuccess',
+      event => event.event.section === 'system' && event.event.method === 'ExtrinsicSuccess',
     );
     // const successEventId = successEvent?.event.index.toString() || "";
     const extrinsicId = extrinsic ? height + '-' + extrinsicIdx.toString() : '';
@@ -246,7 +244,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
         const batchedExtrinsicEvents = groupEventsFromBatchAll(extrinsicEvents);
         batchedExtrinsicEvents.forEach((events, index) => {
           const extrinsicArgs = (extrinsic.args[0].toPrimitive() as any)[index];
-          events.forEach((event) => {
+          events.forEach(event => {
             const eventId = height + '-' + eventIndex;
 
             // Process specific events
@@ -274,7 +272,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
         });
       } else {
         // Process extrinsic events
-        extrinsicEvents.forEach((event) => {
+        extrinsicEvents.forEach(event => {
           const eventId = height + '-' + eventIndex;
 
           // Process specific events

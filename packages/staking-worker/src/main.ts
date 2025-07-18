@@ -128,7 +128,7 @@ process.on('unhandledRejection', (reason, promise) => {
   shutdown(1);
 });
 
-main().catch(async (err) => {
+main().catch(async err => {
   console.error('Worker: Unhandled error in main execution:', err);
   await shutdown(1);
 });

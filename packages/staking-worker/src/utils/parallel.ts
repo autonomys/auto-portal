@@ -22,7 +22,7 @@ export const processInParallel = async <T, R>(
 
   for (let i = 0; i < items.length; i++) {
     const promise = processor(items[i])
-      .then((result) => {
+      .then(result => {
         results[i] = result;
       })
       .finally(() => {
@@ -116,7 +116,7 @@ export const retryWithBackoff = async <T>(
 
       if (attempt < maxRetries - 1) {
         const delay = baseDelay * Math.pow(2, attempt);
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
