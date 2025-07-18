@@ -11,7 +11,8 @@
     "rootDir": "src",
     "target": "es2017",
     "lib": ["ES2023"],
-    "strict": true
+    "strict": true,
+    "noImplicitAny": false
   },
   "include": [
     "src/**/*",
