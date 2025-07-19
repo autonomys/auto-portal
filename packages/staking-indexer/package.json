@@ -7,11 +7,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prepack": "rm -rf dist && subql build",
     "clean": "rm -rf dist",
     "test": "subql-node test",
     "codegen": "subql codegen",
-    "build": "subql build",
+    "build": "subql codegen && subql build",
     "build:project": "subql codegen",
     "dev": "subql-node run",
     "console": "node --experimental-repl-await ./bin/repl",
