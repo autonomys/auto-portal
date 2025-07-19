@@ -1,0 +1,180 @@
+volumes:
+  node-data: {}
+  postgres_staking_db: {}
+  redis_db: {}
+  caddy_config: {}
+  caddy_data: {}
+
+services:
+  # Caddy Reverse Proxy with CORS enabled
+  caddy:
+    ulimits:
+      nofile:
+        soft: 65536 # Soft limit for open files (WebSocket connections count)
+        hard: 65536 # Hard limit for open files
+    image: caddy:latest
+    ports:
+      - '127.0.0.1:8000:8000'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile # Mount the Caddyfile
+      - caddy_data:/data # Volume for Let's Encrypt certificates
+      - caddy_config:/config
+    env_file:
+      - .env
+    environment:
+      - UPSTREAM_NODE=${UPSTREAM_NODE:-node:9944}
+    restart: unless-stopped
+
+  # Subspace Node
+  node:
+    profiles: [local-node] # Make node service optional
+    image: ghcr.io/autonomys/node:${NODE_DOCKER_TAG}
+    volumes:
+      - node-data:/var/subspace:rw
+    ports:
+      - '30333:30333/tcp'
+      - '30433:30433/tcp'
+      - '127.0.0.1:9944:9944/tcp'
+    restart: unless-stopped
+    command:
+      [
+        'run',
+        '--chain',
+        '${NETWORK_ID}',
+        '--base-path',
+        '/var/subspace',
+        '--state-pruning',
+        'archive',
+        '--blocks-pruning',
+        'archive',
+        '--listen-on',
+        '/ip4/0.0.0.0/tcp/30333',
+        '--dsn-listen-on',
+        '/ip4/0.0.0.0/tcp/30433',
+        '--rpc-cors',
+        'all',
+        '--rpc-methods',
+        'unsafe',
+        '--rpc-listen-on',
+        '0.0.0.0:9944',
+        '--rpc-max-subscriptions-per-connection',
+        '1000',
+        '--rpc-max-connections',
+        '20000',
+        '--name',
+        'auto-portal-node',
+        '--sync',
+        'full',
+      ]
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl -H ''Content-Type: application/json'' -d ''{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}'' http://localhost:9944/',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Postgres Database for Staking
+  postgres-staking:
+    image: postgres:17.3-alpine
+    volumes:
+      - postgres_staking_db:/var/lib/postgresql/data
+      - ./db/docker-entrypoint-initdb.d/staking-only/00-staking-setup.sql:/docker-entrypoint-initdb.d/00-staking-setup.sql
+      - ./db/docker-entrypoint-initdb.d/staking-only/07-schema-staking.sql:/docker-entrypoint-initdb.d/01-schema-staking.sql
+      - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
+    restart: unless-stopped
+    hostname: postgres-staking
+    shm_size: 4g
+    environment:
+      POSTGRES_DB: ${STAKING_DB_DATABASE:-staking}
+      POSTGRES_USER: ${STAKING_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${STAKING_DB_PASSWORD:-postgres}
+      POSTGRES_MAX_CONNECTIONS: 200
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: --auth=md5
+    ports:
+      - '${STAKING_DB_PORT:-5433}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${STAKING_DB_USER:-postgres}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: ['postgres', '-c', 'config_file=/etc/postgresql/postgresql.conf']
+
+  # PGCat Proxy for Staking
+  pgcat-staking:
+    image: ghcr.io/postgresml/pgcat:4a7a6a8e7a78354b889002a4db118a8e2f2d6d79
+    command:
+      - 'pgcat'
+      - '/etc/pgcat/pgcat.toml'
+    volumes:
+      - './db/pgcat-staking.toml:/etc/pgcat/pgcat.toml'
+    ports:
+      - '6433:6432'
+    healthcheck:
+      test: ['CMD', 'pgcat', '--version']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      postgres-staking:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    profiles: [task]
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis_db:/data
+    hostname: redis
+    command: ['redis-server', '--bind', '0.0.0.0', '--port', '6379']
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli -h localhost -p 6379 ping | grep PONG || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # SubQuery Node (handles substrate project indexing)
+  staking_subquery_node:
+    profiles: [indexers]
+    image: ghcr.io/autonomys/subql-node-substrate:latest
+    ports:
+      - '127.0.0.1:3003:3000' # Status page
+    depends_on:
+      pgcat-staking:
+        condition: service_healthy
+      postgres-staking:
+        condition: service_healthy
+    command:
+      - -f=/staking
+      - --db-schema=staking
+      - --workers=1
+      - --unsafe
+      - --batch-size=125
+      - --scale-batch-size
+      - --unfinalized-blocks=true
+      - --disable-historical=false
+      - --finalized-depth=100
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DB_HOST: ${STAKING_DB_HOST:-postgres-staking}
+      DB_PORT: ${STAKING_INTERNAL_PORT:-5432} # Internal port, not external
+      DB_USER: ${STAKING_DB_USER:-postgres}
+      DB_PASS: ${STAKING_DB_PASSWORD:-postgres}
+      DB_DATABASE: ${STAKING_DB_DATABASE:-staking}
+      # Bypass timestamp validation for development
+      BYPASS_TIMESTAMP_CHECK: 'true'
+    volumes:
+      - ../../packages/staking-indexer:/staking
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5

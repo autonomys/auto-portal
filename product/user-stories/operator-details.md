@@ -180,7 +180,7 @@ Phase 4 (Weeks 9-14): Community
 - **[Operator Analytics](./operator-analytics.md)** - Historical data integration
 - **[Operator Comparison](./operator-comparison-tools.md)** - Multi-operator analysis
 - **[Community Features](./operator-community-features.md)** - Social proof integration
-- **[Astral Indexer Schema](../resources/astral-indexer-schema.md)** - Data source documentation
+- **[Auto Portal Indexer Schema](../resources/auto-portal-indexer-schema.md)** - Data source documentation
 
 ---
 

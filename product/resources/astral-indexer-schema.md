@@ -1,6 +1,6 @@
-# Autonomys Astral Indexer Schema Documentation
+# Auto Portal Indexer Schema Documentation
 
-**Source:** [Autonomys Astral Staking Indexer](https://github.com/autonomys/astral/blob/ref/staking-v2/indexers/staking/schema.graphql)  
+**Source:** [Auto Portal Staking Indexer](https://github.com/jfrank-summit/auto-portal/blob/main/apps/indexers/staking/schema.graphql)  
 **Purpose:** Indexed blockchain data for enhanced staking UX  
 **Status:** Available for integration
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Autonomys Astral indexer provides comprehensive GraphQL access to processed blockchain data, eliminating the need for complex RPC calls and enabling rich historical data queries. This indexed data significantly enhances the staking user experience beyond what's possible with direct Auto SDK integration.
+The Auto Portal indexer provides comprehensive GraphQL access to processed blockchain data, eliminating the need for complex RPC calls and enabling rich historical data queries. This indexed data significantly enhances the staking user experience beyond what's possible with direct Auto SDK integration.
 
 ---
 

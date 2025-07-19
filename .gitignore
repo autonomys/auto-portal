@@ -52,8 +52,8 @@ storybook-static/
 .yarn/cache/*
 
 # Env files
-.env
-.env.*.local
+.env*
+!.env.example
 
 # Mac system files
 .DS_Store

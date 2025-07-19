@@ -9,13 +9,18 @@
   ],
   "scripts": {
     "dev": "yarn workspace @auto-portal/web dev",
+    "dev:indexer": "cd infra/indexer && docker-compose up",
+    "dev:worker": "yarn workspace @auto-portal/staking-worker dev",
     "build": "yarn workspaces foreach -Apt run build",
+    "build:indexer": "yarn workspace @auto-portal/staking-indexer build",
+    "build:worker": "yarn workspace @auto-portal/staking-worker build",
     "test": "yarn workspaces foreach -Apt run test",
     "lint": "yarn workspace @auto-portal/web lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "yarn workspaces foreach -Apt run type-check",
-    "clean": "yarn workspaces foreach -Apt run clean && rm -rf node_modules"
+    "clean": "yarn workspaces foreach -Apt run clean && rm -rf node_modules",
+    "indexer:codegen": "yarn workspace @auto-portal/staking-indexer codegen"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
@@ -24,6 +29,14 @@
     "eslint-plugin-prettier": "^5.5.0",
     "prettier": "^3.5.3",
     "typescript": "^5.3.3"
+  },
+  "resolutions": {
+    "@polkadot/api": "^16.2.2",
+    "@polkadot/types": "^16.3.1",
+    "@polkadot/util": "^13.0.0",
+    "@polkadot/util-crypto": "^13.0.0",
+    "@autonomys/auto-consensus": "1.5.9",
+    "@autonomys/auto-utils": "1.5.9"
   },
   "packageManager": "yarn@4.9.2",
   "engines": {

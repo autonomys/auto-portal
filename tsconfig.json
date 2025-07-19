@@ -15,10 +15,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "references": [
-    { "path": "./apps/web" },
-    { "path": "./apps/indexer" },
-    { "path": "./packages/shared" },
-    { "path": "./packages/ui" }
-  ]
+  "references": [{ "path": "./apps/web" }, { "path": "./packages/shared-types" }]
 }

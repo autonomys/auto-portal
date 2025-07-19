@@ -1,0 +1,21 @@
+{
+  "name": "@auto-portal/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for Auto Portal",
+  "repository": "https://github.com/jfrank-summit/auto-portal",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "@auto-portal/staking-indexer",
+  "version": "1.0.0",
+  "description": "Auto Portal blockchain indexer for staking data",
+  "repository": "https://github.com/jfrank-summit/auto-portal",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "test": "subql-node test",
+    "codegen": "subql codegen",
+    "build": "subql codegen && subql build",
+    "build:project": "subql codegen",
+    "dev": "subql-node run",
+    "console": "node --experimental-repl-await ./bin/repl",
+    "metadata": "subql-node metadata",
+    "migrate": "subql-node migrate",
+    "apply-seeds:mainnet": "ts-node ./scripts/apply-mainnet-seeds.ts",
+    "apply-seeds:testnet": "ts-node ./scripts/apply-testnet-seeds.ts"
+  },
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "dependencies": {
+    "@autonomys/auto-consensus": "1.5.9",
+    "@autonomys/auto-utils": "1.5.9",
+    "@polkadot/api": "^12.0.2",
+    "@polkadot/api-augment": "^12.0.2",
+    "@subql/node": "^4.7.1",
+    "@subql/types": "^3.6.0",
+    "assert": "^2.0.0",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@subql/cli": "^4.8.1",
+    "@subql/testing": "^2.1.1",
+    "@subql/types-core": "^2.1.0",
+    "@types/ioredis": "^5.0.0",
+    "@types/node": "^20.11.26",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
