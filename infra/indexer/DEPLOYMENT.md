@@ -1,4 +1,4 @@
-# Local Deployment Guide
+cd # Local Deployment Guide
 
 This guide walks you through setting up the complete Auto Portal stack locally, including the web frontend, staking indexer, worker, and all required infrastructure.
 
@@ -14,8 +14,8 @@ This guide walks you through setting up the complete Auto Portal stack locally, 
 The Auto Portal consists of:
 
 - **Web Frontend** (`apps/web/`) - React application for staking interface
-- **Staking Indexer** (`apps/indexers/staking/`) - SubQuery indexer for blockchain data
-- **Staking Worker** (`apps/indexers/staking-worker/`) - Processes lazy conversions and aggregations
+- **Staking Indexer** (`packages/staking-indexer/`) - SubQuery indexer for blockchain data
+- **Staking Worker** (`packages/staking-worker/`) - Processes lazy conversions and aggregations
 - **Infrastructure** - PostgreSQL, Redis, PgCat proxy, Caddy reverse proxy
 
 ## Quick Start
@@ -31,7 +31,9 @@ cd auto-portal
 yarn install
 
 # Install indexer dependencies
-cd apps/indexers
+cd packages/staking-indexer
+yarn install
+cd ../staking-worker
 yarn install
 cd ../..
 ```
@@ -42,10 +44,10 @@ Create environment files for the indexer infrastructure:
 
 ```bash
 # Create indexer environment file
-cp apps/indexers/.env.example apps/indexers/.env
+cp infra/indexer/.env.example infra/indexer/.env
 
 # Edit the environment file with your settings
-nano apps/indexers/.env
+nano infra/indexer/.env
 ```
 
 **Required Environment Variables:**
@@ -54,40 +56,63 @@ nano apps/indexers/.env
 # Network Configuration
 NETWORK_ENDPOINT=wss://rpc.taurus.autonomys.xyz/ws
 NETWORK_DICTIONARY=https://dict.taurus.autonomys.xyz
+NODE_DOCKER_TAG=latest
+NETWORK_ID=taurus
+CHAIN_ID=0x...  # Get from network
+
+# RPC URLs (comma-separated for multiple endpoints)
+RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
 
 # Database Configuration
-DB_HOST=postgres-staking
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_DATABASE=staking
+STAKING_DB_HOST=postgres-staking
+STAKING_DB_PORT=5433
+STAKING_DB_USER=postgres
+STAKING_DB_PASSWORD=postgres
+STAKING_DB_DATABASE=staking
+STAKING_INTERNAL_PORT=5432
 
 # Redis Configuration
 REDIS_HOST=redis
 REDIS_PORT=6379
+REDIS_SERVICE_HOST=redis
+REDIS_SERVICE_PORT=6379
 
 # SubQuery Configuration
-SUBQUERY_NODE_PORT=3000
-SUBQUERY_QUERY_PORT=3001
+START_BLOCK_STAKING=1
 
 # Worker Configuration
 BATCH_SIZE=100
 FINALITY_THRESHOLD=100
 ```
 
-### 3. Start Infrastructure Services
+### 3. Build the Indexer and Worker
 
 ```bash
-cd apps/indexers
+# Build the staking indexer
+cd packages/staking-indexer
+yarn codegen
+yarn build
+cd ../..
 
-# Start all infrastructure services
-docker-compose up -d postgres-staking pgcat-staking redis caddy
+# Build the staking worker
+cd packages/staking-worker
+yarn build
+cd ../..
+```
+
+### 4. Start Infrastructure Services
+
+```bash
+cd infra/indexer
+
+# Start base infrastructure services (without profiles)
+docker-compose up -d postgres-staking pgcat-staking caddy node
 
 # Wait for services to be ready (30-60 seconds)
 docker-compose logs -f postgres-staking
 ```
 
-### 4. Initialize Database
+### 5. Initialize Database
 
 ```bash
 # The database will be automatically initialized with the schema
@@ -95,28 +120,17 @@ docker-compose logs -f postgres-staking
 docker-compose exec postgres-staking psql -U postgres -d staking -c "\dt"
 ```
 
-### 5. Start the Staking Indexer
+### 6. Start the Staking Indexer and Worker
 
 ```bash
-# Build the indexer
-yarn codegen
-yarn build
-
-# Start the indexer
-docker-compose up -d staking-indexer
+# Start all indexer components (redis, indexer, and worker)
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml --profile task --profile indexers up -d
 
 # Monitor indexer logs
-docker-compose logs -f staking-indexer
-```
-
-### 6. Start the Staking Worker
-
-```bash
-# Start the worker
-docker-compose up -d staking-worker
+docker-compose logs -f staking_subquery_node
 
 # Monitor worker logs
-docker-compose logs -f staking-worker
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml logs -f staking-worker
 ```
 
 ### 7. Start the Web Frontend
@@ -132,35 +146,34 @@ yarn dev
 ## Accessing the Application
 
 - **Web Frontend**: http://localhost:5173
-- **SubQuery GraphQL Playground**: http://localhost:3001
-- **Indexer Status**: http://localhost:3000
+- **SubQuery Status**: http://localhost:3003
 - **Node RPC (via Caddy)**: http://localhost:8000
 
 ## Development Workflow
 
 ### Making Changes to the Indexer
 
-1. **Update code** in `apps/indexers/staking/src/`
-2. **Rebuild**: `yarn build`
-3. **Restart**: `docker-compose restart staking-indexer`
+1. **Update code** in `packages/staking-indexer/src/`
+2. **Rebuild**: `yarn codegen && yarn build`
+3. **Restart**: `docker-compose restart staking_subquery_node`
 
 ### Making Changes to the Worker
 
-1. **Update code** in `apps/indexers/staking-worker/src/`
+1. **Update code** in `packages/staking-worker/src/`
 2. **Rebuild**: `yarn build`
-3. **Restart**: `docker-compose restart staking-worker`
+3. **Restart**: `docker-compose -f docker-compose.yml -f docker-compose.workers.yml restart staking-worker`
 
 ### Viewing Logs
 
 ```bash
-cd apps/indexers
+cd infra/indexer
 
 # View all service logs
-docker-compose logs -f
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml logs -f
 
 # View specific service logs
-docker-compose logs -f staking-indexer
-docker-compose logs -f staking-worker
+docker-compose logs -f staking_subquery_node
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml logs -f staking-worker
 docker-compose logs -f postgres-staking
 ```
 
@@ -193,6 +206,30 @@ KEYS *
 GET chain:tip
 ```
 
+## Docker Compose Profiles
+
+The infrastructure uses Docker Compose profiles to organize services:
+
+- **No profile**: Base services (postgres, pgcat, caddy, node)
+- **`task` profile**: Redis and task queue services
+- **`indexers` profile**: SubQuery indexer and worker services
+
+### Running with Profiles
+
+```bash
+# Start only base services
+docker-compose up -d
+
+# Start with task services
+docker-compose --profile task up -d
+
+# Start with indexer services
+docker-compose --profile indexers up -d
+
+# Start everything
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml --profile task --profile indexers up -d
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -217,17 +254,20 @@ docker-compose logs postgres-staking
 curl http://localhost:8000/health
 
 # Restart indexer
-docker-compose restart staking-indexer
+docker-compose restart staking_subquery_node
 
 # Check indexer logs
-docker-compose logs -f staking-indexer
+docker-compose logs -f staking_subquery_node
+
+# Check indexer status
+curl http://localhost:3003/ready
 ```
 
 #### 3. Worker Not Processing
 
 ```bash
 # Check worker logs
-docker-compose logs -f staking-worker
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml logs -f staking-worker
 
 # Verify Redis connection
 docker-compose exec redis redis-cli ping
@@ -253,9 +293,8 @@ If ports are already in use:
 ```bash
 # Check what's using the ports
 lsof -i :5173  # Web frontend
-lsof -i :3000  # SubQuery node
-lsof -i :3001  # SubQuery query
-lsof -i :5432  # PostgreSQL
+lsof -i :3003  # SubQuery node
+lsof -i :5433  # PostgreSQL
 lsof -i :6379  # Redis
 
 # Stop conflicting services or change ports in docker-compose.yml
@@ -284,10 +323,10 @@ ORDER BY tablename, attname;
 
 ```bash
 # Check indexer block processing rate
-docker-compose logs staking-indexer | grep "Processing block"
+docker-compose logs staking_subquery_node | grep "Processing block"
 
 # Monitor memory usage
-docker stats staking-indexer
+docker stats staking_subquery_node
 ```
 
 ## Data Reset
@@ -295,10 +334,10 @@ docker stats staking-indexer
 ### Reset Everything
 
 ```bash
-cd apps/indexers
+cd infra/indexer
 
 # Stop all services
-docker-compose down
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml down
 
 # Remove all data
 docker-compose down -v
@@ -307,14 +346,15 @@ docker-compose down -v
 docker-compose down --rmi all
 
 # Start fresh
-docker-compose up -d
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml --profile task --profile indexers up -d
 ```
 
 ### Reset Only Database
 
 ```bash
 # Stop services that use the database
-docker-compose stop staking-indexer staking-worker
+docker-compose stop staking_subquery_node
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml stop staking-worker
 
 # Drop and recreate database
 docker-compose exec postgres-staking psql -U postgres -c "DROP DATABASE IF EXISTS staking;"
@@ -322,7 +362,8 @@ docker-compose exec postgres-staking psql -U postgres -c "CREATE DATABASE stakin
 
 # Restart services (database will be re-initialized)
 docker-compose restart postgres-staking
-docker-compose start staking-indexer staking-worker
+docker-compose start staking_subquery_node
+docker-compose -f docker-compose.yml -f docker-compose.workers.yml start staking-worker
 ```
 
 ## Production Considerations
@@ -347,5 +388,5 @@ This local setup is for development only. For production deployment:
 For issues specific to:
 
 - **Indexer**: Check SubQuery documentation
-- **Worker**: Review the worker flow documentation in `apps/indexers/staking-worker/`
+- **Worker**: Review the worker flow documentation in `packages/staking-worker/`
 - **Frontend**: Standard React/Vite debugging practices

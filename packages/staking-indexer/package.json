@@ -12,6 +12,7 @@
     "test": "subql-node test",
     "codegen": "subql codegen",
     "build": "subql build",
+    "build:project": "subql codegen",
     "dev": "subql-node run",
     "console": "node --experimental-repl-await ./bin/repl",
     "metadata": "subql-node metadata",

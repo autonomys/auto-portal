@@ -19,12 +19,15 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile # Mount the Caddyfile
       - caddy_data:/data # Volume for Let's Encrypt certificates
       - caddy_config:/config
-    depends_on:
-      - node
+    env_file:
+      - .env
+    environment:
+      - UPSTREAM_NODE=${UPSTREAM_NODE:-node:9944}
     restart: unless-stopped
 
   # Subspace Node
   node:
+    profiles: [local-node] # Make node service optional
     image: ghcr.io/autonomys/node:${NODE_DOCKER_TAG}
     volumes:
       - node-data:/var/subspace:rw
@@ -52,9 +55,16 @@ services:
         'all',
         '--rpc-methods',
         'unsafe',
-        '--unsafe-rpc-external',
         '--rpc-listen-on',
         '0.0.0.0:9944',
+        '--rpc-max-subscriptions-per-connection',
+        '1000',
+        '--rpc-max-connections',
+        '20000',
+        '--name',
+        'auto-portal-node',
+        '--sync',
+        'full',
       ]
     healthcheck:
       test:
@@ -62,8 +72,8 @@ services:
           'CMD-SHELL',
           'curl -H ''Content-Type: application/json'' -d ''{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}'' http://localhost:9944/',
         ]
-      interval: 5s
-      timeout: 5s
+      interval: 30s
+      timeout: 10s
       retries: 5
 
   # Postgres Database for Staking
@@ -115,6 +125,7 @@ services:
 
   # Redis
   redis:
+    profiles: [task]
     image: redis:latest
     restart: unless-stopped
     ports:
@@ -129,70 +140,41 @@ services:
       timeout: 5s
       retries: 10
 
-  # Staking Indexer
-  staking-indexer:
-    build:
-      context: ../../packages/staking-indexer
+  # SubQuery Node (handles substrate project indexing)
+  staking_subquery_node:
+    profiles: [indexers]
+    image: ghcr.io/autonomys/subql-node-substrate:latest
+    ports:
+      - '127.0.0.1:3003:3000' # Status page
     depends_on:
       pgcat-staking:
         condition: service_healthy
       postgres-staking:
         condition: service_healthy
-      node:
-        condition: service_healthy
-    restart: unless-stopped
+    command:
+      - -f=/staking
+      - --db-schema=staking
+      - --workers=1
+      - --unsafe
+      - --batch-size=125
+      - --scale-batch-size
+      - --unfinalized-blocks=true
+      - --disable-historical=false
+      - --finalized-depth=100
     environment:
-      NODE_DOCKER_TAG: ${NODE_DOCKER_TAG}
-      NETWORK_ID: ${NETWORK_ID}
-      CHAIN_ID: ${CHAIN_ID}
-      RPC_URLS: ${RPC_URLS}
-      START_BLOCK_STAKING: ${START_BLOCK_STAKING}
-      STAKING_DATABASE_URL: postgres://${STAKING_DB_USER:-postgres}:${STAKING_DB_PASSWORD:-postgres}@${STAKING_DB_HOST:-postgres-staking}:${STAKING_INTERNAL_PORT:-5432}/${STAKING_DB_DATABASE:-staking}
-    volumes:
-      - ./staking:/app
-
-  # Staking Worker
-  staking-worker:
-    build:
-      context: ../../packages/staking-worker
-      dockerfile: Dockerfile
-    depends_on:
-      pgcat-staking:
-        condition: service_healthy
-      postgres-staking:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-    environment:
-      AUTONOMYS_NODE_URL: ${RPC_URLS}
+      NODE_ENV: ${NODE_ENV:-development}
       DB_HOST: ${STAKING_DB_HOST:-postgres-staking}
       DB_PORT: ${STAKING_INTERNAL_PORT:-5432} # Internal port, not external
       DB_USER: ${STAKING_DB_USER:-postgres}
-      DB_PASSWORD: ${STAKING_DB_PASSWORD:-postgres}
-      DB_NAME: ${STAKING_DB_DATABASE:-staking}
-      REDIS_URL: 'redis://${REDIS_SERVICE_HOST:-redis}:${REDIS_SERVICE_PORT:-6379}'
-      BATCH_SIZE: '${BATCH_SIZE:-1000}'
-      QUEUE_PROCESSING_INTERVAL_MS: '${QUEUE_PROCESSING_INTERVAL_MS:-500}'
-      # Performance configuration
-      MAX_CONCURRENT_BATCHES: '${MAX_CONCURRENT_BATCHES:-8}'
-      DB_POOL_SIZE: '${DB_POOL_SIZE:-25}'
-      DB_CONNECTION_TIMEOUT_MS: '${DB_CONNECTION_TIMEOUT_MS:-3000}'
-      # Retry configuration
-      MAX_RETRIES: '${MAX_RETRIES:-3}'
-      RETRY_DELAY_MS: '${RETRY_DELAY_MS:-5000}'
-      # Finality and chain monitoring
-      FINALITY_THRESHOLD: '${FINALITY_THRESHOLD:-100}'
-      CHAIN_TIP_UPDATE_INTERVAL_MS: '${CHAIN_TIP_UPDATE_INTERVAL_MS:-10000}'
-      CHAIN_HEAD_POLL_INTERVAL_MS: '${CHAIN_HEAD_POLL_INTERVAL_MS:-6000}'
-      # Health Check Configuration
-      DB_HEALTH_CHECK_INTERVAL_MS: '${DB_HEALTH_CHECK_INTERVAL_MS:-30000}'
-      # Logging
-      ENABLE_DEBUG_LOGS: '${ENABLE_DEBUG_LOGS:-false}'
-      LOG_LEVEL: '${LOG_LEVEL:-info}'
+      DB_PASS: ${STAKING_DB_PASSWORD:-postgres}
+      DB_DATABASE: ${STAKING_DB_DATABASE:-staking}
+      # Bypass timestamp validation for development
+      BYPASS_TIMESTAMP_CHECK: 'true'
+    volumes:
+      - ../../packages/staking-indexer:/staking
+    restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'node', '-e', 'process.exit(0)']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
-      start_period: 5s
-      retries: 3
+      retries: 5
