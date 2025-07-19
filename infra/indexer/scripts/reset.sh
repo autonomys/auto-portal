@@ -3,6 +3,13 @@
 # Reset script - removes all data and starts fresh
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Change to the indexer directory (parent of scripts)
+INDEXER_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$INDEXER_DIR"
+
+echo "Working from: $(pwd)"
 echo "WARNING: This will remove all indexed data!"
 read -p "Are you sure you want to continue? (y/N) " -n 1 -r
 echo
