@@ -78,10 +78,16 @@ else
     print_info "Starting with external RPC connection, indexers, and workers..."
 fi
 
+
 # Generate project.yaml for SubQuery
 print_info "Generating SubQuery project configuration..."
 cd "$ROOT_DIR/packages/staking-indexer"
-npm run codegen
+yarn codegen
+
+# Build the SubQuery project
+print_info "Building SubQuery project..."
+yarn build
+
 cd "$INDEXER_DIR"
 
 # Start the services
