@@ -11,7 +11,7 @@ COPY .yarn/releases ./.yarn/releases
 COPY packages/staking-worker/package.json ./packages/staking-worker/
 
 # Install dependencies
-RUN yarn install --immutable
+RUN yarn install --frozen-lockfile
 
 # Copy source files
 COPY packages/staking-worker/src ./packages/staking-worker/src

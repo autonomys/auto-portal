@@ -62,8 +62,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@auto-portal/staking-worker@workspace:packages/staking-worker"
   dependencies:
-    "@autonomys/auto-consensus": "npm:1.5.9"
-    "@autonomys/auto-utils": "npm:1.5.9"
+    "@autonomys/auto-consensus": "npm:1.5.10"
+    "@autonomys/auto-utils": "npm:1.5.10"
     "@types/ioredis": "npm:^5.0.0"
     "@types/node": "npm:^20.8.9"
     "@types/pg": "npm:^8.10.7"
