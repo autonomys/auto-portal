@@ -151,6 +151,8 @@ services:
         condition: service_healthy
       postgres-staking:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     command:
       - -f=/staking
       - --db-schema=staking
@@ -161,6 +163,7 @@ services:
       - --unfinalized-blocks=true
       - --disable-historical=false
       - --finalized-depth=100
+      - --comprehensive-fork-detection=true
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       DB_HOST: ${STAKING_DB_HOST:-postgres-staking}
@@ -168,6 +171,8 @@ services:
       DB_USER: ${STAKING_DB_USER:-postgres}
       DB_PASS: ${STAKING_DB_PASSWORD:-postgres}
       DB_DATABASE: ${STAKING_DB_DATABASE:-staking}
+      REDIS_HOST: ${REDIS_SERVICE_HOST:-redis}
+      REDIS_PORT: ${REDIS_SERVICE_PORT:-6379}
       # Bypass timestamp validation for development
       BYPASS_TIMESTAMP_CHECK: 'true'
     volumes:
