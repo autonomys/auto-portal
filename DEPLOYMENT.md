@@ -11,7 +11,6 @@ auto-portal/
 ├── apps/
 │   └── web/                    # React web frontend
 ├── packages/
-│   ├── shared-types/          # Shared TypeScript types
 │   ├── staking-indexer/       # SubQuery blockchain indexer
 │   └── staking-worker/        # Background processing worker
 ├── infra/
