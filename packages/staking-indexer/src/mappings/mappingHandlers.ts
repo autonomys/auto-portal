@@ -98,7 +98,7 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
 
   // Create a map of operatorId -> domainId for quick lookups
   const operatorDomainMap = createOperatorDomainMap(operators);
-  const operatorOwnerMap = new Map<string, string>(
+  const operatorOwnerMap = new Map(
     queriesResults[2].map(([key, value]) => [
       (key.toHuman() as any)[0].toString(),
       value.toPrimitive() as string,

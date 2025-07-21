@@ -1,46 +1,54 @@
 {
-  "name": "@auto-portal/staking-indexer",
+  "name": "staking",
   "version": "1.0.0",
-  "description": "Auto Portal blockchain indexer for staking data",
-  "repository": "https://github.com/jfrank-summit/auto-portal",
-  "license": "MIT",
+  "description": "Autonomys Network - Staking",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rm -rf dist",
-    "test": "subql-node test",
-    "codegen": "subql codegen",
     "build": "subql codegen && subql build",
-    "build:project": "subql codegen",
-    "dev": "subql-node run",
-    "console": "node --experimental-repl-await ./bin/repl",
-    "metadata": "subql-node metadata",
-    "migrate": "subql-node migrate",
-    "apply-seeds:mainnet": "ts-node ./scripts/apply-mainnet-seeds.ts",
-    "apply-seeds:testnet": "ts-node ./scripts/apply-testnet-seeds.ts"
+    "codegen": "subql codegen",
+    "start:docker": "docker-compose pull && docker-compose up --remove-orphans",
+    "dev": "subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans",
+    "prepack": "rm -rf dist && npm run build",
+    "test": "subql build && subql-node test",
+    "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build"
   },
+  "homepage": "https://github.com/autonomys/astral",
   "files": [
     "dist",
     "schema.graphql",
     "project.yaml"
   ],
-  "dependencies": {
-    "@autonomys/auto-consensus": "1.5.9",
-    "@autonomys/auto-utils": "1.5.9",
-    "@polkadot/api": "^12.0.2",
-    "@polkadot/api-augment": "^12.0.2",
-    "@subql/node": "^4.7.1",
-    "@subql/types": "^3.6.0",
-    "assert": "^2.0.0",
-    "ioredis": "^5.4.1"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/autonomys/astral"
   },
+  "author": {
+    "name": "Autonomys",
+    "url": "https://www.autonomys.xyz"
+  },
+  "bugs": {
+    "url": "https://github.com/autonomys/astral/issues"
+  },
+  "license": "MIT",
   "devDependencies": {
-    "@subql/cli": "^4.8.1",
-    "@subql/testing": "^2.1.1",
-    "@subql/types-core": "^2.1.0",
-    "@types/ioredis": "^5.0.0",
-    "@types/node": "^20.11.26",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "@apollo/client": "^3.13.5",
+    "@autonomys/auto-consensus": "^1.5.10",
+    "@autonomys/auto-utils": "^1.5.10",
+    "@polkadot/api": "^16.2.2",
+    "@polkadot/types": "^16.3.1",
+    "@polkadot/util": "^13.4.3",
+    "@polkadot/util-crypto": "^13.4.3",
+    "@subql/cli": "^5.7.0",
+    "@subql/common-substrate": "^4.3.7",
+    "@subql/node": "^5.10.0",
+    "@subql/types": "^3.12.1",
+    "@types/node": "^22.9.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.10.0",
+    "prom-client": "^14.2.0",
+    "rxjs": "^7.8.2",
+    "typescript": "^5.8.2"
   }
 }

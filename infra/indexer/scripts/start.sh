@@ -5,6 +5,16 @@
 
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Change to the indexer directory (parent of scripts)
+INDEXER_DIR="$(dirname "$SCRIPT_DIR")"
+# Get the auto-portal root directory (two levels up from indexer)
+ROOT_DIR="$(dirname "$(dirname "$INDEXER_DIR")")"
+
+cd "$INDEXER_DIR"
+echo "Working from: $(pwd)"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -68,11 +78,17 @@ else
     print_info "Starting with external RPC connection, indexers, and workers..."
 fi
 
+
 # Generate project.yaml for SubQuery
 print_info "Generating SubQuery project configuration..."
-cd ../../packages/staking-indexer
-npm run build:project
-cd ../../infra/indexer
+cd "$ROOT_DIR/packages/staking-indexer"
+yarn codegen
+
+# Build the SubQuery project
+print_info "Building SubQuery project..."
+yarn build
+
+cd "$INDEXER_DIR"
 
 # Start the services
 print_info "Starting Auto Portal indexer infrastructure..."

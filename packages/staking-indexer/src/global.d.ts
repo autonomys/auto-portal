@@ -31,7 +31,7 @@ interface SafeRedisClient {
   smembers: (key: string) => Promise<string[]>;
   scard: (key: string) => Promise<number>;
   zadd: (key: string, score: number, member: string) => Promise<number>;
-  zrem: (key: string, member: string) => Promise<number>;
+  zrem: (key: string, member: string) => Promise<string | null>;
   zscore: (key: string, member: string) => Promise<string | null>;
   zrange: (key: string, start: number, stop: number) => Promise<string[]>;
   zrevrange: (key: string, start: number, stop: number) => Promise<string[]>;
@@ -40,10 +40,6 @@ interface SafeRedisClient {
 
 declare global {
   const redis: SafeRedisClient | undefined;
-  const store: any; // SubQuery store
-  const logger: any; // SubQuery logger
-  const unsafeApi: any; // SubQuery unsafe API
-  const api: any; // SubQuery API
 }
 
 export {};
