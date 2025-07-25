@@ -8,7 +8,6 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 - **SubQuery Indexing**: Indexes staking events and operator data
 - **PostgreSQL Storage**: Persistent database with connection pooling
 - **Redis Task Queue**: For background worker processing
-- **Caddy Reverse Proxy**: CORS-enabled RPC access
 
 ## Quick Start
 
@@ -40,24 +39,21 @@ cp .env.example .env
 
 - `.env.example` - Template with both local and testnet configurations
 - Edit `.env` to choose your setup:
-  - **Taurus Testnet**: Uses `UPSTREAM_NODE=rpc.taurus.autonomys.xyz`
-  - **Local Node**: Uses `UPSTREAM_NODE=node:9944`
+  - **Taurus Testnet**: Uses `RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws`
+  - **Local Node**: Uses `RPC_URLS=ws://node:9944`
 
 ### Docker Compose Profiles
 
-The setup uses Docker Compose profiles to make services optional:
+The setup uses Docker Compose profiles for optional services:
 
-- **No profiles** (default): Core services only (Caddy, PostgreSQL, PgCat)
-- **`local-node`**: Includes local Autonomys development node
-- **`indexers`**: Includes SubQuery indexing services
-- **`task`**: Includes Redis and worker services
+- **No profiles** (default): All core staking services (PostgreSQL, PgCat, Redis, SubQuery, Worker)
+- **`local-node`**: Additionally includes local Autonomys development node
 
 ## Service Architecture
 
 ```mermaid
 graph TD
-    A[Web Frontend] --> B[Caddy :8000]
-    B --> C{Node Type}
+    A[Web Frontend] --> C{Node Type}
     C -->|Local| D[Local Node :9944]
     C -->|External| E[Taurus RPC]
 
@@ -74,16 +70,14 @@ graph TD
 
 | Service    | Port | Description            | Profile      |
 | ---------- | ---- | ---------------------- | ------------ |
-| Caddy      | 8000 | RPC Reverse Proxy      | Always       |
 | Node       | 9944 | Local Development Node | `local-node` |
 | PostgreSQL | 5433 | Database               | Always       |
 | PgCat      | 6433 | Connection Pooler      | Always       |
-| SubQuery   | 3003 | Indexer Status         | `indexers`   |
-| Redis      | 6379 | Task Queue             | `task`       |
+| SubQuery   | 3003 | Indexer Status         | Always       |
+| Redis      | 6379 | Task Queue             | Always       |
 
 ## Access Points
 
-- **Node RPC**: `http://localhost:8000` (via Caddy)
 - **Database**: `postgresql://postgres:postgres@localhost:5433/staking`
 - **SubQuery Status**: `http://localhost:3003`
 - **Redis**: `redis://localhost:6379`
@@ -98,11 +92,11 @@ graph TD
 ./scripts/start.sh --with-local-node
 
 # View all logs
-docker compose -f docker-compose.yml -f docker-compose.workers.yml logs -f
+docker compose logs -f
 
 # View specific service logs
 docker compose logs -f staking_subquery_node
-docker compose logs -f caddy
+docker compose logs -f postgres-staking
 
 # Stop all services
 ./scripts/stop.sh
@@ -135,7 +129,6 @@ Key configuration variables in `.env`:
 
 ```bash
 # Network Configuration
-UPSTREAM_NODE=rpc.taurus.autonomys.xyz  # or node:9944 for local
 RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
 CHAIN_ID=0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e
 
@@ -173,10 +166,10 @@ docker compose exec postgres-staking psql -U postgres -d staking
 ### Network Issues
 
 ```bash
-# Test RPC connection
+# Test local node RPC connection (if using local-node profile)
 curl -H "Content-Type: application/json" \
   -d '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' \
-  http://localhost:8000
+  http://localhost:9944
 ```
 
 For more detailed deployment information, see [DEPLOYMENT.md](./DEPLOYMENT.md).
