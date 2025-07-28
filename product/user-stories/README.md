@@ -179,7 +179,7 @@ product/
 
 - **Status:** 📋 **READY FOR IMPLEMENTATION** (Requires Indexer)
 - **Type:** Frontend + GraphQL Integration
-- **Purpose:** Historical performance data and trend analysis using Astral indexer
+- **Purpose:** Historical performance data and trend analysis using Auto Portal indexer
 - **Dependencies:** ✅ Core platform complete, ✅ Indexer schema documented
 
 ### **[Operator Comparison Tools](./operator-comparison-tools.md)**
@@ -200,9 +200,9 @@ product/
 
 ### **Dashboard Analytics**
 
-- **Purpose:** Historical data integration with Astral indexer
+- **Purpose:** Historical data integration with Auto Portal indexer
 - **Features:** APR trends, performance charts, portfolio analytics
-- **Dependencies:** Astral indexer deployment and data availability
+- **Dependencies:** Auto Portal indexer deployment and data availability
 
 ### **Batch Operations**
 

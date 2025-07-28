@@ -1,0 +1,36 @@
+{
+  "name": "@auto-portal/staking-worker",
+  "version": "1.0.0",
+  "description": "Background worker for processing staking data in Auto Portal",
+  "repository": "https://github.com/jfrank-summit/auto-portal",
+  "license": "MIT",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "nodemon --watch src --exec ts-node src/main.ts",
+    "clean": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "auto-portal",
+    "worker",
+    "staking"
+  ],
+  "dependencies": {
+    "@autonomys/auto-consensus": "1.5.10",
+    "@autonomys/auto-utils": "1.5.10",
+    "dotenv": "^16.3.1",
+    "ioredis": "^5.3.2",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^5.0.0",
+    "@types/node": "^20.8.9",
+    "@types/pg": "^8.10.7",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

@@ -10,4 +10,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split large vendor libraries into separate chunks
+          polkadot: ['@polkadot/api', '@polkadot/types', '@polkadot/util'],
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
+    // Increase chunk size warning limit to reduce noise
+    chunkSizeWarningLimit: 1000,
+  },
 });
