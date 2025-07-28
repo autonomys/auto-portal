@@ -168,6 +168,13 @@ product/
 
 ### **Ready for Implementation**
 
+### **[Enhanced Operator Discovery](./operator-discovery-indexer.md)**
+
+- **Status:** 📋 **READY FOR IMPLEMENTATION** (Priority: High)
+- **Type:** Frontend + GraphQL Integration
+- **Purpose:** Remove 2-operator limitation using Auto Portal indexer
+- **Dependencies:** ✅ Core platform complete, ✅ Indexer available at GraphQL endpoint
+
 ### **[Basic Operator Details](./operator-details-basic.md)**
 
 - **Status:** 📋 **READY FOR IMPLEMENTATION**

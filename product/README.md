@@ -125,6 +125,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 
 - [x] **✅ Complete Core Platform** - All essential staking functionality delivered
 - [x] **✅ Production Deployment** - Live application ready for users
+- [ ] **Enhanced Operator Discovery** - Remove 2-operator limit with indexer integration (Priority: High)
 - [ ] **Advanced Analytics** - Historical data integration with Auto Portal indexer
 - [ ] **Enhanced Operator Details** - Rich operator profiles with performance metrics
 - [ ] **Batch Operations** - Multi-operator staking capabilities
@@ -139,7 +140,7 @@ Enable operators and nominators to seamlessly stake on Autonomys domains with a 
 ✅ **End-to-End Functionality**: Users can now complete the full staking journey:
 
 - **Connect Wallet** with real balance display and enhanced UX
-- **Browse Operators** with real RPC data from Taurus testnet
+- **Browse Operators** with real RPC data from Taurus testnet (currently limited to 2 operators)
 - **Stake Tokens** with real `nominateOperator` transactions
 - **Track Portfolio** with live position monitoring and pending operations
 - **Withdraw Stakes** with two-step `withdrawStake` and `unlockFunds` process
