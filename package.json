@@ -9,7 +9,6 @@
   ],
   "scripts": {
     "dev": "yarn workspace @auto-portal/web dev",
-    "dev:indexer": "cd infra/indexer && docker-compose up",
     "dev:worker": "yarn workspace @auto-portal/staking-worker dev",
     "build": "yarn workspaces foreach -Apt run build",
     "build:indexer": "yarn workspace staking build",
@@ -20,7 +19,16 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "yarn workspaces foreach -Apt run type-check",
     "clean": "yarn workspaces foreach -Apt run clean && rm -rf node_modules",
-    "indexer:codegen": "yarn workspace staking codegen"
+    "indexer:codegen": "yarn workspace staking codegen",
+    "infra:setup": "make -C infra/staking setup",
+    "infra:start": "make -C infra/staking start",
+    "infra:start-local": "make -C infra/staking start-local",
+    "infra:stop": "make -C infra/staking stop",
+    "infra:logs": "make -C infra/staking logs",
+    "infra:status": "make -C infra/staking status",
+    "infra:reset": "make -C infra/staking reset",
+    "infra:info": "make -C infra/staking info",
+    "infra:rebuild": "make -C infra/staking rebuild"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

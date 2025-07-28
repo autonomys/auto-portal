@@ -10,7 +10,7 @@ infra/
 │   ├── db/                    # PostgreSQL database configuration
 │   ├── scripts/               # Helper scripts (start.sh, stop.sh, reset.sh)
 │   ├── .env.example           # Environment variables template
-│   ├── Caddyfile              # Reverse proxy configuration
+
 │   ├── docker-compose.yml     # Main service orchestration
 │   ├── docker-compose.workers.yml  # Worker service definitions
 │   ├── DEPLOYMENT.md          # Deployment instructions
@@ -26,7 +26,6 @@ The indexer infrastructure supports the blockchain data indexing system with fle
 
 #### **Core Services:**
 
-- **Caddy Reverse Proxy**: CORS-enabled RPC gateway to blockchain networks
 - **PostgreSQL Database**: Stores indexed blockchain data with connection pooling (PgCat)
 - **Redis**: Queue management and task coordination
 - **SubQuery Node**: Indexes staking events and operator data
@@ -67,10 +66,8 @@ docker compose -f docker-compose.yml -f docker-compose.workers.yml logs -f
 
 The infrastructure uses profiles for optional services:
 
-- **Base services**: Caddy, PostgreSQL, PgCat (always run)
-- **`local-node` profile**: Optional local Autonomys node
-- **`indexers` profile**: SubQuery node for blockchain indexing
-- **`task` profile**: Redis and worker services
+- **Default services**: PostgreSQL, PgCat, Redis, SubQuery indexer, Staking worker (always run)
+- **`local-node` profile**: Optional local Autonomys node for development
 
 ## Network Configuration
 
@@ -79,7 +76,6 @@ The infrastructure uses profiles for optional services:
 ```bash
 # In .env file:
 NETWORK_ID=taurus
-UPSTREAM_NODE=https://rpc.taurus.autonomys.xyz
 RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
 ```
 
@@ -88,7 +84,6 @@ RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
 ```bash
 # In .env file (uncomment local section):
 NETWORK_ID=dev
-UPSTREAM_NODE=node:9944
 RPC_URLS=ws://node:9944
 ```
 
@@ -96,7 +91,7 @@ RPC_URLS=ws://node:9944
 
 When running:
 
-- **Node RPC**: `http://localhost:8000` (via Caddy proxy)
+- **Local Node RPC**: `http://localhost:9944` (when using local-node profile)
 - **Database**: `postgresql://postgres:postgres@localhost:5433/staking`
 - **SubQuery Status**: `http://localhost:3003`
 - **Redis**: `redis://localhost:6379`
