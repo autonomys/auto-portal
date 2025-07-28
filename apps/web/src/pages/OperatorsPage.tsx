@@ -24,9 +24,7 @@ export const OperatorsPage: React.FC = () => {
   };
 
   const handleViewDetails = (operatorId: string) => {
-    console.log('View operator details:', operatorId);
-    // TODO: Navigate to operator details page
-    // navigate(`/operators/${operatorId}`);
+    navigate(`/operators/${operatorId}`);
   };
 
   const handleViewModeChange = (mode: 'grid' | 'table') => {
