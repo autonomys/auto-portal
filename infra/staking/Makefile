@@ -31,6 +31,9 @@ setup: ## First-time setup (copy .env.example if needed)
 	else \
 		echo "$(GREEN)✅ .env file already exists$(NC)"; \
 	fi
+	@echo "$(YELLOW)Generating SubQuery project.yaml from .env...$(NC)"
+	@cd ../../packages/staking-indexer && yarn codegen
+	@echo "$(GREEN)✅ SubQuery project.yaml generated$(NC)"
 	@echo "$(YELLOW)💡 Quick setup options:$(NC)"
 	@echo "  • For Taurus testnet (recommended): Use .env as-is"
 	@echo "  • For local development: Adjust NETWORK_ID and RPC_URLS in .env"

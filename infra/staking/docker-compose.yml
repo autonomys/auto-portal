@@ -59,7 +59,7 @@ services:
     volumes:
       - postgres_staking_db:/var/lib/postgresql/data
       - ./db/docker-entrypoint-initdb.d/staking-only/00-staking-setup.sql:/docker-entrypoint-initdb.d/00-staking-setup.sql
-      - ./db/docker-entrypoint-initdb.d/staking-only/07-schema-staking.sql:/docker-entrypoint-initdb.d/01-schema-staking.sql
+      - ./db/docker-entrypoint-initdb.d/staking-only/01-schema-staking.sql:/docker-entrypoint-initdb.d/01-schema-staking.sql
       - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
     restart: unless-stopped
     hostname: postgres-staking
@@ -147,6 +147,8 @@ services:
       DB_DATABASE: ${STAKING_DB_DATABASE}
       DB_HOST: ${STAKING_DB_HOST}
       DB_PORT: ${STAKING_DB_INTERNAL_PORT}
+      REDIS_HOST: ${REDIS_SERVICE_HOST:-redis}
+      REDIS_PORT: ${REDIS_SERVICE_PORT:-6379}
     volumes:
       - ../../packages/staking-indexer:/staking
     restart: unless-stopped
