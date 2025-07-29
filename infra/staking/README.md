@@ -8,6 +8,7 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 - **SubQuery Indexing**: Indexes staking events and operator data
 - **PostgreSQL Storage**: Persistent database with connection pooling
 - **Redis Task Queue**: For background worker processing
+- **Hasura GraphQL**: Production-compatible GraphQL API layer
 
 ## Quick Start
 
@@ -53,11 +54,14 @@ The setup uses Docker Compose profiles for optional services:
 
 ```mermaid
 graph TD
-    A[Web Frontend] --> C{Node Type}
+    A[Web Frontend] --> K[Hasura GraphQL :8080]
+    K --> G[PostgreSQL :5433]
+
+    C{Node Type}
     C -->|Local| D[Local Node :9944]
     C -->|External| E[Taurus RPC]
 
-    F[SubQuery Indexer] --> G[PostgreSQL :5433]
+    F[SubQuery Indexer] --> G
     F --> C
     H[Staking Worker] --> I[Redis :6379]
     H --> G
@@ -75,12 +79,37 @@ graph TD
 | PgCat      | 6433 | Connection Pooler      | Always       |
 | SubQuery   | 3003 | Indexer Status         | Always       |
 | Redis      | 6379 | Task Queue             | Always       |
+| Hasura     | 8080 | GraphQL API            | Always       |
 
 ## Access Points
 
 - **Database**: `postgresql://postgres:postgres@localhost:5433/staking`
 - **SubQuery Status**: `http://localhost:3003`
 - **Redis**: `redis://localhost:6379`
+- **Hasura GraphQL**: `http://localhost:8080/v1/graphql` (configurable via `HASURA_GRAPHQL_PORT`)
+- **Hasura Console**: `http://localhost:8080/console` (configurable, password via `HASURA_GRAPHQL_ADMIN_SECRET`)
+
+## Configuration
+
+### **Hasura Settings**
+
+Customize Hasura behavior in your `.env` file:
+
+```bash
+# Hasura Configuration
+HASURA_GRAPHQL_PORT=8080                    # Change port if needed
+HASURA_GRAPHQL_ADMIN_SECRET=your-secret     # ⚠️  CRITICAL: Use strong secret for production!
+HASURA_GRAPHQL_ENABLE_CONSOLE=true         # Disable in production
+HASURA_GRAPHQL_DEV_MODE=true               # MUST be false in production
+HASURA_GRAPHQL_ENABLE_INTROSPECTION=true   # Consider disabling in production
+```
+
+**🔒 Security Notes:**
+
+- **Development**: Admin secret is shown for convenience
+- **Production**: Set `NODE_ENV=production` to hide secrets in logs
+- **Generate secure secret**: `openssl rand -hex 32`
+- **Disable console and dev mode** in production environments
 
 ## Common Commands
 
