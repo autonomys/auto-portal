@@ -11,7 +11,7 @@ export const operatorService = async (networkId: string = 'taurus') => {
     try {
       // Primary: Fetch from indexer
       const { operators: indexerOperators } = await indexerService.getOperators({
-        limit: 100,
+        limit: 20,
         where: { processed: { _eq: true } },
         order_by: { block_height: 'asc' },
       });
