@@ -32,9 +32,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
     }
   };
 
-  const getOperatorInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  const getOperatorInitial = (name: string) => name.charAt(0).toUpperCase();
 
   if (loading) {
     return (

@@ -11,13 +11,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   title,
   children,
   className = '',
-}) => {
-  return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-h3">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="stack-lg">{children}</CardContent>
-    </Card>
-  );
-};
+}) => (
+  <Card className={className}>
+    <CardHeader>
+      <CardTitle className="text-h3">{title}</CardTitle>
+    </CardHeader>
+    <CardContent className="stack-lg">{children}</CardContent>
+  </Card>
+);

@@ -29,6 +29,17 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'prettier/prettier': ['error'],
+      // Prefer arrow functions
+      'prefer-arrow-callback': ['error', { allowNamedFunctions: false }],
+      'func-style': ['error', 'expression', { allowArrowFunctions: true }],
+      'arrow-body-style': ['error', 'as-needed'],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'FunctionDeclaration',
+          message: 'Use arrow functions instead of function declarations',
+        },
+      ],
     },
   },
 );

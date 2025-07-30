@@ -42,18 +42,13 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
     });
   };
 
-  const getSortValue = () => {
-    return `${filters.sortBy}-${filters.sortOrder}`;
-  };
+  const getSortValue = () => `${filters.sortBy}-${filters.sortOrder}`;
 
-  const hasActiveFilters = () => {
-    return (
-      filters.searchQuery.trim() !== '' ||
-      filters.domainFilter !== 'all' ||
-      filters.sortBy !== 'totalStaked' ||
-      filters.sortOrder !== 'desc'
-    );
-  };
+  const hasActiveFilters = () =>
+    filters.searchQuery.trim() !== '' ||
+    filters.domainFilter !== 'all' ||
+    filters.sortBy !== 'totalStaked' ||
+    filters.sortOrder !== 'desc';
 
   return (
     <div className="space-y-4">

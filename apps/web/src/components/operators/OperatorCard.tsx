@@ -27,9 +27,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
     }
   };
 
-  const getOperatorInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  const getOperatorInitial = (name: string) => name.charAt(0).toUpperCase();
 
   return (
     <Card className="hover:shadow-lg hover:border-primary-200 transition-all duration-200 cursor-pointer">

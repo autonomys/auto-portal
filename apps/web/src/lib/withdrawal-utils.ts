@@ -203,9 +203,7 @@ const formatTimeRemaining = (seconds: number): string => {
 export const calculateStorageFeeRefund = (
   withdrawalPercentage: number,
   totalStorageFeeDeposit: number,
-): number => {
-  return withdrawalPercentage * totalStorageFeeDeposit;
-};
+): number => withdrawalPercentage * totalStorageFeeDeposit;
 
 /**
  * Calculate net stake withdrawal from gross withdrawal amount
@@ -216,9 +214,7 @@ export const calculateStorageFeeRefund = (
 export const calculateNetStakeWithdrawal = (
   grossWithdrawalAmount: number,
   storageFeeRefund: number,
-): number => {
-  return grossWithdrawalAmount - storageFeeRefund;
-};
+): number => grossWithdrawalAmount - storageFeeRefund;
 
 /**
  * Get withdrawal preview information

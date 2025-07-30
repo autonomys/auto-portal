@@ -23,9 +23,8 @@ export const formatAI3 = (value: string | number, decimals: number = 2): string 
 /**
  * Format percentage values
  */
-export const formatPercentage = (value: number, decimals: number = 1): string => {
-  return `${value.toFixed(decimals)}%`;
-};
+export const formatPercentage = (value: number, decimals: number = 1): string =>
+  `${value.toFixed(decimals)}%`;
 
 /**
  * Format large numbers with suffixes (K, M, B)
@@ -67,9 +66,7 @@ export const getPercentageColor = (
 /**
  * Get color class for APY values
  */
-export const getAPYColor = (apy: number) => {
-  return getPercentageColor(apy, { good: 16, warning: 12 });
-};
+export const getAPYColor = (apy: number) => getPercentageColor(apy, { good: 16, warning: 12 });
 
 /**
  * Truncate address for display

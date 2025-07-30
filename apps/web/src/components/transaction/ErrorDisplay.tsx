@@ -12,12 +12,10 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   error,
   title = 'Error',
   className = '',
-}) => {
-  return (
-    <Alert variant="destructive" className={className}>
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>{error}</AlertDescription>
-    </Alert>
-  );
-};
+}) => (
+  <Alert variant="destructive" className={className}>
+    <AlertCircle className="h-4 w-4" />
+    <AlertTitle>{title}</AlertTitle>
+    <AlertDescription>{error}</AlertDescription>
+  </Alert>
+);
