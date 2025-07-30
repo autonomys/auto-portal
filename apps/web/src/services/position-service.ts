@@ -1,6 +1,6 @@
 import { nominatorPosition } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
-import { shannonsToAI3 } from '@/lib/unit-conversion';
+import { shannonsToAI3 } from '@/lib/unit-conversions';
 import type {
   UserPosition,
   PortfolioSummary,

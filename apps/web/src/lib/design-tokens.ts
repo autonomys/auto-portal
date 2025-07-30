@@ -163,31 +163,20 @@ export type ValidationState = keyof typeof validationColors;
 export type WalletStatus = keyof typeof walletStatusColors;
 
 // Utility function to get semantic color classes
-export const getSemanticColors = (semantic: SemanticColor) => {
-  return semanticColors[semantic];
-};
+export const getSemanticColors = (semantic: SemanticColor) => semanticColors[semantic];
 
 // Utility function to get status color classes
-export const getStatusColor = (status: StatusColor) => {
-  return statusColors[status];
-};
+export const getStatusColor = (status: StatusColor) => statusColors[status];
 
 // Utility function to get operator status colors
-export const getOperatorStatusColors = (status: OperatorStatus) => {
-  return operatorStatusColors[status];
-};
+export const getOperatorStatusColors = (status: OperatorStatus) => operatorStatusColors[status];
 
 // Utility function to get transaction status colors
-export const getTransactionStatusColors = (status: TransactionStatus) => {
-  return transactionStatusColors[status];
-};
+export const getTransactionStatusColors = (status: TransactionStatus) =>
+  transactionStatusColors[status];
 
 // Utility function to get validation colors
-export const getValidationColors = (state: ValidationState) => {
-  return validationColors[state];
-};
+export const getValidationColors = (state: ValidationState) => validationColors[state];
 
 // Utility function to get wallet status colors
-export const getWalletStatusColors = (status: WalletStatus) => {
-  return walletStatusColors[status];
-};
+export const getWalletStatusColors = (status: WalletStatus) => walletStatusColors[status];

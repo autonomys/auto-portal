@@ -135,13 +135,12 @@ export const createStatusBadge = (
  * Utility function to properly add hover prefix to background classes
  * Handles cases where bg classes might contain variants like 'dark:'
  */
-const addHoverToClasses = (classes: string): string => {
-  return classes
+const addHoverToClasses = (classes: string): string =>
+  classes
     .split(' ')
     .filter(Boolean)
     .map(cls => `hover:${cls}`)
     .join(' ');
-};
 
 /**
  * Creates button classes with semantic colors
@@ -212,16 +211,14 @@ export const createStatusDot = (
 /**
  * Utility to check if a semantic color is a "positive" state
  */
-export const isPositiveSemanticColor = (semantic: SemanticColor): boolean => {
-  return semantic === 'success' || semantic === 'info';
-};
+export const isPositiveSemanticColor = (semantic: SemanticColor): boolean =>
+  semantic === 'success' || semantic === 'info';
 
 /**
  * Utility to check if a semantic color is a "negative" state
  */
-export const isNegativeSemanticColor = (semantic: SemanticColor): boolean => {
-  return semantic === 'error' || semantic === 'warning';
-};
+export const isNegativeSemanticColor = (semantic: SemanticColor): boolean =>
+  semantic === 'error' || semantic === 'warning';
 
 /**
  * Get the appropriate semantic color for a status

@@ -28,9 +28,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
     }
   };
 
-  const getOperatorInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  const getOperatorInitial = (name: string) => name.charAt(0).toUpperCase();
 
   // Calculate user's share percentage
   const calculateUserShare = (): string => {

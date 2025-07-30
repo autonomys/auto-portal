@@ -32,7 +32,7 @@ setup: ## First-time setup (copy .env.example if needed)
 		echo "$(GREEN)✅ .env file already exists$(NC)"; \
 	fi
 	@echo "$(YELLOW)Generating SubQuery project.yaml from .env...$(NC)"
-	@cd ../../packages/staking-indexer && yarn codegen
+	@cd ../../services/staking-indexer && yarn codegen
 	@echo "$(GREEN)✅ SubQuery project.yaml generated$(NC)"
 	@echo "$(YELLOW)💡 Quick setup options:$(NC)"
 	@echo "  • For Taurus testnet (recommended): Use .env as-is"

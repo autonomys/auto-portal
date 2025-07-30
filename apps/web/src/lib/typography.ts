@@ -32,6 +32,4 @@ export const typography = {
 
 export type TypographyVariant = keyof typeof typography;
 
-export const getTypographyClasses = (variant: TypographyVariant) => {
-  return typography[variant];
-};
+export const getTypographyClasses = (variant: TypographyVariant) => typography[variant];

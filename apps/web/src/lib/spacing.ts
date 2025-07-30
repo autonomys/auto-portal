@@ -58,6 +58,5 @@ export const spacing = {
 
 export type SpacingSize = keyof typeof spacing.gap;
 
-export const getSpacingClasses = (type: keyof typeof spacing, size: SpacingSize) => {
-  return spacing[type][size];
-};
+export const getSpacingClasses = (type: keyof typeof spacing, size: SpacingSize) =>
+  spacing[type][size];

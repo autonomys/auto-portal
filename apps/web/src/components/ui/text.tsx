@@ -13,10 +13,8 @@ export const Text: React.FC<TextProps> = ({
   className,
   children,
   ...props
-}) => {
-  return (
-    <Component className={cn(typography[variant], className)} {...props}>
-      {children}
-    </Component>
-  );
-};
+}) => (
+  <Component className={cn(typography[variant], className)} {...props}>
+    {children}
+  </Component>
+);

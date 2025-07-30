@@ -30,9 +30,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
     }
   };
 
-  const getOperatorInitial = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
+  const getOperatorInitial = (name: string) => name.charAt(0).toUpperCase();
 
   const calculateUserStakePercentage = (): string => {
     if (!userPosition || userPosition.positionValue === 0) {
