@@ -1,93 +1,84 @@
 import { operator } from '@autonomys/auto-consensus';
 import type { Operator, OperatorStats } from '@/types/operator';
 import { getSharedApiConnection } from './api-service';
-import { TARGET_OPERATORS } from '@/constants/target-operators';
+import indexerService from './indexer-service';
+import { mapIndexerToOperator, mapRpcToOperator } from '@/lib/operator-mapper';
 
 export const operatorService = async (networkId: string = 'taurus') => {
   const api = await getSharedApiConnection(networkId);
 
   const getAllOperators = async (): Promise<Operator[]> => {
+    try {
+      // Primary: Fetch from indexer
+      const { operators: indexerOperators } = await indexerService.getOperators({
+        limit: 20,
+        where: { processed: { _eq: true } },
+        order_by: { block_height: 'asc' },
+      });
+
+      // Enrich with RPC data for real-time values
+      const operators: Operator[] = [];
+      for (const registration of indexerOperators) {
+        try {
+          const rpcData = await operator(api, registration.id);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          operators.push(mapIndexerToOperator(registration, rpcData as any));
+        } catch {
+          // Use indexer data only if RPC fails
+          console.warn(`RPC data unavailable for operator ${registration.id}`);
+          operators.push(mapIndexerToOperator(registration));
+        }
+      }
+
+      return operators;
+    } catch {
+      // Fallback: Use hardcoded operators with RPC
+      console.warn('Indexer unavailable, using RPC fallback');
+      return getAllOperatorsFromRpc();
+    }
+  };
+
+  // Fallback function for when indexer is unavailable
+  const getAllOperatorsFromRpc = async (): Promise<Operator[]> => {
+    const TARGET_OPERATORS = ['0', '3']; // Fallback operators
     const operators: Operator[] = [];
 
-    console.log(`Fetching operators from network: ${networkId}`);
-
-    // Iterate through target operators and fetch via RPC
     for (const operatorId of TARGET_OPERATORS) {
       try {
-        const operatorData = await operator(api, operatorId);
-        console.log(`✅ Found operator ${operatorId}:`, operatorData);
-
-        // Map RPC data to UI interface with robust null checking
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rpc = operatorData as any;
-
-        // Skip operators with missing critical data
-        if (!rpc || rpc.signingKey === null || rpc.signingKey === undefined) {
-          console.warn(`❌ Operator ${operatorId} has null signingKey, skipping`);
-          continue;
-        }
-
-        const mappedOperator: Operator = {
-          id: operatorId,
-          name: `Operator ${operatorId}`,
-          domainId: String(rpc.currentDomainId || rpc.nextDomainId || '0'),
-          domainName: 'Auto EVM',
-          ownerAccount: String(rpc.signingKey),
-          nominationTax: Number(rpc.nominationTax || 0),
-          minimumNominatorStake: rpc.minimumNominatorStake
-            ? (Number(rpc.minimumNominatorStake) / Math.pow(10, 18)).toFixed(4)
-            : '0.0000',
-          status: 'active' as const,
-          totalStaked: rpc.currentTotalStake
-            ? (Number(rpc.currentTotalStake) / Math.pow(10, 18)).toFixed(4)
-            : '0.0000',
-          nominatorCount: 0,
-        };
-
-        operators.push(mappedOperator);
-      } catch (error) {
-        console.warn(`❌ Operator ${operatorId} not found:`, error);
-        // Continue with other operators
+        const rpcData = await operator(api, operatorId);
+        const mapped = mapRpcToOperator(operatorId, rpcData);
+        if (mapped) operators.push(mapped);
+      } catch {
+        console.warn(`Failed to fetch operator ${operatorId}`);
       }
     }
 
-    console.log(`Found ${operators.length} valid operators`);
     return operators;
   };
 
   const getOperatorById = async (operatorId: string): Promise<Operator | null> => {
     try {
-      const operatorData = await operator(api, operatorId);
-      console.log('operatorData', operatorData);
+      // Try indexer first
+      const { operators } = await indexerService.getOperators({
+        limit: 1,
+        where: { id: { _in: [operatorId] }, processed: { _eq: true } },
+      });
 
-      // Map RPC data to UI interface with robust null checking
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rpc = operatorData as any;
-
-      // Return null if critical data is missing
-      if (!rpc || rpc.signingKey === null || rpc.signingKey === undefined) {
-        console.warn(`❌ Operator ${operatorId} has null signingKey`);
-        return null;
+      if (operators.length > 0) {
+        const rpcData = await operator(api, operatorId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return mapIndexerToOperator(operators[0], rpcData as any);
       }
+    } catch {
+      console.warn(`Indexer lookup failed for operator ${operatorId}`);
+    }
 
-      return {
-        id: operatorId,
-        name: `Operator ${operatorId}`,
-        domainId: String(rpc.currentDomainId || rpc.nextDomainId || '0'),
-        domainName: 'Auto EVM',
-        ownerAccount: String(rpc.signingKey),
-        nominationTax: Number(rpc.nominationTax || 0),
-        minimumNominatorStake: rpc.minimumNominatorStake
-          ? (Number(rpc.minimumNominatorStake) / Math.pow(10, 18)).toFixed(4)
-          : '0.0000',
-        status: 'active' as const,
-        totalStaked: rpc.currentTotalStake
-          ? (Number(rpc.currentTotalStake) / Math.pow(10, 18)).toFixed(4)
-          : '0.0000',
-        nominatorCount: 0,
-      };
-    } catch (error) {
-      console.warn(`❌ Operator ${operatorId} not found:`, error);
+    // Fallback to RPC only
+    try {
+      const rpcData = await operator(api, operatorId);
+      return mapRpcToOperator(operatorId, rpcData);
+    } catch {
+      console.warn(`Operator ${operatorId} not found`);
       return null;
     }
   };

@@ -25,7 +25,7 @@ export interface OperatorStats {
 export type FilterState = {
   searchQuery: string;
   domainFilter: string;
-  sortBy: 'totalStaked' | 'tax';
+  sortBy: 'totalStaked' | 'tax' | 'id' | 'minimumStake';
   sortOrder: 'asc' | 'desc';
 
   statusFilter?: Operator['status'][];

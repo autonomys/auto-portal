@@ -12,6 +12,7 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.10",
     "@autonomys/auto-consensus": "1.5.10",
     "@autonomys/auto-utils": "1.5.10",
     "@polkadot/api": "^16.2.2",
@@ -21,6 +22,7 @@
     "@talismn/connect-wallets": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "graphql": "^16.8.1",
     "lucide-react": "0.523.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
