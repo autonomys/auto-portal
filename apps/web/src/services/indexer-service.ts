@@ -3,13 +3,11 @@ import type {
   staking_operator_registrations_bool_exp,
   staking_operator_registrations_order_by,
 } from '@/types/indexer';
+import { config } from '@/config';
 
-// GraphQL endpoint for the Auto Portal indexer (public endpoint)
-const INDEXER_ENDPOINT = 'https://subql.blue.taurus.subspace.network/v1/graphql';
-
-// Initialize Apollo Client for public endpoint (no authentication needed)
+// Initialize Apollo Client
 const client = new ApolloClient({
-  uri: INDEXER_ENDPOINT,
+  uri: config.indexer.endpoint,
   cache: new InMemoryCache({
     typePolicies: {
       Query: {
