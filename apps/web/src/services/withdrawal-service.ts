@@ -1,6 +1,6 @@
 import { withdrawStake, unlockFunds } from '@autonomys/auto-consensus';
-import { ai3ToShannons, shannonsToAI3 } from '@/lib/unit-conversion';
 import { getSharedApiConnection } from './api-service';
+import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
 
 export interface WithdrawalParams {
   operatorId: string;

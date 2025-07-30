@@ -1,6 +1,6 @@
 import type { Operator } from '@/types/operator';
 import type { OperatorRegistration } from '@/types/indexer';
-import { parseTokenAmount } from '@autonomys/auto-utils';
+import { shannonsToAI3 } from '@/lib/unit-conversions';
 
 /**
  * Maps indexer operator data to UI operator format
@@ -17,11 +17,11 @@ export const mapIndexerToOperator = (
 ): Operator => {
   // Convert stake amounts from shannons to AI3
   const minimumStake = registration.minimum_nominator_stake
-    ? Number(parseTokenAmount(registration.minimum_nominator_stake)).toFixed(4)
+    ? shannonsToAI3(registration.minimum_nominator_stake).toFixed(4)
     : '0.0000';
 
   const totalStaked = rpcData?.currentTotalStake
-    ? Number(parseTokenAmount(String(rpcData.currentTotalStake))).toFixed(4)
+    ? shannonsToAI3(String(rpcData.currentTotalStake)).toFixed(4)
     : '0.0000';
 
   return {
@@ -52,11 +52,11 @@ export const mapRpcToOperator = (
   }
 
   const minimumStake = rpcData.minimumNominatorStake
-    ? Number(parseTokenAmount(rpcData.minimumNominatorStake)).toFixed(4)
+    ? shannonsToAI3(rpcData.minimumNominatorStake).toFixed(4)
     : '0.0000';
 
   const totalStaked = rpcData.currentTotalStake
-    ? Number(parseTokenAmount(rpcData.currentTotalStake)).toFixed(4)
+    ? shannonsToAI3(rpcData.currentTotalStake).toFixed(4)
     : '0.0000';
 
   return {

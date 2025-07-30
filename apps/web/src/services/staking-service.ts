@@ -1,6 +1,6 @@
 import { nominateOperator } from '@autonomys/auto-consensus';
-import { ai3ToShannons, shannonsToAI3 } from '@/lib/unit-conversion';
 import { getSharedApiConnection } from './api-service';
+import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
 
 export interface StakingParams {
   operatorId: string;
