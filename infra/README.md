@@ -30,6 +30,7 @@ The indexer infrastructure supports the blockchain data indexing system with fle
 - **Redis**: Queue management and task coordination
 - **SubQuery Node**: Indexes staking events and operator data
 - **Staking Worker**: Processes background tasks and data aggregation
+- **Hasura GraphQL**: Production-compatible GraphQL API layer
 
 #### **Network Options:**
 
@@ -95,6 +96,8 @@ When running:
 - **Database**: `postgresql://postgres:postgres@localhost:5433/staking`
 - **SubQuery Status**: `http://localhost:3003`
 - **Redis**: `redis://localhost:6379`
+- **Hasura GraphQL**: `http://localhost:8080/v1/graphql`
+- **Hasura Console**: `http://localhost:8080/console`
 
 ## Related Documentation
 

@@ -50,6 +50,10 @@ start: setup ## Start services (use 'make start PROFILES=local-node' for local n
 		docker compose up -d; \
 	fi
 	@echo "$(GREEN)✅ Services started$(NC)"
+	@echo "$(BLUE)Waiting for services to be ready...$(NC)"
+	@sleep 5
+	@echo "$(BLUE)Setting up Hasura...$(NC)"
+	@$(MAKE) setup-hasura
 	@echo "$(YELLOW)💡 Check status with: make status$(NC)"
 
 # Start with local node (convenience target)
@@ -58,6 +62,10 @@ start-local: setup ## Start services with local blockchain node
 	@echo "$(BLUE)Starting staking services with local node...$(NC)"
 	@docker compose --profile local-node up -d
 	@echo "$(GREEN)✅ Services started with local node$(NC)"
+	@echo "$(BLUE)Waiting for services to be ready...$(NC)"
+	@sleep 5
+	@echo "$(BLUE)Setting up Hasura...$(NC)"
+	@$(MAKE) setup-hasura
 
 # Stop target
 .PHONY: stop
@@ -98,6 +106,8 @@ reset: ## Reset all data (WARNING: This will delete all volumes and data)
 		echo "$(BLUE)Removing volumes...$(NC)"; \
 		docker compose down -v; \
 		docker volume rm -f staking_postgres_staking_db staking_redis_db staking_node-data 2>/dev/null || true; \
+		echo "$(BLUE)Cleaning Hasura metadata...$(NC)"; \
+		rm -rf hasura/metadata/databases 2>/dev/null || true; \
 		echo "$(GREEN)✅ All data reset$(NC)"; \
 	else \
 		echo "$(YELLOW)Reset cancelled$(NC)"; \
@@ -119,13 +129,18 @@ info: ## Show access points and useful information
 	@if [ -f .env ]; then \
 		DB_PORT=$$(grep STAKING_DB_EXTERNAL_PORT .env | cut -d'=' -f2 | head -1); \
 		REDIS_PORT=$$(grep REDIS_PORT .env | cut -d'=' -f2 | head -1); \
+		HASURA_PORT=$$(grep HASURA_GRAPHQL_PORT .env | cut -d'=' -f2 | head -1); \
 		echo "  • PostgreSQL: localhost:$${DB_PORT:-5432}"; \
 		echo "  • SubQuery status: http://localhost:3003"; \
 		echo "  • Redis: localhost:$${REDIS_PORT:-6379}"; \
+		echo "  • Hasura GraphQL: http://localhost:$${HASURA_PORT:-8080}"; \
+		echo "  • Hasura Console: http://localhost:$${HASURA_PORT:-8080}/console"; \
 	else \
 		echo "  • PostgreSQL: localhost:5432 (default)"; \
 		echo "  • SubQuery status: http://localhost:3003"; \
 		echo "  • Redis: localhost:6379 (default)"; \
+		echo "  • Hasura GraphQL: http://localhost:8080 (default)"; \
+		echo "  • Hasura Console: http://localhost:8080/console (default)"; \
 		echo "  $(YELLOW)💡 Run 'make setup' to create .env file$(NC)"; \
 	fi
 	@echo ""
@@ -140,4 +155,37 @@ info: ## Show access points and useful information
 restart: stop start ## Restart all services
 
 .PHONY: rebuild
-rebuild: stop build start ## Stop, rebuild, and start services 
+rebuild: stop build start ## Stop, rebuild, and start services
+
+# Hasura setup
+.PHONY: generate-secret
+generate-secret: ## Generate a secure admin secret for production
+	@echo "$(BLUE)Generating secure Hasura admin secret...$(NC)"
+	@openssl rand -hex 32 2>/dev/null || echo "Please install openssl to generate secure secrets"
+	@echo "$(YELLOW)💡 Add this to your .env file as HASURA_GRAPHQL_ADMIN_SECRET$(NC)"
+
+.PHONY: setup-hasura
+setup-hasura: ## Configure Hasura to track all staking tables
+	@if docker compose ps | grep -q "hasura.*Up"; then \
+		echo "$(BLUE)Setting up Hasura GraphQL Engine...$(NC)"; \
+		./scripts/setup-hasura.sh; \
+		echo "$(GREEN)✅ Hasura setup complete$(NC)"; \
+		echo "$(YELLOW)📊 Access points:$(NC)"; \
+		if [ -f .env ]; then \
+			HASURA_PORT=$$(grep HASURA_GRAPHQL_PORT .env | cut -d'=' -f2 | head -1); \
+			NODE_ENV=$$(grep NODE_ENV .env | cut -d'=' -f2 | head -1); \
+			echo "  • GraphQL: http://localhost:$${HASURA_PORT:-8080}/v1/graphql"; \
+			if [ "$${NODE_ENV:-development}" = "development" ]; then \
+				ADMIN_SECRET=$$(grep HASURA_GRAPHQL_ADMIN_SECRET .env | cut -d'=' -f2 | head -1); \
+				echo "  • Console: http://localhost:$${HASURA_PORT:-8080}/console (password: $${ADMIN_SECRET:-devsecret})"; \
+			else \
+				echo "  • Console: http://localhost:$${HASURA_PORT:-8080}/console (password: [HIDDEN])"; \
+			fi; \
+		else \
+			echo "  • GraphQL: http://localhost:8080/v1/graphql"; \
+			echo "  • Console: http://localhost:8080/console (password: devsecret)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Hasura is not running. Skipping setup.$(NC)"; \
+		echo "$(YELLOW)💡 Start services first with: make start$(NC)"; \
+	fi 
