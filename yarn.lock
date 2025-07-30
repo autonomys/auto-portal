@@ -94,9 +94,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auto-portal/staking-worker@workspace:packages/staking-worker":
+"@auto-portal/staking-worker@workspace:services/staking-worker":
   version: 0.0.0-use.local
-  resolution: "@auto-portal/staking-worker@workspace:packages/staking-worker"
+  resolution: "@auto-portal/staking-worker@workspace:services/staking-worker"
   dependencies:
     "@autonomys/auto-consensus": "npm:1.5.10"
     "@autonomys/auto-utils": "npm:1.5.10"
@@ -8236,9 +8236,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"staking@workspace:packages/staking-indexer":
+"staking@workspace:services/staking-indexer":
   version: 0.0.0-use.local
-  resolution: "staking@workspace:packages/staking-indexer"
+  resolution: "staking@workspace:services/staking-indexer"
   dependencies:
     "@apollo/client": "npm:^3.13.5"
     "@autonomys/auto-consensus": "npm:^1.5.10"

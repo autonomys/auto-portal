@@ -103,8 +103,8 @@ When running:
 
 - [Indexer Infrastructure README](./indexer/README.md) - Detailed setup guide
 - [Indexer Deployment Guide](./indexer/DEPLOYMENT.md) - Production deployment
-- [Staking Indexer Package](../packages/staking-indexer/README.md) - SubQuery project
-- [Staking Worker Package](../packages/staking-worker/README.md) - Background worker
+- [Staking Indexer Service](../services/staking-indexer/README.md) - SubQuery project
+- [Staking Worker Service](../services/staking-worker/README.md) - Background worker
 
 ## Troubleshooting
 

@@ -150,7 +150,7 @@ services:
       REDIS_HOST: ${REDIS_SERVICE_HOST:-redis}
       REDIS_PORT: ${REDIS_SERVICE_PORT:-6379}
     volumes:
-      - ../../packages/staking-indexer:/staking
+      - ../../services/staking-indexer:/staking
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
@@ -162,7 +162,7 @@ services:
   staking-worker:
     build:
       context: ../..
-      dockerfile: packages/staking-worker/Dockerfile
+      dockerfile: services/staking-worker/Dockerfile
     depends_on:
       pgcat-staking:
         condition: service_healthy
