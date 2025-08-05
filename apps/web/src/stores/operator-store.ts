@@ -28,7 +28,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     set({ loading: true, error: null, isInitialized: true });
 
     try {
-      const opService = await operatorService('taurus');
+      const opService = await operatorService(); // Use value from config
       const operators = await opService.getAllOperators();
       set({ operators, loading: false });
 

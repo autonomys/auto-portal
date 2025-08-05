@@ -7,8 +7,9 @@ import type {
   PendingDeposit,
   PendingWithdrawal,
 } from '@/types/position';
+import { config } from '@/config';
 
-export const positionService = async (networkId: string = 'taurus') => {
+export const positionService = async (networkId: string = config.network.defaultNetworkId) => {
   const api = await getSharedApiConnection(networkId);
 
   /**

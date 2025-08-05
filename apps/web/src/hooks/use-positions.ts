@@ -3,10 +3,11 @@ import { useWallet } from './use-wallet';
 import { positionService } from '@/services/position-service';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
 import { TARGET_OPERATORS } from '@/constants/target-operators';
+import { config } from '@/config';
 
 interface UsePositionsOptions {
   refreshInterval?: number; // Auto-refresh interval in ms. 0 = disabled, default 30000 (30s)
-  networkId?: string; // Default 'taurus'
+  networkId?: string; // Default from config (mainnet)
 }
 
 interface UsePositionsReturn {
@@ -30,7 +31,7 @@ interface UsePositionsReturn {
 export const usePositions = (options: UsePositionsOptions = {}): UsePositionsReturn => {
   const {
     refreshInterval = 30000, // 30 seconds - set to 0 to disable auto-refresh
-    networkId = 'taurus',
+    networkId = config.network.defaultNetworkId,
   } = options;
 
   const { isConnected, selectedAccount } = useWallet();
@@ -138,7 +139,7 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
  * Hook for accessing a specific operator position
  */
 export const useOperatorPosition = (operatorId: string, options: UsePositionsOptions = {}) => {
-  const { networkId = 'taurus' } = options;
+  const { networkId = config.network.defaultNetworkId } = options;
   const { isConnected, selectedAccount } = useWallet();
 
   const [position, setPosition] = useState<UserPosition | null>(null);
