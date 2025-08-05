@@ -52,7 +52,6 @@ export const operatorService = async (networkId: string = config.network.default
         sharePrice: '1.0000',
         totalShares: totalStaked,
         totalStaked,
-        nominatorCount: operators.reduce((sum, op) => sum + op.nominatorCount, 0),
       };
     } catch (error) {
       console.error('Failed to fetch operator stats:', error);
@@ -60,7 +59,6 @@ export const operatorService = async (networkId: string = config.network.default
         sharePrice: '1.0000',
         totalShares: '0',
         totalStaked: '0',
-        nominatorCount: 0,
       };
     }
   };

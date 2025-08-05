@@ -67,16 +67,12 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
         </div>
 
         {/* Pool Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-muted rounded-lg">
-          <div>
+        <div className="mb-4 p-3 bg-muted rounded-lg">
+          <div className="text-center">
             <div className="text-sm font-medium text-foreground font-mono">
               {formatNumber(operator.totalStaked)} AI3
             </div>
             <div className="text-xs text-muted-foreground">Total Staked</div>
-          </div>
-          <div>
-            <div className="text-sm font-medium text-foreground">{operator.nominatorCount}</div>
-            <div className="text-xs text-muted-foreground">Nominators</div>
           </div>
         </div>
 

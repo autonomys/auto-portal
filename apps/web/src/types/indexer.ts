@@ -89,5 +89,4 @@ export interface IndexerToOperatorMapping {
   minimumNominatorStake: string; // minimum_nominator_stake (converted from wei)
   status: 'active' | 'inactive' | 'slashed' | 'degraded'; // derived
   totalStaked: string; // needs RPC fallback or separate query
-  nominatorCount: number; // needs separate query
 }

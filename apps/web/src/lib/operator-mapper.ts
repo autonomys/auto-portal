@@ -34,7 +34,6 @@ export const mapIndexerToOperator = (
     minimumNominatorStake: minimumStake,
     status: 'active' as const, // TODO: Derive from operator status in indexer
     totalStaked,
-    nominatorCount: 0, // TODO: Get from nominators query
   };
 };
 
@@ -69,6 +68,5 @@ export const mapRpcToOperator = (
     minimumNominatorStake: minimumStake,
     status: 'active' as const,
     totalStaked,
-    nominatorCount: 0,
   };
 };

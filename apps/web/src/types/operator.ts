@@ -12,14 +12,12 @@ export interface Operator {
   // Current Status
   status: 'active' | 'inactive' | 'slashed' | 'degraded';
   totalStaked: string; // Total AI3 in pool
-  nominatorCount: number;
 }
 
 export interface OperatorStats {
   sharePrice: string;
   totalShares: string;
   totalStaked: string;
-  nominatorCount: number;
 }
 
 export type FilterState = {

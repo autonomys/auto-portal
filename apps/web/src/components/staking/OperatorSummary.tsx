@@ -65,14 +65,10 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
           <Badge variant={getStatusBadgeVariant(operator.status)}>{operator.status}</Badge>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           <div className="text-center">
             <p className="text-2xl font-bold text-code">{operator.nominationTax}%</p>
             <p className="text-body-small text-muted-foreground">Tax Rate</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-code">{operator.nominatorCount}</p>
-            <p className="text-body-small text-muted-foreground">Nominators</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-code">{calculateUserShare()}%</p>
@@ -122,7 +118,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
 
         <div className="mt-4 pt-4 border-t border-border">
           <p className="text-body-small text-muted-foreground">
-            <span className="font-medium">{operator.nominatorCount} nominators</span> • Min stake:{' '}
+            Min stake:{' '}
             <span className="text-code">
               {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake))} AI3
             </span>
