@@ -70,16 +70,12 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <p className="text-2xl font-bold text-code">
               {formatPercentage(operator.nominationTax)}
             </p>
             <p className="text-body-small text-muted-foreground">Tax</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-code">{operator.nominatorCount}</p>
-            <p className="text-body-small text-muted-foreground">Nominators</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-code">{formatNumber(operator.totalStaked)} AI3</p>

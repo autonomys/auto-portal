@@ -152,13 +152,8 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 <span className="font-mono">{formatPercentage(operator.nominationTax)}</span>
               </td>
               <td className="p-4">
-                <div>
-                  <div className="font-mono font-medium">
-                    {formatNumber(operator.totalStaked)} AI3
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {operator.nominatorCount} nominators
-                  </div>
+                <div className="font-mono font-medium">
+                  {formatNumber(operator.totalStaked)} AI3
                 </div>
               </td>
               <td className="p-4">
