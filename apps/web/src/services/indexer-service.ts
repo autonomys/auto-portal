@@ -5,30 +5,51 @@ import type {
 } from '@/types/indexer';
 import { config } from '@/config';
 
-// Initialize Apollo Client
-const client = new ApolloClient({
-  uri: config.indexer.endpoint,
-  cache: new InMemoryCache({
-    typePolicies: {
-      Query: {
-        fields: {
-          staking_operator_registrations: {
-            // Merge paginated results
-            keyArgs: ['where'],
-            merge(existing = [], incoming) {
-              return [...(existing || []), ...(incoming || [])];
+// Only create Apollo Client if indexer is enabled
+const createApolloClient = () => {
+  if (!config.features.enableIndexer) {
+    throw new Error('Indexer is disabled. Enable with VITE_ENABLE_INDEXER=true');
+  }
+
+  return new ApolloClient({
+    uri: config.indexer.endpoint,
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            staking_operator_registrations: {
+              // Merge paginated results
+              keyArgs: ['where'],
+              merge(existing = [], incoming) {
+                return [...(existing || []), ...(incoming || [])];
+              },
             },
           },
         },
       },
+    }),
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'cache-and-network',
+      },
     },
-  }),
-  defaultOptions: {
-    watchQuery: {
-      fetchPolicy: 'cache-and-network',
-    },
-  },
-});
+  });
+};
+
+// Lazy-initialized client
+let client: ApolloClient<object> | null = null;
+
+const getClient = () => {
+  if (!config.features.enableIndexer) {
+    throw new Error('Indexer is disabled. Enable with VITE_ENABLE_INDEXER=true');
+  }
+
+  if (!client) {
+    client = createApolloClient();
+  }
+
+  return client;
+};
 
 // Test query to verify connection - using public endpoint
 export const TEST_CONNECTION = gql`
@@ -76,10 +97,20 @@ const GET_OPERATORS = gql`
 
 // Service functions
 export const indexerService = {
+  // Check if indexer is enabled
+  isEnabled(): boolean {
+    return config.features.enableIndexer;
+  },
+
   // Test connection to indexer
   async testConnection(): Promise<boolean> {
+    if (!this.isEnabled()) {
+      console.log('⚠️ Indexer is disabled');
+      return false;
+    }
+
     try {
-      const result = await client.query({
+      const result = await getClient().query({
         query: TEST_CONNECTION,
         fetchPolicy: 'network-only',
       });
@@ -103,6 +134,10 @@ export const indexerService = {
       order_by?: staking_operator_registrations_order_by;
     } = {},
   ) {
+    if (!this.isEnabled()) {
+      throw new Error('Indexer is disabled. Cannot fetch operators from indexer.');
+    }
+
     const {
       limit = 50,
       offset = 0,
@@ -111,7 +146,7 @@ export const indexerService = {
     } = params;
 
     try {
-      const result = await client.query({
+      const result = await getClient().query({
         query: GET_OPERATORS,
         variables: { limit, offset, where, order_by: [order_by] },
       });
@@ -128,7 +163,7 @@ export const indexerService = {
 
   // Get Apollo Client instance (for direct usage if needed)
   getClient() {
-    return client;
+    return getClient();
   },
 };
 

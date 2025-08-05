@@ -1,4 +1,5 @@
 import { activate, disconnect } from '@autonomys/auto-utils';
+import { config } from '@/config';
 
 // Centralized API connection management
 let sharedApi: Awaited<ReturnType<typeof activate>> | null = null;
@@ -9,7 +10,9 @@ let connectionPromise: Promise<Awaited<ReturnType<typeof activate>>> | null = nu
  * Get or create shared RPC API connection
  * Ensures only one connection per network across the entire app
  */
-export const getSharedApiConnection = async (networkId: string = 'taurus') => {
+export const getSharedApiConnection = async (
+  networkId: string = config.network.defaultNetworkId,
+) => {
   // Return existing connection if same network
   if (sharedApi && currentNetworkId === networkId) {
     return sharedApi;

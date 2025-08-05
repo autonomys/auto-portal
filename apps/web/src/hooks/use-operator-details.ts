@@ -24,7 +24,7 @@ export const useOperatorDetails = (operatorId: string): UseOperatorDetailsReturn
         setLoading(true);
         setError(null);
 
-        const service = await operatorService('taurus');
+        const service = await operatorService(); // Use value from config
         const operatorData = await service.getOperatorById(operatorId);
 
         if (!operatorData) {
