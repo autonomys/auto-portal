@@ -217,21 +217,23 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 ) : balance ? (
                   formatAI3(balance.free)
                 ) : (
-                  <span className="text-warning">Wallet not connected</span>
+                  <span className="text-warning-700">Wallet not connected</span>
                 )}
               </span>
             </div>
           </div>
 
           {/* Amount Input */}
-          <AmountInput
-            amount={formState.amount}
-            onAmountChange={handleAmountChange}
-            errors={formState.errors}
-            disabled={formState.isSubmitting}
-            availableBalance={balance ? parseFloat(balance.free) : 0}
-            estimatedFee={estimatedFee ?? undefined}
-          />
+          <div className={!isConnected ? 'opacity-60' : ''}>
+            <AmountInput
+              amount={formState.amount}
+              onAmountChange={handleAmountChange}
+              errors={isConnected ? formState.errors : []}
+              disabled={!isConnected || formState.isSubmitting}
+              availableBalance={balance ? parseFloat(balance.free) : 0}
+              estimatedFee={estimatedFee ?? undefined}
+            />
+          </div>
 
           {/* Transaction Status */}
           {txHash && (
