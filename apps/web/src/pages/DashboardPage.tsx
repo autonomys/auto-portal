@@ -1,11 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
+import { WalletModal } from '@/components/wallet';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
+import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3 } from '@/lib/formatting';
 import { layout } from '@/lib/layout';
 
@@ -13,6 +15,8 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { balance, loading: balanceLoading } = useBalance();
   const { hasPositions, portfolioSummary } = usePositions();
+  const { isConnected } = useWallet();
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   // Calculate true total balance including storage deposits
   const totalBalanceWithPositions = useMemo(() => {
@@ -138,15 +142,24 @@ export const DashboardPage: React.FC = () => {
             <div className="text-center">
               <CardTitle className="text-h3 mb-2">Start Staking</CardTitle>
               <CardDescription className="text-body mb-4">
-                Browse available operators and choose the best fit for your staking strategy
+                {isConnected
+                  ? 'Browse available operators and choose the best fit for your staking strategy'
+                  : 'Connect your wallet to start staking with operators'}
               </CardDescription>
-              <Button size="lg" onClick={() => navigate('/operators')}>
-                Browse Operators
+              <Button
+                size="lg"
+                onClick={
+                  isConnected ? () => navigate('/operators') : () => setWalletModalOpen(true)
+                }
+              >
+                {isConnected ? 'Browse Operators' : 'Connect Wallet'}
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
+
+      <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </div>
   );
 };
