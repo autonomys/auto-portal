@@ -7,6 +7,7 @@ import { TransactionPreview } from '@/components/transaction';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions, useOperatorPosition } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
+import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import type { StakingFormState, StakingCalculations } from '@/types/staking';
@@ -27,6 +28,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   const { balance, loading: balanceLoading } = useBalance();
   const { refetch: refetchPositions } = usePositions({ refreshInterval: 0 });
   const { position: currentPosition } = useOperatorPosition(operator.id);
+  const { isConnected } = useWallet();
   const {
     execute,
     isSigning,
@@ -196,6 +198,15 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             </div>
           )}
 
+          {/* Wallet Connection Alert */}
+          {!isConnected && (
+            <Alert variant="warning">
+              <AlertDescription>
+                Connect your wallet to stake tokens with this operator
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Available Balance */}
           <div className="p-4 bg-accent/10 rounded-lg">
             <div className="flex justify-between items-center">
@@ -206,7 +217,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                 ) : balance ? (
                   formatAI3(balance.free)
                 ) : (
-                  'Connect wallet'
+                  <span className="text-warning">Wallet not connected</span>
                 )}
               </span>
             </div>
@@ -280,9 +291,13 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                   disabled={!formState.isValid || formState.isSubmitting || !canExecute}
                   className="flex-1"
                 >
-                  {isSigning && 'Awaiting signature...'}
-                  {isPending && 'Submitting...'}
-                  {!stakingLoading && 'Stake Tokens'}
+                  {isSigning
+                    ? 'Awaiting signature...'
+                    : isPending
+                      ? 'Submitting...'
+                      : !isConnected
+                        ? 'Connect Wallet to Stake'
+                        : 'Stake Tokens'}
                 </Button>
               </>
             )}

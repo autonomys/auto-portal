@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { usePositions } from '@/hooks/use-positions';
+import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
 import { PositionBreakdown } from './PositionBreakdown';
 import type { UserPosition } from '@/types/position';
@@ -20,6 +21,7 @@ interface PositionRowProps {
   onOperatorClick?: (operatorId: string) => void;
   onWithdrawClick?: (position: UserPosition) => void;
   onAddStakeClick?: (position: UserPosition) => void;
+  isWalletConnected: boolean;
 }
 
 const PositionRow: React.FC<PositionRowProps> = ({
@@ -27,6 +29,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
   onOperatorClick,
   onWithdrawClick,
   onAddStakeClick,
+  isWalletConnected,
 }) => {
   const getStatusVariant = (status: UserPosition['status']) => {
     switch (status) {
@@ -123,6 +126,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onAddStakeClick(position)}
+              disabled={!isWalletConnected}
               className="text-xs font-sans text-primary hover:text-primary/80 border-primary/20 hover:border-primary/40"
             >
               Add Stake
@@ -133,6 +137,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onWithdrawClick(position)}
+              disabled={!isWalletConnected}
               className="text-xs font-sans text-warning-600 hover:text-warning-700 border-warning-200 hover:border-warning-300"
             >
               Withdraw
@@ -153,6 +158,7 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
     refreshInterval,
     networkId,
   });
+  const { isConnected } = useWallet();
   const navigate = useNavigate();
 
   const handleWithdrawClick = (position: UserPosition) => {
@@ -236,6 +242,7 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
                 onOperatorClick={onOperatorClick}
                 onWithdrawClick={handleWithdrawClick}
                 onAddStakeClick={handleAddStakeClick}
+                isWalletConnected={isConnected}
               />
             ))}
           </div>

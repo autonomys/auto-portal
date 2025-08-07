@@ -27,7 +27,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const [withdrawalMethod, setWithdrawalMethod] = useState<WithdrawalMethod>('partial');
   const [amount, setAmount] = useState<number>(0);
   const { operators } = useOperators();
-  const { selectedAccount } = useWallet();
+  const { selectedAccount, isConnected } = useWallet();
 
   const {
     executeWithdraw,
@@ -155,6 +155,15 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           </div>
         </CardHeader>
         <CardContent className="stack-lg">
+          {/* Wallet Connection Alert */}
+          {!isConnected && (
+            <Alert variant="warning">
+              <AlertDescription>
+                Connect your wallet to withdraw tokens from this position
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Withdrawal Method Selection */}
           <div className="stack-sm">
             <label className="text-label">Withdrawal Method</label>
@@ -265,9 +274,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 ? 'Signing...'
                 : withdrawalState === 'pending'
                   ? 'Broadcasting...'
-                  : validationResult.willWithdrawAll
-                    ? 'Withdraw All Tokens'
-                    : 'Withdraw Tokens'}
+                  : !isConnected
+                    ? 'Connect Wallet to Withdraw'
+                    : validationResult.willWithdrawAll
+                      ? 'Withdraw All Tokens'
+                      : 'Withdraw Tokens'}
             </Button>
           </div>
         </CardContent>
