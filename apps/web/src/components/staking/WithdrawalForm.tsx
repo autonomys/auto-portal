@@ -142,7 +142,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               </span>
             </div>
             <div className="inline-sm">
-              <span className="text-label text-muted-foreground">Storage Fee Deposit:</span>
+              <span className="text-label text-muted-foreground">Storage Fund Deposit:</span>
               <span className="text-code">{formatAI3(position.storageFeeDeposit, 4)}</span>
             </div>
             <div className="inline-sm">
@@ -318,7 +318,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 precision: 4,
               },
               {
-                label: 'Storage Fee Refund',
+                label: 'Storage Fund Refund',
                 value: actualStorageFeeRefund,
                 precision: 4,
                 isPositive: true,

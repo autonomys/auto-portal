@@ -156,7 +156,9 @@ export const WithdrawalPage: React.FC = () => {
               <p className="text-sm text-muted-foreground">Current stake value</p>
             </div>
             <div>
-              <h3 className="font-serif font-semibold text-foreground mb-2">Storage Fee Deposit</h3>
+              <h3 className="font-serif font-semibold text-foreground mb-2">
+                Storage Fund Deposit
+              </h3>
               <p className="text-xl font-mono font-semibold text-foreground">
                 {formatAI3(position!.storageFeeDeposit, 4)}
               </p>

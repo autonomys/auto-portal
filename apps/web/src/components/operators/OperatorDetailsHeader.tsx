@@ -118,7 +118,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
                 </div>
               )}
               <div className="flex justify-between items-center">
-                <span className="text-label text-muted-foreground">Storage Fee:</span>
+                <span className="text-label text-muted-foreground">Storage Fund:</span>
                 <span className="text-code font-medium">
                   {formatNumber((userPosition.positionValue * 0.2).toString())} AI3
                 </span>
