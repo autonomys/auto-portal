@@ -67,24 +67,20 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   // Estimate fee when amount changes
   useEffect(() => {
-    if (withdrawalMethod === 'all' || (withdrawalMethod === 'partial' && amount > 0)) {
+    if (withdrawalMethod === 'all') {
       estimateWithdrawalFee({
         operatorId: position.operatorId,
-        amount:
-          withdrawalMethod === 'all'
-            ? position.positionValue
-            : withdrawalPreview.netStakeWithdrawal,
-        withdrawalType: withdrawalMethod,
+        withdrawalType: 'all',
+      });
+    } else if (withdrawalMethod === 'partial' && amount > 0) {
+      // Pass gross amount to SDK; it will account for storage refund internally
+      estimateWithdrawalFee({
+        operatorId: position.operatorId,
+        amount,
+        withdrawalType: 'partial',
       });
     }
-  }, [
-    withdrawalMethod,
-    amount,
-    position.operatorId,
-    position.positionValue,
-    estimateWithdrawalFee,
-    withdrawalPreview.netStakeWithdrawal,
-  ]);
+  }, [withdrawalMethod, amount, position.operatorId, estimateWithdrawalFee]);
 
   // Handle successful withdrawal
   useEffect(() => {
@@ -111,7 +107,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
       await executeWithdraw({
         operatorId: position.operatorId,
-        amount: isEffectivelyFullWithdrawal ? undefined : withdrawalPreview.netStakeWithdrawal,
+        // Pass gross amount for partial withdrawals; SDK computes shares and refund
+        amount: isEffectivelyFullWithdrawal ? undefined : amount,
         withdrawalType: isEffectivelyFullWithdrawal ? 'all' : 'partial',
       });
     } catch (error) {
@@ -194,8 +191,16 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               <div className="relative">
                 <Input
                   type="number"
+                  inputMode="decimal"
+                  step="any"
                   value={amount || ''}
                   onChange={e => handleAmountChange(Number(e.target.value) || 0)}
+                  onWheel={e => e.currentTarget.blur()}
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Enter total amount you want to receive"
                   max={position.positionValue + position.storageFeeDeposit}
                   className="text-code pr-12"

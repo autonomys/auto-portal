@@ -58,7 +58,8 @@ export const WithdrawalPage: React.FC = () => {
     navigate('/dashboard');
   };
 
-  const loading = operatorsLoading || positionsLoading;
+  // Only show the loading screen before initial data is available
+  const loading = (operatorsLoading && !operator) || (positionsLoading && !position);
   const hasError = !operator || !position;
 
   // Loading state
