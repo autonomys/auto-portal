@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
@@ -68,9 +68,9 @@ export const DashboardPage: React.FC = () => {
   );
 
   return (
-    <div className={layout.pageSection + ' ' + layout.pageContent}>
+    <div className={'py-8 space-y-8'}>
       {/* Page Header */}
-      <div className={layout.pageHeader}>
+      <div className="pb-8 text-center">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-h1 text-foreground mb-3">Dashboard</h1>
           <p className="text-body-large text-muted-foreground">
@@ -79,85 +79,99 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Portfolio Summary */}
-      <PositionSummary />
-
-      {/* Wallet Balance - Only show available balance alongside position data */}
-      <div className={layout.gridResponsive['1-2'] + ' gap-6'}>
-        <Card className="relative">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-label">Available Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-mono font-bold leading-tight relative">
-              <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
-                {balance ? formatAI3(balance.free) : '0.00 AI3'}
-              </span>
-              {balanceLoading && (
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                </div>
-              )}
-            </div>
-            <p className="text-caption">Ready to stake</p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-label">Total Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-mono font-bold leading-tight relative">
-              <Tooltip content={<TotalBalanceBreakdown />} side="top">
-                <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
-                  {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
-                </span>
-              </Tooltip>
-              {balanceLoading && (
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                </div>
-              )}
-            </div>
-            <p className="text-caption">Wallet + Storage Deposits</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Active Positions */}
-      <ActivePositionsTable
-        onOperatorClick={operatorId => {
-          navigate(`/operators/${operatorId}`);
-        }}
-      />
-
-      {/* Pending Operations */}
-      <PendingOperations />
-
-      {/* Call to Action - Only show if no positions */}
-      {!hasPositions && (
-        <Card>
+      {/* Contextual CTA above Pending Operations */}
+      {!isConnected && (
+        <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <CardTitle className="text-h3 mb-2">Start Staking</CardTitle>
-              <CardDescription className="text-body mb-4">
-                {isConnected
-                  ? 'Browse available operators and choose the best fit for your staking strategy'
-                  : 'Connect your wallet to start staking with operators'}
-              </CardDescription>
-              <Button
-                size="lg"
-                onClick={
-                  isConnected ? () => navigate('/operators') : () => setWalletModalOpen(true)
-                }
-              >
-                {isConnected ? 'Browse Operators' : 'Connect Wallet'}
+            <div className="text-center space-y-3">
+              <h3 className="text-h4">Connect wallet to get started</h3>
+              <p className="text-muted-foreground text-sm">
+                Track your balance, manage staking positions, and claim withdrawals.
+              </p>
+              <Button size="lg" onClick={() => setWalletModalOpen(true)}>
+                Connect wallet
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
+      {isConnected && !hasPositions && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-3">
+              <h3 className="text-h4">Find operators to nominate</h3>
+              <p className="text-muted-foreground text-sm">
+                Browse operators and start earning by staking with them.
+              </p>
+              <Button size="lg" onClick={() => navigate('/operators')}>
+                View operators
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Portfolio Summary */}
+      {isConnected && <PositionSummary />}
+
+      {/* Wallet Balance - Only show when connected */}
+      {isConnected && (
+        <div className={layout.gridResponsive['1-2'] + ' gap-6'}>
+          <Card className="relative">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-label">Available Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-mono font-bold leading-tight relative">
+                <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
+                  {balance ? formatAI3(balance.free) : '0.00 AI3'}
+                </span>
+                {balanceLoading && (
+                  <div className="absolute -top-1 -right-1">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <p className="text-caption">Ready to stake</p>
+            </CardContent>
+          </Card>
+
+          <Card className="relative">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-label">Total Balance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-mono font-bold leading-tight relative">
+                <Tooltip content={<TotalBalanceBreakdown />} side="top">
+                  <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
+                    {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
+                  </span>
+                </Tooltip>
+                {balanceLoading && (
+                  <div className="absolute -top-1 -right-1">
+                    <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+              <p className="text-caption">Wallet + Storage Deposits</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Active Positions */}
+      {isConnected && hasPositions && (
+        <div id="positions-section">
+          <ActivePositionsTable
+            onOperatorClick={operatorId => {
+              navigate(`/operators/${operatorId}`);
+            }}
+          />
+        </div>
+      )}
+
+      {/* Pending Operations */}
+      {isConnected && hasPositions && <PendingOperations />}
 
       <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </div>
