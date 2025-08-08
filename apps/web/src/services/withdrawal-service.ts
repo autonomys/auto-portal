@@ -1,10 +1,10 @@
-import { withdrawStake, unlockFunds } from '@autonomys/auto-consensus';
+import { unlockFunds, withdrawStakeAll, withdrawStakeByValue } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
 import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
 
 export interface WithdrawalParams {
   operatorId: string;
-  amount?: number; // Amount in AI3 for partial withdrawal
+  amount?: number; // Gross amount in AI3 for partial withdrawal (total to receive)
   withdrawalType: 'all' | 'partial';
 }
 
@@ -49,7 +49,7 @@ export const withdrawalService = {
     senderAddress: string,
   ): Promise<number> => {
     try {
-      const tx = await withdrawalService.createWithdrawTransaction(params);
+      const tx = await withdrawalService.createWithdrawTransaction(params, senderAddress);
       const paymentInfo = await tx.paymentInfo(senderAddress);
       const feeInAI3 = shannonsToAI3(paymentInfo.partialFee.toString());
       return feeInAI3;
@@ -78,32 +78,29 @@ export const withdrawalService = {
   },
 
   /**
-   * Create a withdrawStake extrinsic
+   * Create a withdraw extrinsic via helpers
    * @param params - Withdrawal parameters
    * @returns Transaction ready for signing and sending
    */
-  createWithdrawTransaction: async (params: WithdrawalParams) => {
+  createWithdrawTransaction: async (params: WithdrawalParams, senderAddress: string) => {
     const { operatorId, amount, withdrawalType } = params;
     const api = await getSharedApiConnection();
 
     if (withdrawalType === 'all') {
-      return withdrawStake({
-        api,
-        operatorId,
-        all: true,
-      });
-    } else {
-      if (!amount) {
-        throw new Error('Amount is required for partial withdrawal');
-      }
-
-      const amountInShannons = ai3ToShannons(amount);
-      return withdrawStake({
-        api,
-        operatorId,
-        stake: amountInShannons,
-      });
+      return withdrawStakeAll({ api, operatorId, account: senderAddress });
     }
+
+    if (amount === undefined || amount === null) {
+      throw new Error('Amount is required for partial withdrawal');
+    }
+
+    const amountInShannons = BigInt(ai3ToShannons(amount));
+    return withdrawStakeByValue({
+      api,
+      operatorId,
+      account: senderAddress,
+      amountToWithdraw: amountInShannons,
+    });
   },
 
   /**
@@ -138,7 +135,7 @@ export const withdrawalService = {
     progressCallback?: (result: any) => void,
   ): Promise<WithdrawalResult> => {
     try {
-      const tx = await withdrawalService.createWithdrawTransaction(params);
+      const tx = await withdrawalService.createWithdrawTransaction(params, account.address);
 
       return new Promise(resolve => {
         tx.signAndSend(

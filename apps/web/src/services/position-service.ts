@@ -90,7 +90,7 @@ export const positionService = async (networkId: string = config.network.default
             );
             const storageFeeRefund = shannonsToAI3(withdrawal.storageFeeRefund.toString());
 
-            // Total amount user will receive = net stake + storage fee refund
+            // Total amount user will receive = net stake + storage fund refund
             const grossWithdrawalAmount = stakeWithdrawalAmount + storageFeeRefund;
 
             return {

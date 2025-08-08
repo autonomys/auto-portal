@@ -45,9 +45,9 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
       showTooltip: false,
     },
     {
-      label: 'Storage Deposits',
+      label: 'Storage Fund Deposits',
       value: portfolioSummary ? formatAI3(portfolioSummary.totalStorageFee, 4) : '0.0000 AI3',
-      subtitle: 'Total locked in storage fees',
+      subtitle: 'Total locked in storage fund',
       showTooltip: false,
     },
   ];

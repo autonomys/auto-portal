@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { OperatorSummary, StakingForm } from '@/components/staking';
+import { TransactionSuccess } from '@/components/transaction';
 import { useOperators } from '@/hooks/use-operators';
 import type { Operator } from '@/types/operator';
 
@@ -15,6 +16,7 @@ export const StakingPage: React.FC = () => {
   const [operator, setOperator] = useState<Operator | null>(null);
   const [stakingSuccess, setStakingSuccess] = useState(false);
   const [stakedAmount, setStakedAmount] = useState<string>('');
+  const [stakingTxHash, setStakingTxHash] = useState<string | null>(null);
 
   // Check if coming from a position (adding more stake)
   const fromPosition = searchParams.get('fromPosition') === 'true';
@@ -26,8 +28,9 @@ export const StakingPage: React.FC = () => {
     }
   }, [operators, operatorId]);
 
-  const handleStakingSubmit = (amount: string) => {
+  const handleStakingSubmit = (amount: string, txHash?: string) => {
     setStakedAmount(amount);
+    setStakingTxHash(txHash || null);
     setStakingSuccess(true);
   };
 
@@ -88,42 +91,15 @@ export const StakingPage: React.FC = () => {
   // Success state
   if (stakingSuccess) {
     return (
-      <div className="py-12 max-w-2xl mx-auto">
-        <Card className="text-center">
-          <CardContent className="pt-8 pb-8">
-            <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-success-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-serif font-bold text-foreground mb-2">
-              Staking Successful!
-            </h2>
-            <p className="text-muted-foreground font-sans mb-6">
-              You have successfully staked {stakedAmount} AI3 to {operator.name}. Your stake will
-              become active after the next epoch transition (~10 minutes).
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button variant="outline" onClick={handleGoBack} className="font-sans">
-                Browse More Operators
-              </Button>
-              <Button onClick={handleBackToDashboard} className="font-sans">
-                View Dashboard
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <TransactionSuccess
+        title="Staking Successful!"
+        description={`You have successfully staked ${stakedAmount} AI3 to ${operator.name}. Your stake will become active after the next epoch transition (~10 minutes).`}
+        txHash={stakingTxHash ?? undefined}
+        onPrimaryAction={handleBackToDashboard}
+        onSecondaryAction={handleGoBack}
+        primaryActionText="View Dashboard"
+        secondaryActionText="Browse More Operators"
+      />
     );
   }
 

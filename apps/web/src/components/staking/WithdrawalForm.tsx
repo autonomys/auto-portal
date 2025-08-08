@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
   position: UserPosition;
-  onSuccess?: (withdrawalAmount: number) => void;
+  onSuccess?: (withdrawalAmount: number, txHash?: string) => void;
   onCancel?: () => void;
 }
 
@@ -36,6 +36,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     estimatedWithdrawalFee,
     estimateWithdrawalFee,
     canExecuteWithdrawal,
+    withdrawalTxHash,
   } = useWithdrawalTransaction();
 
   // Find the operator data for validation
@@ -67,38 +68,40 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   // Estimate fee when amount changes
   useEffect(() => {
-    if (withdrawalMethod === 'all' || (withdrawalMethod === 'partial' && amount > 0)) {
+    if (withdrawalMethod === 'all') {
       estimateWithdrawalFee({
         operatorId: position.operatorId,
-        amount:
-          withdrawalMethod === 'all'
-            ? position.positionValue
-            : withdrawalPreview.netStakeWithdrawal,
-        withdrawalType: withdrawalMethod,
+        withdrawalType: 'all',
+      });
+    } else if (withdrawalMethod === 'partial' && amount > 0) {
+      // Pass gross amount to SDK; it will account for storage refund internally
+      estimateWithdrawalFee({
+        operatorId: position.operatorId,
+        amount,
+        withdrawalType: 'partial',
       });
     }
-  }, [
-    withdrawalMethod,
-    amount,
-    position.operatorId,
-    position.positionValue,
-    estimateWithdrawalFee,
-    withdrawalPreview.netStakeWithdrawal,
-  ]);
+  }, [withdrawalMethod, amount, position.operatorId, estimateWithdrawalFee]);
 
-  // Handle successful withdrawal
+  // Handle successful withdrawal (guard to prevent duplicate callback invocations)
+  const lastHandledWithdrawalHashRef = useRef<string | null>(null);
   useEffect(() => {
-    if (withdrawalState === 'success') {
-      // Pass the actual gross withdrawal amount to the success callback
+    if (
+      withdrawalState === 'success' &&
+      withdrawalTxHash &&
+      lastHandledWithdrawalHashRef.current !== withdrawalTxHash
+    ) {
       const actualAmount =
         validationResult.actualWithdrawalAmount ?? withdrawalPreview.grossWithdrawalAmount;
-      onSuccess?.(actualAmount);
+      onSuccess?.(actualAmount, withdrawalTxHash);
+      lastHandledWithdrawalHashRef.current = withdrawalTxHash;
     }
   }, [
     withdrawalState,
     onSuccess,
     validationResult.actualWithdrawalAmount,
     withdrawalPreview.grossWithdrawalAmount,
+    withdrawalTxHash,
   ]);
 
   const handleSubmit = async () => {
@@ -111,7 +114,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
       await executeWithdraw({
         operatorId: position.operatorId,
-        amount: isEffectivelyFullWithdrawal ? undefined : withdrawalPreview.netStakeWithdrawal,
+        // Pass gross amount for partial withdrawals; SDK computes shares and refund
+        amount: isEffectivelyFullWithdrawal ? undefined : amount,
         withdrawalType: isEffectivelyFullWithdrawal ? 'all' : 'partial',
       });
     } catch (error) {
@@ -143,7 +147,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               </span>
             </div>
             <div className="inline-sm">
-              <span className="text-label text-muted-foreground">Storage Fee Deposit:</span>
+              <span className="text-label text-muted-foreground">Storage Fund Deposit:</span>
               <span className="text-code">{formatAI3(position.storageFeeDeposit, 4)}</span>
             </div>
             <div className="inline-sm">
@@ -194,8 +198,16 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               <div className="relative">
                 <Input
                   type="number"
+                  inputMode="decimal"
+                  step="any"
                   value={amount || ''}
                   onChange={e => handleAmountChange(Number(e.target.value) || 0)}
+                  onWheel={e => e.currentTarget.blur()}
+                  onKeyDown={e => {
+                    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="Enter total amount you want to receive"
                   max={position.positionValue + position.storageFeeDeposit}
                   className="text-code pr-12"
@@ -311,7 +323,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 precision: 4,
               },
               {
-                label: 'Storage Fee Refund',
+                label: 'Storage Fund Refund',
                 value: actualStorageFeeRefund,
                 precision: 4,
                 isPositive: true,

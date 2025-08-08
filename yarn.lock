@@ -98,8 +98,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@auto-portal/staking-worker@workspace:services/staking-worker"
   dependencies:
-    "@autonomys/auto-consensus": "npm:1.5.10"
-    "@autonomys/auto-utils": "npm:1.5.10"
+    "@autonomys/auto-consensus": "npm:1.5.14"
+    "@autonomys/auto-utils": "npm:1.5.14"
     "@types/ioredis": "npm:^5.0.0"
     "@types/node": "npm:^20.8.9"
     "@types/pg": "npm:^8.10.7"
@@ -117,8 +117,8 @@ __metadata:
   resolution: "@auto-portal/web@workspace:apps/web"
   dependencies:
     "@apollo/client": "npm:^3.8.10"
-    "@autonomys/auto-consensus": "npm:1.5.10"
-    "@autonomys/auto-utils": "npm:1.5.10"
+    "@autonomys/auto-consensus": "npm:1.5.14"
+    "@autonomys/auto-utils": "npm:1.5.14"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
@@ -152,22 +152,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@autonomys/auto-consensus@npm:1.5.10":
-  version: 1.5.10
-  resolution: "@autonomys/auto-consensus@npm:1.5.10"
+"@autonomys/auto-consensus@npm:1.5.14":
+  version: 1.5.14
+  resolution: "@autonomys/auto-consensus@npm:1.5.14"
   dependencies:
-    "@autonomys/auto-utils": "npm:^1.5.10"
-  checksum: 10c0/b1675177f59f44297c58e25ceb074a7c59004264bfbbb6b6060856fb343cb1876681eca20440429368838a3a0abf37aaf3e5833165de7405e65eab388de0d8db
+    "@autonomys/auto-utils": "npm:^1.5.14"
+  checksum: 10c0/c3aad302e216f5eedc3c2d97818d4fb2f24051f8c68b85a2efdf5cecc805b94a4241264e977bc6819b2abc8bebdcc8bb08b57dcedac77f87a599a4f882881369
   languageName: node
   linkType: hard
 
-"@autonomys/auto-utils@npm:1.5.10":
-  version: 1.5.10
-  resolution: "@autonomys/auto-utils@npm:1.5.10"
+"@autonomys/auto-utils@npm:1.5.14":
+  version: 1.5.14
+  resolution: "@autonomys/auto-utils@npm:1.5.14"
   dependencies:
     "@polkadot/api": "npm:^15.8.1"
     "@polkadot/extension-dapp": "npm:^0.58.6"
-  checksum: 10c0/9b697ff9c30da30b957ec31e41473cf42de72f4919692cb46aa09502d3a7fbc9e8102d48856a8f2c2f59dd129f1e1bd00c5144621032a75ba409c438e2a17701
+  checksum: 10c0/d1c4d6a38d6b9029191dcae5e777b48717025f30b60f963772ee1d1220f4426cbfa96a27541962024c0dec0ee0a7c4ab35850edb7abbf53a04d8fb3378806951
   languageName: node
   linkType: hard
 
@@ -8241,8 +8241,8 @@ __metadata:
   resolution: "staking@workspace:services/staking-indexer"
   dependencies:
     "@apollo/client": "npm:^3.13.5"
-    "@autonomys/auto-consensus": "npm:^1.5.10"
-    "@autonomys/auto-utils": "npm:^1.5.10"
+    "@autonomys/auto-consensus": "npm:1.5.14"
+    "@autonomys/auto-utils": "npm:1.5.14"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/types": "npm:^16.3.1"
     "@polkadot/util": "npm:^13.4.3"

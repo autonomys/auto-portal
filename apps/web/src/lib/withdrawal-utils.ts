@@ -21,7 +21,7 @@ export interface WithdrawalValidationResult {
 /**
  * Validate withdrawal amount against minimum nominator stake requirements
  * @param withdrawAmount - Amount user wants to withdraw
- * @param currentStake - Current total stake value (position + storage fee)
+ * @param currentStake - Current total stake value (position + storage fund)
  * @param operator - Operator information containing minimum stake requirements
  * @param isOperator - Whether the user is the operator owner
  * @returns Validation result with warnings
@@ -195,9 +195,9 @@ const formatTimeRemaining = (seconds: number): string => {
 };
 
 /**
- * Calculate storage fee refund based on withdrawal percentage of total position
+ * Calculate storage fund refund based on withdrawal percentage of total position
  * @param withdrawalPercentage - Percentage of position being withdrawn (0-1)
- * @param totalStorageFeeDeposit - Total storage fee deposit for the position
+ * @param totalStorageFeeDeposit - Total storage fund deposit for the position
  * @returns Proportional storage fee refund amount
  */
 export const calculateStorageFeeRefund = (
@@ -232,12 +232,12 @@ export const getWithdrawalPreview = (
 ) => {
   const totalPosition = totalStakePosition + totalStorageFeeDeposit;
 
-  // Calculate percentage based on total position (stake + storage fee)
+  // Calculate percentage based on total position (stake + storage fund)
   const percentage =
     withdrawalType === 'all' ? 100 : Math.min(100, (grossWithdrawalAmount / totalPosition) * 100);
   const withdrawalPercentage = percentage / 100; // Convert to 0-1 range
 
-  // Estimate proportional storage fee refund (actual amount determined by protocol)
+  // Estimate proportional storage fund refund (actual amount determined by protocol)
   // Note: This is an estimate - actual refund depends on storage fund performance
   const estimatedStorageFeeRefund = calculateStorageFeeRefund(
     withdrawalPercentage,
@@ -265,10 +265,10 @@ export const getWithdrawalPreview = (
   return {
     grossWithdrawalAmount: actualGrossWithdrawalAmount, // Total amount user will receive
     netStakeWithdrawal, // Amount withdrawn from staking position
-    storageFeeRefund: estimatedStorageFeeRefund, // Estimated storage fee refund portion
+    storageFeeRefund: estimatedStorageFeeRefund, // Estimated storage fund refund portion
     percentage: Math.round(percentage * 100) / 100, // Round to 2 decimal places
     remainingPosition: remainingStakePosition, // Remaining stake value
-    remainingStorageFee, // Remaining storage fee deposit
+    remainingStorageFee, // Remaining storage fund deposit
     withdrawalType,
   };
 };

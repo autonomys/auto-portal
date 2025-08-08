@@ -27,7 +27,7 @@ export interface PortfolioSummary {
   totalEarned: number; // Total earnings (requires cost basis calculation)
   pendingDeposits: number; // Count of pending deposit operations
   pendingWithdrawals: number; // Count of pending withdrawal operations
-  totalStorageFee: number; // Total storage fee deposits in AI3 (raw numeric value)
+  totalStorageFee: number; // Total storage fund deposits in AI3 (raw numeric value)
 }
 
 export interface PositionServiceError {
