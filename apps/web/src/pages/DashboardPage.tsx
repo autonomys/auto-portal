@@ -171,7 +171,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Pending Operations */}
-      {isConnected && <PendingOperations />}
+      {isConnected && hasPositions && <PendingOperations />}
 
       <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </div>
