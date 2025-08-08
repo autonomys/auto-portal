@@ -46,8 +46,8 @@
     "@polkadot/types-support": "^16.3.1",
     "@polkadot/util": "^13.0.0",
     "@polkadot/util-crypto": "^13.0.0",
-    "@autonomys/auto-consensus": "1.5.10",
-    "@autonomys/auto-utils": "1.5.10",
+    "@autonomys/auto-consensus": "1.5.14",
+    "@autonomys/auto-utils": "1.5.14",
     "ipfs-unixfs": "6.0.9"
   },
   "packageManager": "yarn@4.9.2",
