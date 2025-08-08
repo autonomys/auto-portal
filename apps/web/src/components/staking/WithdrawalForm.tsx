@@ -85,11 +85,12 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
   // Handle successful withdrawal
   useEffect(() => {
-    if (withdrawalState === 'success') {
+    // Ensure we have a tx hash before invoking success to avoid unmounting without it
+    if (withdrawalState === 'success' && withdrawalTxHash) {
       // Pass the actual gross withdrawal amount to the success callback
       const actualAmount =
         validationResult.actualWithdrawalAmount ?? withdrawalPreview.grossWithdrawalAmount;
-      onSuccess?.(actualAmount, withdrawalTxHash || undefined);
+      onSuccess?.(actualAmount, withdrawalTxHash);
     }
   }, [
     withdrawalState,

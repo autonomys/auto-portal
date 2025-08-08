@@ -165,10 +165,11 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
   // Handle transaction success
   useEffect(() => {
-    if (isSuccess) {
+    // Ensure txHash is available before triggering success callback
+    if (isSuccess && txHash) {
       // Refresh positions data to show the new pending deposit
       refetchPositions();
-      onSubmit(submittedAmount.current, txHash || undefined);
+      onSubmit(submittedAmount.current, txHash);
     }
   }, [isSuccess, txHash, refetchPositions, onSubmit]);
 
