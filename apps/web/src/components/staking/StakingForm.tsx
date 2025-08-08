@@ -163,18 +163,21 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
     }
   };
 
-  // Handle transaction success
+  // Handle transaction success (guard to prevent duplicate callback invocations)
+  const lastHandledTxHashRef = useRef<string | null>(null);
   useEffect(() => {
-    // Ensure txHash is available before triggering success callback
-    if (isSuccess && txHash) {
-      // Refresh positions data to show the new pending deposit
+    if (isSuccess && txHash && lastHandledTxHashRef.current !== txHash) {
       refetchPositions();
       onSubmit(submittedAmount.current, txHash);
+      lastHandledTxHashRef.current = txHash;
     }
   }, [isSuccess, txHash, refetchPositions, onSubmit]);
 
   const handleContinue = () => {
-    onSubmit(submittedAmount.current, txHash || undefined);
+    if (!txHash || lastHandledTxHashRef.current !== txHash) {
+      onSubmit(submittedAmount.current, txHash || undefined);
+      if (txHash) lastHandledTxHashRef.current = txHash;
+    }
   };
 
   return (

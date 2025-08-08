@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -83,14 +83,18 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     }
   }, [withdrawalMethod, amount, position.operatorId, estimateWithdrawalFee]);
 
-  // Handle successful withdrawal
+  // Handle successful withdrawal (guard to prevent duplicate callback invocations)
+  const lastHandledWithdrawalHashRef = useRef<string | null>(null);
   useEffect(() => {
-    // Ensure we have a tx hash before invoking success to avoid unmounting without it
-    if (withdrawalState === 'success' && withdrawalTxHash) {
-      // Pass the actual gross withdrawal amount to the success callback
+    if (
+      withdrawalState === 'success' &&
+      withdrawalTxHash &&
+      lastHandledWithdrawalHashRef.current !== withdrawalTxHash
+    ) {
       const actualAmount =
         validationResult.actualWithdrawalAmount ?? withdrawalPreview.grossWithdrawalAmount;
       onSuccess?.(actualAmount, withdrawalTxHash);
+      lastHandledWithdrawalHashRef.current = withdrawalTxHash;
     }
   }, [
     withdrawalState,
