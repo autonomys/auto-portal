@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { TransactionSuccess } from '@/components/transaction';
 import { WithdrawalForm } from '@/components/staking';
 import { useOperators } from '@/hooks/use-operators';
 import { usePositions } from '@/hooks/use-positions';
-import { TransactionSuccess } from '@/components/transaction';
 import { formatAI3 } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
@@ -21,6 +21,7 @@ export const WithdrawalPage: React.FC = () => {
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
   const [withdrawnAmount, setWithdrawnAmount] = useState<string>('');
+  const [withdrawalTxHash, setWithdrawalTxHash] = useState<string | null>(null);
 
   useEffect(() => {
     if (operators.length > 0 && operatorId) {
@@ -40,14 +41,15 @@ export const WithdrawalPage: React.FC = () => {
     }
   }, [positions, operatorId]);
 
-  const handleWithdrawalSubmit = (amount: string) => {
+  const handleWithdrawalSubmit = (amount: string, txHash?: string) => {
     setWithdrawnAmount(amount);
+    setWithdrawalTxHash(txHash || null);
     setWithdrawalSuccess(true);
   };
 
-  const handleWithdrawalSuccess = (actualWithdrawalAmount: number) => {
+  const handleWithdrawalSuccess = (actualWithdrawalAmount: number, txHash?: string) => {
     const formattedAmount = formatAI3(actualWithdrawalAmount, 4);
-    handleWithdrawalSubmit(formattedAmount);
+    handleWithdrawalSubmit(formattedAmount, txHash);
   };
 
   const handleBackToDashboard = () => {
@@ -109,12 +111,12 @@ export const WithdrawalPage: React.FC = () => {
     );
   }
 
-  // Success state
   if (withdrawalSuccess) {
     return (
       <TransactionSuccess
         title="Withdrawal Successful!"
         description={`You have successfully withdrawn ${withdrawnAmount} from ${operator!.name}. Your withdrawal will be processed according to the protocol's withdrawal schedule.`}
+        txHash={withdrawalTxHash ?? undefined}
         onPrimaryAction={handleBackToDashboard}
         onSecondaryAction={handleGoBack}
         primaryActionText="View Dashboard"
@@ -145,7 +147,6 @@ export const WithdrawalPage: React.FC = () => {
             <div>
               <h3 className="font-serif font-semibold text-foreground mb-2">Operator</h3>
               <p className="text-lg font-medium">{operator!.name}</p>
-              <p className="text-sm text-muted-foreground">{operator!.description}</p>
             </div>
             <div>
               <h3 className="font-serif font-semibold text-foreground mb-2">Position Value</h3>

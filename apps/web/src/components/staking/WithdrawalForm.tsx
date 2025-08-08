@@ -13,7 +13,7 @@ import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
   position: UserPosition;
-  onSuccess?: (withdrawalAmount: number) => void;
+  onSuccess?: (withdrawalAmount: number, txHash?: string) => void;
   onCancel?: () => void;
 }
 
@@ -36,6 +36,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     estimatedWithdrawalFee,
     estimateWithdrawalFee,
     canExecuteWithdrawal,
+    withdrawalTxHash,
   } = useWithdrawalTransaction();
 
   // Find the operator data for validation
@@ -88,13 +89,14 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
       // Pass the actual gross withdrawal amount to the success callback
       const actualAmount =
         validationResult.actualWithdrawalAmount ?? withdrawalPreview.grossWithdrawalAmount;
-      onSuccess?.(actualAmount);
+      onSuccess?.(actualAmount, withdrawalTxHash || undefined);
     }
   }, [
     withdrawalState,
     onSuccess,
     validationResult.actualWithdrawalAmount,
     withdrawalPreview.grossWithdrawalAmount,
+    withdrawalTxHash,
   ]);
 
   const handleSubmit = async () => {

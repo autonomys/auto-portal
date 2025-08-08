@@ -21,7 +21,7 @@ import {
 interface StakingFormProps {
   operator: Operator;
   onCancel: () => void;
-  onSubmit: (amount: string) => void;
+  onSubmit: (amount: string, txHash?: string) => void;
 }
 
 export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, onSubmit }) => {
@@ -165,14 +165,15 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
 
   // Handle transaction success
   useEffect(() => {
-    if (isSuccess && txHash) {
+    if (isSuccess) {
       // Refresh positions data to show the new pending deposit
       refetchPositions();
+      onSubmit(submittedAmount.current, txHash || undefined);
     }
-  }, [isSuccess, txHash, refetchPositions]);
+  }, [isSuccess, txHash, refetchPositions, onSubmit]);
 
   const handleContinue = () => {
-    onSubmit(submittedAmount.current);
+    onSubmit(submittedAmount.current, txHash || undefined);
   };
 
   return (

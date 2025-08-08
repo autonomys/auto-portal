@@ -17,5 +17,11 @@ export const config = {
     defaultNetworkId: 'mainnet', // Changed from taurus to mainnet
   },
 
+  // Explorer configuration
+  explorer: {
+    extrinsicBaseUrl:
+      import.meta.env.VITE_EXPLORER_EXTRINSIC_BASE_URL || 'https://autonomys.subscan.io/extrinsic/',
+  },
+
   // Add other configuration as needed
 } as const;

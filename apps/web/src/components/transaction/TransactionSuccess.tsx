@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { config } from '@/config';
 
 interface TransactionSuccessProps {
   title: string;
@@ -52,7 +53,26 @@ export const TransactionSuccess: React.FC<TransactionSuccessProps> = ({
           {txHash && (
             <div className="p-3 bg-muted/30 rounded-lg">
               <p className="text-label text-muted-foreground mb-1">Transaction Hash</p>
-              <p className="text-code break-all">{txHash}</p>
+              {(() => {
+                const explorerBase = config.explorer?.extrinsicBaseUrl;
+                const shortHash =
+                  txHash.length > 24 ? `${txHash.slice(0, 10)}…${txHash.slice(-10)}` : txHash;
+                return explorerBase ? (
+                  <a
+                    href={`${explorerBase}${txHash}`}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="text-code text-primary hover:underline inline-flex items-center gap-2"
+                    title={txHash}
+                  >
+                    {shortHash}
+                  </a>
+                ) : (
+                  <p className="text-code break-all" title={txHash}>
+                    {shortHash}
+                  </p>
+                );
+              })()}
             </div>
           )}
 
