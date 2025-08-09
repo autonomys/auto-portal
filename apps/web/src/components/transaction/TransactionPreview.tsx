@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoIcon } from 'lucide-react';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -9,7 +9,7 @@ type TransactionType = 'staking' | 'withdrawal';
 interface TransactionItem {
   label: string;
   value: number;
-  tooltip?: string;
+  tooltip?: React.ReactNode;
   isPositive?: boolean;
   isNegative?: boolean;
   loading?: boolean;
@@ -23,6 +23,7 @@ interface TransactionPreviewProps {
   totalLabel: string;
   totalValue: number;
   totalLoading?: boolean;
+  totalTooltip?: string;
   additionalInfo?: React.ReactNode;
   notes?: string[];
   className?: string;
@@ -35,12 +36,14 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
   totalLabel,
   totalValue,
   totalLoading = false,
+  totalTooltip,
   additionalInfo,
   notes,
   className = '',
 }) => {
   const defaultTitle = type === 'staking' ? 'Transaction Breakdown' : 'Withdrawal Summary';
   const displayTitle = title || defaultTitle;
+  const [expanded] = useState(true);
 
   const formatValue = (value: number, precision = 4, loading = false) => {
     if (loading) {
@@ -56,39 +59,52 @@ export const TransactionPreview: React.FC<TransactionPreviewProps> = ({
       </CardHeader>
       <CardContent className="stack-md">
         {/* Transaction Items */}
-        <div className="stack-sm">
-          {items.map((item, index) => (
-            <div key={index} className="flex justify-between items-center">
-              <div className="inline-xs">
-                <span className="text-label text-muted-foreground">{item.label}</span>
-                {item.tooltip && (
-                  <Tooltip content={item.tooltip} side="top">
-                    <InfoIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
-                  </Tooltip>
-                )}
+        {expanded && (
+          <div className="stack-sm">
+            {items.map((item, index) => (
+              <div key={index} className="flex justify-between items-center">
+                <div className="inline-xs">
+                  {item.tooltip ? (
+                    <Tooltip content={item.tooltip} side="top">
+                      <span className="text-label text-muted-foreground inline-flex items-center gap-1 cursor-pointer">
+                        {item.label}
+                        <InfoIcon className="w-4 h-4 text-muted-foreground" />
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <span className="text-label text-muted-foreground">{item.label}</span>
+                  )}
+                </div>
+                <span
+                  className={`text-code ${
+                    item.isPositive
+                      ? 'text-success'
+                      : item.isNegative
+                        ? 'text-destructive'
+                        : 'text-foreground'
+                  }`}
+                >
+                  {item.isPositive && '+'}
+                  {formatValue(item.value, item.precision, item.loading)}
+                </span>
               </div>
-              <span
-                className={`text-code ${
-                  item.isPositive
-                    ? 'text-success'
-                    : item.isNegative
-                      ? 'text-destructive'
-                      : 'text-foreground'
-                }`}
-              >
-                {item.isPositive && '+'}
-                {formatValue(item.value, item.precision, item.loading)}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Divider */}
         <hr className="border-border" />
 
         {/* Total */}
         <div className="flex justify-between items-center">
-          <span className="text-body font-semibold">{totalLabel}</span>
+          <span className="text-body font-semibold inline-flex items-center gap-1">
+            {totalLabel}
+            {totalTooltip && (
+              <Tooltip content={totalTooltip} side="top">
+                <InfoIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
+              </Tooltip>
+            )}
+          </span>
           <span className="text-code font-bold text-lg">
             {totalLoading ? (
               <span className="animate-pulse text-muted-foreground">Calculating...</span>
