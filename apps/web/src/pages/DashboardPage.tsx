@@ -15,6 +15,8 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { balance, loading: balanceLoading } = useBalance();
   const { hasPositions, portfolioSummary } = usePositions();
+  const hasPendingOperations =
+    (portfolioSummary?.pendingDeposits || 0) + (portfolioSummary?.pendingWithdrawals || 0) > 0;
   const { isConnected } = useWallet();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
 
@@ -171,7 +173,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Pending Operations Details */}
-      {isConnected && hasPositions && <PendingOperations />}
+      {isConnected && (hasPositions || hasPendingOperations) && <PendingOperations />}
 
       <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </div>
