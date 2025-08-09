@@ -44,16 +44,10 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
       subtitle: 'Operators staked with',
       showTooltip: false,
     },
-    {
-      label: 'Storage Fund Deposits',
-      value: portfolioSummary ? formatAI3(portfolioSummary.totalStorageFee, 4) : '0.0000 AI3',
-      subtitle: 'Total locked in storage fund',
-      showTooltip: false,
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
       {summaryCards.map(card => (
         <Card key={card.label} className="relative">
           <CardContent className="pt-6">
@@ -92,37 +86,6 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
           </CardContent>
         </Card>
       ))}
-
-      {/* Pending Operations Summary */}
-      {portfolioSummary &&
-        (portfolioSummary.pendingDeposits > 0 || portfolioSummary.pendingWithdrawals > 0) && (
-          <div className="md:col-span-3 mt-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-center space-x-8 text-sm font-sans">
-                  {portfolioSummary.pendingDeposits > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
-                      <span className="text-muted-foreground">
-                        {portfolioSummary.pendingDeposits} pending deposit
-                        {portfolioSummary.pendingDeposits > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  )}
-                  {portfolioSummary.pendingWithdrawals > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
-                      <span className="text-muted-foreground">
-                        {portfolioSummary.pendingWithdrawals} pending withdrawal
-                        {portfolioSummary.pendingWithdrawals > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
     </div>
   );
 };
