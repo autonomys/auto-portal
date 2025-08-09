@@ -134,9 +134,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const showPreview = withdrawalMethod === 'all' || (withdrawalMethod === 'partial' && amount > 0);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
       {/* Withdrawal Input Form */}
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle className="text-h3">Withdraw from {position.operatorName}</CardTitle>
           <div className="stack-xs">
@@ -297,7 +297,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
       </Card>
 
       {/* Transaction Preview */}
-      <div>
+      <div className="h-full">
         {showPreview && isValidAmount ? (
           (() => {
             const actualGrossAmount =
@@ -315,20 +315,25 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               precision?: number;
               isPositive?: boolean;
               isNegative?: boolean;
-              tooltip?: string;
+              tooltip?: React.ReactNode;
             }> = [
               {
-                label: 'Net Stake Withdrawal',
-                value: actualNetAmount,
-                precision: 4,
-              },
-              {
-                label: 'Storage Fund Refund',
-                value: actualStorageFeeRefund,
+                label: 'Withdrawal Amount',
+                value: actualGrossAmount,
                 precision: 4,
                 isPositive: true,
-                tooltip:
-                  'Storage fees are refunded proportionally based on storage fund performance.',
+                tooltip: (
+                  <div className="space-y-1">
+                    <div className="flex justify-between gap-6">
+                      <span>From stake</span>
+                      <span className="font-mono">{formatAI3(actualNetAmount, 4)}</span>
+                    </div>
+                    <div className="flex justify-between gap-6">
+                      <span>Storage refund</span>
+                      <span className="font-mono">{formatAI3(actualStorageFeeRefund, 4)}</span>
+                    </div>
+                  </div>
+                ),
               },
               {
                 label: 'Transaction Fee',
@@ -338,21 +343,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               },
             ];
 
-            if (withdrawalMethod === 'partial' && !validationResult.willWithdrawAll) {
-              withdrawalItems.push({
-                label: 'Remaining Position',
-                value: withdrawalPreview.remainingPosition,
-                precision: 4,
-                tooltip: 'The amount that will remain staked after this withdrawal.',
-              });
-            }
-
             const additionalInfo = (
               <div className="stack-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-label text-muted-foreground">Operator:</span>
-                  <span className="text-body font-medium">{position.operatorName}</span>
-                </div>
                 <div className="flex justify-between items-center">
                   <span className="text-label text-muted-foreground">Withdrawal Percentage:</span>
                   <span className="text-code font-medium">
@@ -371,9 +363,11 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             return (
               <TransactionPreview
                 type="withdrawal"
+                className="h-full"
                 items={withdrawalItems}
-                totalLabel="Total to Receive"
+                totalLabel="You will receive"
                 totalValue={actualGrossAmount}
+                totalTooltip={`From stake: ${formatAI3(actualNetAmount, 4)} • Storage refund: ${formatAI3(actualStorageFeeRefund, 4)}`}
                 additionalInfo={additionalInfo}
                 notes={[
                   'Withdrawal requests are processed according to the protocol schedule',
@@ -389,7 +383,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             );
           })()
         ) : (
-          <Card>
+          <Card className="h-full">
             <CardContent className="pt-6">
               <div className="text-center text-muted-foreground">
                 <p className="text-body">

@@ -24,14 +24,15 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => setIsVisible(false)}
     >
-      {children}
+      <div className="relative z-10">{children}</div>
       {isVisible && (
         <div
           className={cn(
-            'absolute z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg',
+            'absolute z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max whitespace-nowrap max-w-[80vw]',
             sideClasses[side],
             className,
           )}
+          style={{ pointerEvents: 'none' }}
         >
           {content}
           {/* Arrow */}

@@ -148,21 +148,14 @@ export const WithdrawalPage: React.FC = () => {
               <h3 className="font-serif font-semibold text-foreground mb-2">Operator</h3>
               <p className="text-lg font-medium">{operator!.name}</p>
             </div>
-            <div>
-              <h3 className="font-serif font-semibold text-foreground mb-2">Position Value</h3>
+            <div className="md:col-span-2">
+              <h3 className="font-serif font-semibold text-foreground mb-2">Total Position</h3>
               <p className="text-2xl font-mono font-bold text-foreground">
-                {formatAI3(position!.positionValue, 4)}
+                {formatAI3(position!.positionValue + position!.storageFeeDeposit, 4)}
               </p>
-              <p className="text-sm text-muted-foreground">Current stake value</p>
-            </div>
-            <div>
-              <h3 className="font-serif font-semibold text-foreground mb-2">
-                Storage Fund Deposit
-              </h3>
-              <p className="text-xl font-mono font-semibold text-foreground">
-                {formatAI3(position!.storageFeeDeposit, 4)}
+              <p className="text-sm text-muted-foreground">
+                Includes storage fund; hover breakdown shown in the withdrawal preview
               </p>
-              <p className="text-sm text-muted-foreground">Refundable on withdrawal</p>
             </div>
           </div>
         </CardContent>
