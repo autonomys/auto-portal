@@ -39,8 +39,8 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
           </div>
           {pendingStaked > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              <span className="text-yellow-300 text-left">Pending Staked:</span>
-              <span className="font-mono text-yellow-300 text-right">
+              <span className="text-green-300 text-left">Pending Staked:</span>
+              <span className="font-mono text-green-300 text-right">
                 {formatAI3(pendingStaked, 4)}
               </span>
             </div>
@@ -102,8 +102,8 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
           </div>
           {totalPendingStaked > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              <span className="text-yellow-300 text-left">Pending Staked:</span>
-              <span className="font-mono text-yellow-300 text-right">
+              <span className="text-green-300 text-left">Pending Staked:</span>
+              <span className="font-mono text-green-300 text-right">
                 {formatAI3(totalPendingStaked, 4)}
               </span>
             </div>

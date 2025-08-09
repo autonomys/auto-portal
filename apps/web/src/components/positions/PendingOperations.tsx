@@ -35,9 +35,9 @@ interface UnlockableSummaryProps {
 }
 
 const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operatorName }) => (
-  <div className="flex items-center justify-between p-3 bg-warning-50 border border-warning-200 rounded-lg">
+  <div className="flex items-center justify-between p-3 bg-success-50 border border-success-200 rounded-lg">
     <div className="flex items-center gap-3">
-      <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
+      <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
       <div>
         <div className="font-medium font-sans text-sm">{operatorName}</div>
         <div className="text-xs text-muted-foreground font-sans">
@@ -46,10 +46,10 @@ const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operat
       </div>
     </div>
     <div className="text-right">
-      <div className="font-mono font-semibold text-warning-700">
+      <div className="font-mono font-semibold text-success-700">
         +{formatAI3(deposit.amount, 4)}
       </div>
-      <Badge variant="warning" size="sm">
+      <Badge variant="success" size="sm">
         Pending
       </Badge>
     </div>
