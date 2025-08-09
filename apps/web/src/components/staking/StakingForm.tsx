@@ -181,9 +181,9 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
       {/* Stake Input Form */}
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle className="text-h3">Amount to Stake</CardTitle>
         </CardHeader>
@@ -317,18 +317,24 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
         {formState.showPreview ? (
           <TransactionPreview
             type="staking"
+            className="h-full"
             items={[
               {
-                label: 'Staking Portion',
-                value: calculations.netStaking,
+                label: 'Stake (includes storage fund reserve)',
+                value: calculations.netStaking + calculations.storageFund,
                 precision: 4,
-              },
-              {
-                label: 'Storage Fund (20%)',
-                value: calculations.storageFund,
-                precision: 4,
-                tooltip:
-                  '20% of your stake is reserved as storage fees and refunded proportionally when you withdraw. Actual refund depends on storage fund performance.',
+                tooltip: (
+                  <div className="space-y-1">
+                    <div className="flex justify-between gap-6">
+                      <span>From stake</span>
+                      <span className="font-mono">{formatAI3(calculations.netStaking, 4)}</span>
+                    </div>
+                    <div className="flex justify-between gap-6">
+                      <span>Storage fund reserve</span>
+                      <span className="font-mono">{formatAI3(calculations.storageFund, 4)}</span>
+                    </div>
+                  </div>
+                ),
               },
               {
                 label: 'Transaction Fee',
@@ -360,15 +366,14 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
               )
             }
             notes={[
-              'Storage fund (20%) is held by the protocol and refunded when you withdraw',
-              'Only the net staking amount (80%) earns rewards',
+              'Part of your stake is reserved for storage and refunded when you withdraw',
               'Rewards are automatically compounded to your position',
               'Stake will be active after next epoch transition (~10 minutes)',
               'Your stake will appear as "Pending" until the epoch transition occurs',
             ]}
           />
         ) : (
-          <Card>
+          <Card className="h-full">
             <CardContent className="pt-6">
               <div className="text-center text-muted-foreground">
                 <p className="text-body">Enter an amount to see transaction preview</p>
