@@ -49,7 +49,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
       case 'active':
         return 'text-success-600';
       case 'pending':
-        return 'text-warning-600';
+        return 'text-success-600';
       case 'withdrawing':
         return 'text-warning-600';
       default:
@@ -87,7 +87,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
           <div className="flex gap-4 text-sm">
             {position.pendingDeposit && (
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
                 <span className={getStatusColor('pending')}>1 pending deposit</span>
               </div>
             )}

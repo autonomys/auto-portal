@@ -112,7 +112,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
               {userPosition.pendingDeposit && (
                 <div className="flex justify-between items-center">
                   <span className="text-label text-muted-foreground">Pending:</span>
-                  <span className="text-code font-medium text-warning">
+                  <span className="text-code font-medium text-success">
                     {formatNumber(userPosition.pendingDeposit.amount.toString())} AI3
                   </span>
                 </div>
