@@ -57,8 +57,9 @@ const PositionRow: React.FC<PositionRowProps> = ({
     }
   };
 
-  // Calculate total position value including storage fund deposit
-  const totalPositionValue = position.positionValue + position.storageFeeDeposit;
+  // Calculate total position value including storage fund deposit and pending stake
+  const totalPositionValue =
+    position.positionValue + position.storageFeeDeposit + (position.pendingDeposit?.amount || 0);
 
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
