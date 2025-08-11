@@ -4,11 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useOperatorDetails } from '@/hooks/use-operator-details';
 import { useOperatorPosition } from '@/hooks/use-positions';
-import {
-  OperatorDetailsHeader,
-  OperatorActions,
-  OperatorDetailsLoading,
-} from '@/components/operators';
+import { OperatorDetailsHeader, OperatorDetailsLoading } from '@/components/operators';
 
 export const OperatorDetailsPage: React.FC = () => {
   const { id: operatorId } = useParams<{ id: string }>();
