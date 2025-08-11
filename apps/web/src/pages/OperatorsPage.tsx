@@ -27,6 +27,10 @@ export const OperatorsPage: React.FC = () => {
     navigate(`/operators/${operatorId}`);
   };
 
+  const handleWithdraw = (operatorId: string) => {
+    navigate(`/withdraw/${operatorId}`);
+  };
+
   const handleViewModeChange = (mode: 'grid' | 'table') => {
     setSearchParams(prev => {
       const params = new URLSearchParams(prev);
@@ -98,6 +102,7 @@ export const OperatorsPage: React.FC = () => {
           loading={loading}
           onStake={handleStake}
           onViewDetails={handleViewDetails}
+          onWithdraw={handleWithdraw}
         />
       ) : (
         <OperatorTable

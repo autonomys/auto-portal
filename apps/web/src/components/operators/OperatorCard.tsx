@@ -12,9 +12,15 @@ interface OperatorCardProps {
   operator: Operator;
   onStake: (operatorId: string) => void;
   onViewDetails: (operatorId: string) => void;
+  onWithdraw: (operatorId: string) => void;
 }
 
-export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, onViewDetails }) => {
+export const OperatorCard: React.FC<OperatorCardProps> = ({
+  operator,
+  onStake,
+  onViewDetails,
+  onWithdraw,
+}) => {
   const { positions } = usePositions({ refreshInterval: 0 });
   const userPosition = positions.find(p => p.operatorId === operator.id);
   const getStatusVariant = (status: Operator['status']) => {
@@ -115,7 +121,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
             Stake
           </Button>
           {hasUserPosition && (
-            <Button variant="outline" className="flex-1" onClick={() => onViewDetails(operator.id)}>
+            <Button variant="outline" className="flex-1" onClick={() => onWithdraw(operator.id)}>
               Withdraw
             </Button>
           )}
