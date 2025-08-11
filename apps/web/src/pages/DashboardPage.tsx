@@ -114,11 +114,15 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Portfolio Summary */}
-      {isConnected && <PositionSummary />}
+      {isConnected && (
+        <div className="max-w-6xl mx-auto">
+          <PositionSummary />
+        </div>
+      )}
 
       {/* Wallet Balance - Only show when connected */}
       {isConnected && (
-        <div className={layout.gridResponsive['1-2'] + ' gap-6'}>
+        <div className={layout.gridResponsive['1-2'] + ' gap-6 max-w-6xl mx-auto'}>
           <Card className="relative">
             <CardHeader className="pb-2">
               <CardTitle className="text-label">Available Balance</CardTitle>
@@ -163,7 +167,7 @@ export const DashboardPage: React.FC = () => {
 
       {/* Active Positions */}
       {isConnected && hasPositions && (
-        <div id="positions-section">
+        <div id="positions-section" className="max-w-6xl mx-auto">
           <ActivePositionsTable
             onOperatorClick={operatorId => {
               navigate(`/operators/${operatorId}`);
@@ -173,7 +177,11 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Pending Operations Details */}
-      {isConnected && (hasPositions || hasPendingOperations) && <PendingOperations />}
+      {isConnected && (hasPositions || hasPendingOperations) && (
+        <div className="max-w-6xl mx-auto">
+          <PendingOperations />
+        </div>
+      )}
 
       <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
     </div>
