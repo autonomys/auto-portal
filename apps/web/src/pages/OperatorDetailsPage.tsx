@@ -1,6 +1,5 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useOperatorDetails } from '@/hooks/use-operator-details';
@@ -70,12 +69,7 @@ export const OperatorDetailsPage: React.FC = () => {
   return (
     <div className="py-12 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-8">
-        <Button variant="outline" onClick={() => navigate('/operators')} className="font-sans">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Operators
-        </Button>
-        <div className="h-6 w-px bg-border" />
+      <div className="mb-8">
         <h1 className="text-xl font-serif font-semibold text-foreground">{operator.name}</h1>
       </div>
 
