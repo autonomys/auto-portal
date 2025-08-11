@@ -52,10 +52,6 @@ export const WithdrawalPage: React.FC = () => {
     handleWithdrawalSubmit(formattedAmount, txHash);
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
   const handleGoBack = () => {
     navigate('/dashboard');
   };
@@ -117,10 +113,10 @@ export const WithdrawalPage: React.FC = () => {
         title="Withdrawal Successful!"
         description={`You have successfully withdrawn ${withdrawnAmount} from ${operator!.name}. Your withdrawal will be processed according to the protocol's withdrawal schedule.`}
         txHash={withdrawalTxHash ?? undefined}
-        onPrimaryAction={handleBackToDashboard}
-        onSecondaryAction={handleGoBack}
+        onPrimaryAction={() => navigate('/dashboard')}
+        onSecondaryAction={() => navigate('/operators')}
         primaryActionText="View Dashboard"
-        secondaryActionText="Back to Dashboard"
+        secondaryActionText="Browse Operators"
       />
     );
   }

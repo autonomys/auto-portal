@@ -34,10 +34,6 @@ export const StakingPage: React.FC = () => {
     setStakingSuccess(true);
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
   const handleGoBack = () => {
     // If coming from a position, go back to dashboard; otherwise go to operators
     navigate(fromPosition ? '/dashboard' : '/operators');
@@ -95,10 +91,10 @@ export const StakingPage: React.FC = () => {
         title="Staking Successful!"
         description={`You have successfully staked ${stakedAmount} AI3 to ${operator.name}. Your stake will become active after the next epoch transition (~10 minutes).`}
         txHash={stakingTxHash ?? undefined}
-        onPrimaryAction={handleBackToDashboard}
-        onSecondaryAction={handleGoBack}
+        onPrimaryAction={() => navigate('/dashboard')}
+        onSecondaryAction={() => navigate('/operators')}
         primaryActionText="View Dashboard"
-        secondaryActionText="Browse More Operators"
+        secondaryActionText="Browse Operators"
       />
     );
   }
