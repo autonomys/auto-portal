@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+// Buttons are now intended to be placed on the main details card; keep this as a lightweight section
 import { useWallet } from '@/hooks/use-wallet';
 import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
@@ -29,38 +29,36 @@ export const OperatorActions: React.FC<OperatorActionsProps> = ({ operator, user
   const canWithdraw = isConnected && hasPosition;
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button className="flex-1 font-sans" onClick={handleStake} disabled={!canStake} size="lg">
-            {hasPosition ? 'Add More Stake' : 'Stake to this Operator'}
+    <div className="pt-2">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Button className="flex-1 font-sans" onClick={handleStake} disabled={!canStake} size="lg">
+          {hasPosition ? 'Add More Stake' : 'Stake to this Operator'}
+        </Button>
+
+        {hasPosition && (
+          <Button
+            variant="outline"
+            className="flex-1 font-sans"
+            onClick={handleWithdraw}
+            disabled={!canWithdraw}
+            size="lg"
+          >
+            Withdraw Stake
           </Button>
-
-          {hasPosition && (
-            <Button
-              variant="outline"
-              className="flex-1 font-sans"
-              onClick={handleWithdraw}
-              disabled={!canWithdraw}
-              size="lg"
-            >
-              Withdraw Stake
-            </Button>
-          )}
-        </div>
-
-        {!isConnected && (
-          <p className="text-body-small text-muted-foreground mt-4 text-center">
-            <span className="font-medium">Connect your wallet</span> to stake or withdraw tokens.
-          </p>
         )}
-        {isConnected && !isOperatorActive && (
-          <p className="text-body-small text-muted-foreground mt-4 text-center">
-            This operator is currently <span className="font-medium">{operator.status}</span> and
-            not accepting new stakes.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {!isConnected && (
+        <p className="text-body-small text-muted-foreground mt-4 text-center">
+          <span className="font-medium">Connect your wallet</span> to stake or withdraw tokens.
+        </p>
+      )}
+      {isConnected && !isOperatorActive && (
+        <p className="text-body-small text-muted-foreground mt-4 text-center">
+          This operator is currently <span className="font-medium">{operator.status}</span> and not
+          accepting new stakes.
+        </p>
+      )}
+    </div>
   );
 };

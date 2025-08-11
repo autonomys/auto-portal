@@ -79,11 +79,8 @@ export const OperatorDetailsPage: React.FC = () => {
         <h1 className="text-xl font-serif font-semibold text-foreground">{operator.name}</h1>
       </div>
 
-      {/* Operator Summary - Consolidated into single card */}
+      {/* Operator Summary with inline actions in the right card */}
       <OperatorDetailsHeader operator={operator} userPosition={position} />
-
-      {/* Actions */}
-      <OperatorActions operator={operator} userPosition={position} />
     </div>
   );
 };
