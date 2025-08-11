@@ -121,7 +121,11 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
             Stake
           </Button>
           {hasUserPosition && (
-            <Button variant="outline" className="flex-1" onClick={() => onWithdraw(operator.id)}>
+            <Button
+              variant="warningOutline"
+              className="flex-1"
+              onClick={() => onWithdraw(operator.id)}
+            >
               Withdraw
             </Button>
           )}

@@ -22,10 +22,6 @@ export const OperatorDetailsPage: React.FC = () => {
       <div className="py-12 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
-          <Button variant="outline" onClick={() => navigate('/operators')} className="font-sans">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
           <div className="h-6 w-px bg-border" />
           <span className="text-muted-foreground font-sans">Operator Not Found</span>
         </div>

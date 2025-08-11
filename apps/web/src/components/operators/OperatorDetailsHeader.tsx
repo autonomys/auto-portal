@@ -174,7 +174,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
                       Add More Stake
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="warningOutline"
                       className="flex-1 font-sans"
                       size="lg"
                       onClick={() => navigate(`/withdraw/${operator.id}`)}
