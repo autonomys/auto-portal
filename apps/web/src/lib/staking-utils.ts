@@ -64,12 +64,11 @@ export const validateStakingAmount = (
     errors.push(`First nomination must be at least ${validation.minimum} AI3`);
   }
 
+  // Balance checks: avoid double-reporting. If amount already exceeds balance,
+  // do not also add the fee-based error.
   if (numericAmount > validation.maximum) {
     errors.push('Amount exceeds available balance');
-  }
-
-  // Check if amount + fee exceeds balance
-  if (numericAmount + feeToUse > validation.maximum) {
+  } else if (numericAmount + feeToUse > validation.maximum) {
     errors.push('Insufficient balance for this amount plus transaction fees');
   }
 

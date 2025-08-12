@@ -110,6 +110,7 @@ export const OperatorsPage: React.FC = () => {
           loading={loading}
           onStake={handleStake}
           onViewDetails={handleViewDetails}
+          onWithdraw={handleWithdraw}
         />
       )}
 

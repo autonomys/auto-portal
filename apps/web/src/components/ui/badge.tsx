@@ -20,6 +20,8 @@ const badgeVariants = cva(
         warning:
           'border-transparent bg-yellow-500 text-white shadow hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700',
         info: 'border-transparent bg-blue-500 text-white shadow hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700',
+        brand:
+          'border-transparent bg-[#5870B3] text-white shadow hover:bg-[#5870B3]/90 dark:bg-[#5870B3] dark:hover:bg-[#5870B3]/90',
       },
       size: {
         sm: 'px-2 py-0.5 text-xs',

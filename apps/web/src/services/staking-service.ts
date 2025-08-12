@@ -1,5 +1,6 @@
 import { nominateOperator } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
+import { signAndSendTx, type TxResult, isUserCancellationError } from './tx-utils';
 import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
 
 export interface StakingParams {
@@ -89,56 +90,18 @@ export const stakingService = {
       // Create the transaction
       const tx = await stakingService.createNominateTransaction(params);
 
-      return new Promise(resolve => {
-        // Sign and send the transaction
-        tx.signAndSend(
-          account.address,
-          { signer: injector.signer },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (result: any) => {
-            if (progressCallback) {
-              progressCallback(result);
-            }
-
-            const { status, txHash, events } = result;
-            if (status.isInBlock) {
-              console.log(`Transaction included at blockHash ${status.asInBlock}`);
-              console.log(`Transaction hash: ${txHash}`);
-
-              // Check for errors in events
-              const errorEvent = events.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (eventRecord: any) =>
-                  eventRecord.event.section === 'system' &&
-                  eventRecord.event.method === 'ExtrinsicFailed',
-              );
-
-              if (errorEvent) {
-                resolve({
-                  success: false,
-                  error: 'Transaction failed during execution',
-                  txHash: txHash.toString(),
-                });
-              } else {
-                resolve({
-                  success: true,
-                  txHash: txHash.toString(),
-                  blockHash: status.asInBlock.toString(),
-                });
-              }
-            } else if (status.isFinalized) {
-              console.log(`Transaction finalized at blockHash ${status.asFinalized}`);
-            } else if (status.isDropped || status.isInvalid) {
-              resolve({
-                success: false,
-                error: 'Transaction was dropped or invalid',
-                txHash: txHash.toString(),
-              });
-            }
-          },
-        );
-      });
+      const res: TxResult = await signAndSendTx(
+        tx,
+        account.address,
+        injector.signer,
+        progressCallback,
+      );
+      return res;
     } catch (error) {
+      // Re-throw cancellations so UI can treat as benign cancel
+      if (isUserCancellationError(error)) {
+        throw error;
+      }
       console.error('Staking transaction failed:', error);
       return {
         success: false,

@@ -8,6 +8,7 @@ import {
   type WithdrawalResult,
   type BatchWithdrawalResult,
 } from '@/services/withdrawal-service';
+import { isUserCancellationError } from '@/services/tx-utils';
 
 export type WithdrawalTransactionState = 'idle' | 'signing' | 'pending' | 'success' | 'error';
 
@@ -31,6 +32,8 @@ interface UseWithdrawalTransactionReturn {
   feeLoading: boolean;
   batchUnlockProgress: { completed: number; total: number; current?: string } | null;
   batchUnlockResult: BatchWithdrawalResult | null;
+  wasWithdrawalCancelled: boolean;
+  wasUnlockCancelled: boolean;
 
   // Actions
   executeWithdraw: (params: WithdrawalParams) => Promise<void>;
@@ -95,6 +98,8 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
   const [estimatedWithdrawalFee, setEstimatedWithdrawalFee] = useState<number | null>(null);
   const [estimatedUnlockFee, setEstimatedUnlockFee] = useState<number | null>(null);
   const [feeLoading, setFeeLoading] = useState(false);
+  const [wasWithdrawalCancelled, setWasWithdrawalCancelled] = useState(false);
+  const [wasUnlockCancelled, setWasUnlockCancelled] = useState(false);
 
   const estimateWithdrawalFee = useCallback(
     async (params: WithdrawalParams) => {
@@ -154,6 +159,7 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
       setWithdrawalError(null);
       setWithdrawalTxHash(null);
       setWithdrawalBlockHash(null);
+      setWasWithdrawalCancelled(false);
 
       try {
         setWithdrawalState('signing');
@@ -181,10 +187,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
           setWithdrawalTxHash(result.txHash || null);
         }
       } catch (err) {
-        setWithdrawalState('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        setWithdrawalError(errorMessage);
-        console.error('Withdrawal transaction error:', err);
+        if (isUserCancellationError(err)) {
+          setWithdrawalState('idle');
+          setWithdrawalError(null);
+          setWasWithdrawalCancelled(true);
+        } else {
+          setWithdrawalState('error');
+          setWithdrawalError(errorMessage);
+          console.error('Withdrawal transaction error:', err);
+        }
       }
     },
     [isConnected, selectedAccount, injector, withdrawalState],
@@ -208,6 +220,7 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
       setUnlockError(null);
       setUnlockTxHash(null);
       setUnlockBlockHash(null);
+      setWasUnlockCancelled(false);
 
       try {
         setUnlockState('signing');
@@ -235,10 +248,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
           setUnlockTxHash(result.txHash || null);
         }
       } catch (err) {
-        setUnlockState('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        setUnlockError(errorMessage);
-        console.error('Unlock transaction error:', err);
+        if (isUserCancellationError(err)) {
+          setUnlockState('idle');
+          setUnlockError(null);
+          setWasUnlockCancelled(true);
+        } else {
+          setUnlockState('error');
+          setUnlockError(errorMessage);
+          console.error('Unlock transaction error:', err);
+        }
       }
     },
     [isConnected, selectedAccount, injector, unlockState],
@@ -304,6 +323,7 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     setWithdrawalTxHash(null);
     setWithdrawalBlockHash(null);
     setEstimatedWithdrawalFee(null);
+    setWasWithdrawalCancelled(false);
   }, []);
 
   const resetUnlock = useCallback(() => {
@@ -312,6 +332,7 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     setUnlockTxHash(null);
     setUnlockBlockHash(null);
     setEstimatedUnlockFee(null);
+    setWasUnlockCancelled(false);
   }, []);
 
   const resetBatchUnlock = useCallback(() => {
@@ -374,6 +395,8 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
     estimatedWithdrawalFee,
     estimatedUnlockFee,
     feeLoading,
+    wasWithdrawalCancelled,
+    wasUnlockCancelled,
     batchUnlockProgress,
     batchUnlockResult,
 
