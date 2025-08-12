@@ -71,13 +71,14 @@ export type BadgeVariant =
   | 'outline'
   | 'success'
   | 'warning'
-  | 'info';
+  | 'info'
+  | 'brand';
 
 export const getNetworkBadge = (networkId: string): { label: string; variant: BadgeVariant } => {
   const label = networkId.toUpperCase();
   const variant =
     networkId === 'mainnet'
-      ? 'destructive'
+      ? 'brand'
       : networkId === 'chronos'
         ? 'warning'
         : networkId === 'taurus'
