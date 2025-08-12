@@ -22,7 +22,8 @@ export const shannonsToAI3 = (shannons: string | number): number => {
  */
 export const ai3ToShannons = (ai3: number | string): string => {
   const ai3Value = typeof ai3 === 'string' ? parseFloat(ai3) : ai3;
-  return String(formatTokenAmount(ai3Value));
+  const shannons = BigInt(formatTokenAmount(ai3Value)).toString();
+  return shannons;
 };
 
 /**
