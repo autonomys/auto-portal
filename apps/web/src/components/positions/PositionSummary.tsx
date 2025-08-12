@@ -47,7 +47,7 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {summaryCards.map(card => (
         <Card key={card.label} className="relative">
           <CardContent className="pt-6">

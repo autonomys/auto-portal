@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatNumber, formatPercentage } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
+import { usePositions } from '@/hooks/use-positions';
 
 interface OperatorTableProps {
   operators: Operator[];
   loading?: boolean;
   onStake: (operatorId: string) => void;
   onViewDetails: (operatorId: string) => void;
+  onWithdraw: (operatorId: string) => void;
 }
 
 export const OperatorTable: React.FC<OperatorTableProps> = ({
@@ -16,7 +18,23 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   loading = false,
   onStake,
   onViewDetails,
+  onWithdraw,
 }) => {
+  const { positions } = usePositions({ refreshInterval: 0 });
+
+  const operatorIdsWithUserPosition = React.useMemo(() => {
+    const ids = new Set<string>();
+    for (const position of positions) {
+      const hasUserPosition =
+        !!position &&
+        (position.positionValue > 0 || position.storageFeeDeposit > 0 || position.pendingDeposit);
+      if (hasUserPosition) {
+        ids.add(position.operatorId);
+      }
+    }
+    return ids;
+  }, [positions]);
+
   const getStatusVariant = (status: Operator['status']) => {
     switch (status) {
       case 'active':
@@ -164,6 +182,15 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   <Button size="sm" onClick={() => onStake(operator.id)}>
                     Stake
                   </Button>
+                  {operatorIdsWithUserPosition.has(operator.id) && (
+                    <Button
+                      size="sm"
+                      variant="warningOutline"
+                      onClick={() => onWithdraw(operator.id)}
+                    >
+                      Withdraw
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" onClick={() => onViewDetails(operator.id)}>
                     Details
                   </Button>

@@ -7,6 +7,7 @@ interface OperatorGridProps {
   loading?: boolean;
   onStake: (operatorId: string) => void;
   onViewDetails: (operatorId: string) => void;
+  onWithdraw: (operatorId: string) => void;
 }
 
 export const OperatorGrid: React.FC<OperatorGridProps> = ({
@@ -14,6 +15,7 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
   loading = false,
   onStake,
   onViewDetails,
+  onWithdraw,
 }) => {
   if (loading) {
     return (
@@ -84,6 +86,7 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
           operator={operator}
           onStake={onStake}
           onViewDetails={onViewDetails}
+          onWithdraw={onWithdraw}
         />
       ))}
     </div>

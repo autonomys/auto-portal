@@ -2,6 +2,9 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AddressDisplay } from '@/components/wallet/AddressDisplay';
+import { formatAI3 } from '@/lib/formatting';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { formatNumber, formatPercentage } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
@@ -15,6 +18,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
   operator,
   userPosition,
 }) => {
+  const navigate = useNavigate();
   const getStatusVariant = (status: Operator['status']) => {
     switch (status) {
       case 'active':
@@ -42,9 +46,7 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
       return '0.00';
     }
 
-    const userStakeValue =
-      userPosition.positionValue +
-      (userPosition.pendingDeposit ? userPosition.pendingDeposit.amount : 0);
+    const userStakeValue = userPosition.positionValue + (userPosition.pendingDeposit?.amount || 0);
     const percentage = (userStakeValue / totalStaked) * 100;
 
     return percentage.toFixed(2);
@@ -69,8 +71,8 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
           </Badge>
         </div>
 
-        {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
+        {/* Key Metrics Grid: Tax, Total Staked, Your Share */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="text-center">
             <p className="text-2xl font-bold text-code">
               {formatPercentage(operator.nominationTax)}
@@ -81,79 +83,119 @@ export const OperatorDetailsHeader: React.FC<OperatorDetailsHeaderProps> = ({
             <p className="text-2xl font-bold text-code">{formatNumber(operator.totalStaked)} AI3</p>
             <p className="text-body-small text-muted-foreground">Total Staked</p>
           </div>
-          {userPosition && userPosition.positionValue > 0 ? (
-            <div className="text-center">
-              <p className="text-2xl font-bold text-code text-primary">
-                {calculateUserStakePercentage()}%
-              </p>
-              <p className="text-body-small text-muted-foreground">Your Share</p>
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="text-2xl font-bold text-code">
-                {formatNumber(operator.minimumNominatorStake)} AI3
-              </p>
-              <p className="text-body-small text-muted-foreground">Min Stake</p>
-            </div>
-          )}
+          <div className="text-center">
+            <p className="text-2xl font-bold text-code text-primary">
+              {userPosition ? `${calculateUserStakePercentage()}%` : '--'}
+            </p>
+            <p className="text-body-small text-muted-foreground">Your Share</p>
+          </div>
         </div>
 
-        {/* User Position Details (if exists) */}
-        {userPosition && userPosition.positionValue > 0 && (
-          <div className="bg-muted/50 rounded-lg p-4 mb-6">
-            <h4 className="text-h4 mb-3">Your Position</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex justify-between items-center">
-                <span className="text-label text-muted-foreground">Current Stake:</span>
-                <span className="text-code font-medium">
-                  {formatNumber(userPosition.positionValue.toString())} AI3
-                </span>
+        {/* Two Cards: Left = Operator IDs; Right = Your Position breakdown, plus actions at bottom */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Left card: Operator identifiers */}
+          <Card>
+            <CardContent className="pt-4">
+              <h4 className="text-h4 mb-3">Operator Details</h4>
+              <div className="grid grid-cols-1 gap-3 text-sm">
+                <div>
+                  <span className="text-label text-muted-foreground block mb-1">Operator ID</span>
+                  <span className="text-code">{operator.id}</span>
+                </div>
+                <div>
+                  <span className="text-label text-muted-foreground block mb-1">Domain ID</span>
+                  <span className="text-code">{operator.domainId}</span>
+                </div>
+                <div>
+                  <span className="text-label text-muted-foreground block mb-1">Signing Key</span>
+                  <AddressDisplay
+                    address={operator.ownerAccount}
+                    showCopy={true}
+                    className="text-code"
+                  />
+                </div>
               </div>
-              {userPosition.pendingDeposit && (
-                <div className="flex justify-between items-center">
-                  <span className="text-label text-muted-foreground">Pending:</span>
-                  <span className="text-code font-medium text-success">
-                    {formatNumber(userPosition.pendingDeposit.amount.toString())} AI3
-                  </span>
+            </CardContent>
+          </Card>
+
+          {/* Right card: Your position (stacked) */}
+          <Card>
+            <CardContent className="pt-4 flex flex-col h-full">
+              <h4 className="text-h4 mb-3">Your Position</h4>
+              {userPosition ? (
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-label text-muted-foreground">Staked (active)</span>
+                    <span className="text-code">{formatAI3(userPosition.positionValue, 4)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-label text-muted-foreground">Storage fund</span>
+                    <span className="text-code">
+                      {formatAI3(userPosition.storageFeeDeposit, 4)}
+                    </span>
+                  </div>
+                  {userPosition.pendingDeposit && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-label text-muted-foreground">
+                        Pending (awaiting epoch)
+                      </span>
+                      <span className="text-code">
+                        {formatAI3(userPosition.pendingDeposit.amount, 4)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="border-t border-border pt-2 mt-1 flex items-center justify-between">
+                    <span className="text-body font-semibold">Total Value</span>
+                    <span className="text-code font-bold">
+                      {formatAI3(
+                        userPosition.positionValue +
+                          userPosition.storageFeeDeposit +
+                          (userPosition.pendingDeposit?.amount || 0),
+                        4,
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">No position yet</p>
                 </div>
               )}
-              <div className="flex justify-between items-center">
-                <span className="text-label text-muted-foreground">Storage Fund:</span>
-                <span className="text-code font-medium">
-                  {formatNumber((userPosition.positionValue * 0.2).toString())} AI3
-                </span>
+
+              {/* Actions bottom-aligned */}
+              <div className="mt-auto pt-4">
+                {userPosition ? (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      className="flex-1 font-sans"
+                      size="lg"
+                      onClick={() => navigate(`/staking/${operator.id}`)}
+                    >
+                      Add More Stake
+                    </Button>
+                    <Button
+                      variant="warningOutline"
+                      className="flex-1 font-sans"
+                      size="lg"
+                      onClick={() => navigate(`/withdraw/${operator.id}`)}
+                      disabled={userPosition.positionValue <= 0}
+                    >
+                      Withdraw Stake
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    className="w-full font-sans"
+                    size="lg"
+                    onClick={() => navigate(`/staking/${operator.id}`)}
+                    disabled={operator.status !== 'active'}
+                  >
+                    Stake to this Operator
+                  </Button>
+                )}
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Technical Details */}
-        <div className="border-t border-border pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm mb-4">
-            <div>
-              <span className="text-label text-muted-foreground block mb-1">Operator ID</span>
-              <span className="text-code">{operator.id}</span>
-            </div>
-            <div>
-              <span className="text-label text-muted-foreground block mb-1">Domain ID</span>
-              <span className="text-code">{operator.domainId}</span>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <span className="text-label text-muted-foreground block mb-1">Signing Key</span>
-            <AddressDisplay address={operator.ownerAccount} showCopy={true} className="text-code" />
-          </div>
-
-          {/* Educational Footer */}
-          <div className="text-body-small text-muted-foreground">
-            <p className="mb-2">
-              <span className="font-medium text-foreground">Storage Fund:</span> 20% of stakes
-              support network infrastructure.
-              <span className="font-medium text-foreground ml-4">Activation:</span> New stakes
-              become active in the next epoch.
-            </p>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </CardContent>
     </Card>

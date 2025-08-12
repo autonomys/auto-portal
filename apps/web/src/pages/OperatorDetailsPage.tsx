@@ -1,15 +1,10 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useOperatorDetails } from '@/hooks/use-operator-details';
 import { useOperatorPosition } from '@/hooks/use-positions';
-import {
-  OperatorDetailsHeader,
-  OperatorActions,
-  OperatorDetailsLoading,
-} from '@/components/operators';
+import { OperatorDetailsHeader, OperatorDetailsLoading } from '@/components/operators';
 
 export const OperatorDetailsPage: React.FC = () => {
   const { id: operatorId } = useParams<{ id: string }>();
@@ -27,10 +22,6 @@ export const OperatorDetailsPage: React.FC = () => {
       <div className="py-12 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
-          <Button variant="outline" onClick={() => navigate('/operators')} className="font-sans">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
           <div className="h-6 w-px bg-border" />
           <span className="text-muted-foreground font-sans">Operator Not Found</span>
         </div>
@@ -70,20 +61,12 @@ export const OperatorDetailsPage: React.FC = () => {
   return (
     <div className="py-12 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-8">
-        <Button variant="outline" onClick={() => navigate('/operators')} className="font-sans">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Operators
-        </Button>
-        <div className="h-6 w-px bg-border" />
+      <div className="mb-8">
         <h1 className="text-xl font-serif font-semibold text-foreground">{operator.name}</h1>
       </div>
 
-      {/* Operator Summary - Consolidated into single card */}
+      {/* Operator Summary with inline actions in the right card */}
       <OperatorDetailsHeader operator={operator} userPosition={position} />
-
-      {/* Actions */}
-      <OperatorActions operator={operator} userPosition={position} />
     </div>
   );
 };

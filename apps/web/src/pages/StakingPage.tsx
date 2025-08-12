@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { OperatorSummary, StakingForm } from '@/components/staking';
@@ -34,10 +33,6 @@ export const StakingPage: React.FC = () => {
     setStakingSuccess(true);
   };
 
-  const handleBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
   const handleGoBack = () => {
     // If coming from a position, go back to dashboard; otherwise go to operators
     navigate(fromPosition ? '/dashboard' : '/operators');
@@ -47,12 +42,7 @@ export const StakingPage: React.FC = () => {
   if (loading || !operator || !operatorId) {
     return (
       <div className="py-12 max-w-4xl mx-auto">
-        <div className="flex items-center space-x-4 mb-8">
-          <Button variant="outline" onClick={handleGoBack} className="font-sans">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
+        <div className="mb-8" />
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
@@ -68,12 +58,7 @@ export const StakingPage: React.FC = () => {
   if (error) {
     return (
       <div className="py-12 max-w-4xl mx-auto">
-        <div className="flex items-center space-x-4 mb-8">
-          <Button variant="outline" onClick={handleGoBack} className="font-sans">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
+        <div className="mb-8" />
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
@@ -95,10 +80,10 @@ export const StakingPage: React.FC = () => {
         title="Staking Successful!"
         description={`You have successfully staked ${stakedAmount} AI3 to ${operator.name}. Your stake will become active after the next epoch transition (~10 minutes).`}
         txHash={stakingTxHash ?? undefined}
-        onPrimaryAction={handleBackToDashboard}
-        onSecondaryAction={handleGoBack}
+        onPrimaryAction={() => navigate('/dashboard')}
+        onSecondaryAction={() => navigate('/operators')}
         primaryActionText="View Dashboard"
-        secondaryActionText="Browse More Operators"
+        secondaryActionText="Browse Operators"
       />
     );
   }
@@ -107,12 +92,7 @@ export const StakingPage: React.FC = () => {
   return (
     <div className="py-12 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-8">
-        <Button variant="outline" onClick={handleGoBack} className="font-sans">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-        <div className="h-6 w-px bg-border"></div>
+      <div className="mb-8">
         <h1 className="text-xl font-serif font-semibold text-foreground">
           {fromPosition ? `Add Stake to ${operator.name}` : `Stake to ${operator.name}`}
         </h1>

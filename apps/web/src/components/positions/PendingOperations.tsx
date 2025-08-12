@@ -38,17 +38,26 @@ const PendingDepositItem: React.FC<PendingDepositItemProps> = ({ deposit, operat
   <div className="flex items-center justify-between p-3 bg-success-50 border border-success-200 rounded-lg">
     <div className="flex items-center gap-3">
       <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
-      <div>
+      <div className="text-left">
         <div className="font-medium font-sans text-sm">{operatorName}</div>
-        <div className="text-xs text-muted-foreground font-sans">
-          Deposit • Effective at epoch {formatNumber(deposit.effectiveEpoch)}
+        <div className="flex items-center gap-2 text-left">
+          <div className="text-xs text-foreground font-sans">
+            Effective at epoch {formatNumber(deposit.effectiveEpoch)}
+          </div>
+          <Tooltip
+            content={`Converts to shares at epoch ${formatNumber(deposit.effectiveEpoch)}. Included in total as pending.`}
+            side="top"
+          >
+            <div className="inline-flex items-center justify-center w-4 h-4 bg-muted rounded-full text-xs text-muted-foreground hover:bg-muted-foreground/20">
+              i
+            </div>
+          </Tooltip>
         </div>
       </div>
     </div>
     <div className="text-right">
-      <div className="font-mono font-semibold text-success-700">
-        +{formatAI3(deposit.amount, 4)}
-      </div>
+      <div className="font-mono font-semibold text-lg">+{formatAI3(deposit.amount, 4)}</div>
+      <div className="text-xs text-muted-foreground font-sans mb-2">Staking portion</div>
       <Badge variant="success" size="sm">
         Pending
       </Badge>
@@ -81,23 +90,23 @@ const PendingWithdrawalItem: React.FC<PendingWithdrawalItemProps> = ({
           <div className="font-medium font-sans text-sm text-left">{operatorName}</div>
           <div className="text-xs text-muted-foreground font-sans text-left">
             {isUnlockable ? (
-              <span className="text-success-600 font-medium text-sm">Ready to unlock</span>
+              <span className="text-xs text-success-600 font-sans">Ready to unlock</span>
             ) : unlockStatus?.estimatedTimeRemaining ? (
               <div className="flex items-center gap-2 text-left">
-                <div className="text-sm font-medium text-foreground">
+                <div className="text-xs text-foreground font-sans">
                   Ready in {unlockStatus.estimatedTimeRemaining}
                 </div>
                 <Tooltip
                   content={`Unlocks at domain block ${withdrawal.unlockAtBlock > 0 ? formatNumber(withdrawal.unlockAtBlock) : 'TBD'}${unlockStatus.blocksRemaining > 0 ? ` (${formatNumber(unlockStatus.blocksRemaining)} blocks remaining)` : ''}`}
                   side="top"
                 >
-                  <div className="inline-flex items-center justify-center w-4 h-4 bg-muted rounded-full text-xs text-muted-foreground hover:bg-muted-foreground/20 cursor-help">
+                  <div className="inline-flex items-center justify-center w-4 h-4 bg-muted rounded-full text-xs text-muted-foreground hover:bg-muted-foreground/20">
                     i
                   </div>
                 </Tooltip>
               </div>
             ) : (
-              <span className="text-sm font-medium">
+              <span className="text-xs text-muted-foreground font-sans">
                 Withdrawal • Unlocks at domain block{' '}
                 {withdrawal.unlockAtBlock > 0 ? formatNumber(withdrawal.unlockAtBlock) : 'TBD'}
               </span>

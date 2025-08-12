@@ -57,8 +57,9 @@ const PositionRow: React.FC<PositionRowProps> = ({
     }
   };
 
-  // Calculate total position value including storage fund deposit
-  const totalPositionValue = position.positionValue + position.storageFeeDeposit;
+  // Calculate total position value including storage fund deposit and pending stake
+  const totalPositionValue =
+    position.positionValue + position.storageFeeDeposit + (position.pendingDeposit?.amount || 0);
 
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
@@ -123,22 +124,21 @@ const PositionRow: React.FC<PositionRowProps> = ({
           )}
           {position.positionValue > 0 && onAddStakeClick && (
             <Button
-              variant="outline"
               size="sm"
               onClick={() => onAddStakeClick(position)}
               disabled={!isWalletConnected}
-              className="text-xs font-sans text-primary hover:text-primary/80 border-primary/20 hover:border-primary/40"
+              className="text-xs font-sans"
             >
               Add Stake
             </Button>
           )}
           {position.positionValue > 0 && onWithdrawClick && (
             <Button
-              variant="outline"
+              variant="warningOutline"
               size="sm"
               onClick={() => onWithdrawClick(position)}
               disabled={!isWalletConnected}
-              className="text-xs font-sans text-warning-600 hover:text-warning-700 border-warning-200 hover:border-warning-300"
+              className="text-xs font-sans"
             >
               Withdraw
             </Button>
