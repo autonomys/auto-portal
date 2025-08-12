@@ -62,3 +62,28 @@ export {
   isNegativeSemanticColor,
   statusToSemanticColor,
 } from './color-utils';
+
+// Network helpers
+export type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | 'info';
+
+export const getNetworkBadge = (networkId: string): { label: string; variant: BadgeVariant } => {
+  const label = networkId.toUpperCase();
+  const variant =
+    networkId === 'mainnet'
+      ? 'destructive'
+      : networkId === 'chronos'
+        ? 'warning'
+        : networkId === 'taurus'
+          ? 'warning'
+          : 'secondary';
+  return { label, variant };
+};
+
+export const isMainnet = (networkId: string) => networkId === 'mainnet';

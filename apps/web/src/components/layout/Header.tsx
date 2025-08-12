@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { WalletButton, WalletModal } from '@/components/wallet';
 import { layout } from '@/lib/layout';
+import { config } from '@/config';
+import { getNetworkBadge, type BadgeVariant } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface HeaderProps {
   className?: string;
@@ -50,8 +53,17 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </NavLink>
           </nav>
 
-          {/* Wallet Connection */}
-          <div className={layout.inline('md')}>
+          {/* Wallet Connection and Network Badge */}
+          <div className={layout.inline('md') + ' items-center gap-3'}>
+            {(() => {
+              const netId = config.network.defaultNetworkId;
+              const { label, variant } = getNetworkBadge(netId);
+              return (
+                <Badge variant={variant as BadgeVariant} className="uppercase tracking-wide">
+                  {label}
+                </Badge>
+              );
+            })()}
             <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
         </div>
