@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useWallet } from './use-wallet';
 import { stakingService, type StakingParams, type StakingResult } from '@/services/staking-service';
 import { TRANSACTION_FEE } from '@/lib/staking-utils';
+import { isUserCancellationError } from '@/services/tx-utils';
 
 export type TransactionState = 'idle' | 'signing' | 'pending' | 'success' | 'error';
 
@@ -14,6 +15,7 @@ interface UseStakingTransactionReturn {
   blockHash: string | null;
   estimatedFee: number | null;
   feeLoading: boolean;
+  wasCancelled: boolean;
 
   // Actions
   execute: (params: StakingParams) => Promise<void>;
@@ -38,6 +40,7 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
   const [blockHash, setBlockHash] = useState<string | null>(null);
   const [estimatedFee, setEstimatedFee] = useState<number | null>(null);
   const [feeLoading, setFeeLoading] = useState(false);
+  const [wasCancelled, setWasCancelled] = useState(false);
 
   const estimateFee = useCallback(
     async (params: StakingParams) => {
@@ -78,6 +81,7 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
       setError(null);
       setTxHash(null);
       setBlockHash(null);
+      setWasCancelled(false);
 
       try {
         setState('signing');
@@ -107,10 +111,10 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
         // Treat wallet rejection/cancel as a benign cancel, not an error
-        const isUserCancelled = /cancelled|canceled|rejected|denied|abort/i.test(errorMessage);
-        if (isUserCancelled) {
+        if (isUserCancellationError(err)) {
           setState('idle');
           setError(null);
+          setWasCancelled(true);
         } else {
           setState('error');
           setError(errorMessage);
@@ -128,6 +132,7 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
     setBlockHash(null);
     setEstimatedFee(null);
     setFeeLoading(false);
+    setWasCancelled(false);
   }, []);
 
   // Computed values
@@ -148,6 +153,7 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
     blockHash,
     estimatedFee,
     feeLoading,
+    wasCancelled,
 
     // Actions
     execute,
