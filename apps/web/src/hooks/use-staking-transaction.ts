@@ -105,10 +105,17 @@ export const useStakingTransaction = (): UseStakingTransactionReturn => {
           setTxHash(result.txHash || null);
         }
       } catch (err) {
-        setState('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        setError(errorMessage);
-        console.error('Staking transaction error:', err);
+        // Treat wallet rejection/cancel as a benign cancel, not an error
+        const isUserCancelled = /cancelled|canceled|rejected|denied|abort/i.test(errorMessage);
+        if (isUserCancelled) {
+          setState('idle');
+          setError(null);
+        } else {
+          setState('error');
+          setError(errorMessage);
+          console.error('Staking transaction error:', err);
+        }
       }
     },
     [isConnected, selectedAccount, injector, state],

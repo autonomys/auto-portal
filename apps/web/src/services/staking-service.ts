@@ -89,54 +89,64 @@ export const stakingService = {
       // Create the transaction
       const tx = await stakingService.createNominateTransaction(params);
 
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
         // Sign and send the transaction
-        tx.signAndSend(
-          account.address,
-          { signer: injector.signer },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (result: any) => {
-            if (progressCallback) {
-              progressCallback(result);
-            }
+        const unsubPromise = tx
+          .signAndSend(
+            account.address,
+            { signer: injector.signer },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (result: any) => {
+              if (progressCallback) {
+                progressCallback(result);
+              }
 
-            const { status, txHash, events } = result;
-            if (status.isInBlock) {
-              console.log(`Transaction included at blockHash ${status.asInBlock}`);
-              console.log(`Transaction hash: ${txHash}`);
+              const { status, txHash, events } = result;
+              if (status.isInBlock) {
+                console.log(`Transaction included at blockHash ${status.asInBlock}`);
+                console.log(`Transaction hash: ${txHash}`);
 
-              // Check for errors in events
-              const errorEvent = events.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (eventRecord: any) =>
-                  eventRecord.event.section === 'system' &&
-                  eventRecord.event.method === 'ExtrinsicFailed',
-              );
+                // Check for errors in events
+                const errorEvent = events.find(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (eventRecord: any) =>
+                    eventRecord.event.section === 'system' &&
+                    eventRecord.event.method === 'ExtrinsicFailed',
+                );
 
-              if (errorEvent) {
+                if (errorEvent) {
+                  resolve({
+                    success: false,
+                    error: 'Transaction failed during execution',
+                    txHash: txHash.toString(),
+                  });
+                } else {
+                  resolve({
+                    success: true,
+                    txHash: txHash.toString(),
+                    blockHash: status.asInBlock.toString(),
+                  });
+                }
+              } else if (status.isFinalized) {
+                console.log(`Transaction finalized at blockHash ${status.asFinalized}`);
+              } else if (status.isDropped || status.isInvalid) {
                 resolve({
                   success: false,
-                  error: 'Transaction failed during execution',
+                  error: 'Transaction was dropped or invalid',
                   txHash: txHash.toString(),
-                });
-              } else {
-                resolve({
-                  success: true,
-                  txHash: txHash.toString(),
-                  blockHash: status.asInBlock.toString(),
                 });
               }
-            } else if (status.isFinalized) {
-              console.log(`Transaction finalized at blockHash ${status.asFinalized}`);
-            } else if (status.isDropped || status.isInvalid) {
-              resolve({
-                success: false,
-                error: 'Transaction was dropped or invalid',
-                txHash: txHash.toString(),
-              });
-            }
-          },
-        );
+            },
+          )
+          .catch(error => {
+            // Surface wallet cancel/reject to caller
+            reject(error);
+          });
+
+        // In case signAndSend throws synchronously (shouldn't, but for safety)
+        if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
+          (unsubPromise as Promise<unknown>).catch(err => reject(err));
+        }
       });
     } catch (error) {
       console.error('Staking transaction failed:', error);

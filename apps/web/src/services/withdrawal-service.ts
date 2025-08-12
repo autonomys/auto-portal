@@ -137,53 +137,61 @@ export const withdrawalService = {
     try {
       const tx = await withdrawalService.createWithdrawTransaction(params, account.address);
 
-      return new Promise(resolve => {
-        tx.signAndSend(
-          account.address,
-          { signer: injector.signer },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (result: any) => {
-            if (progressCallback) {
-              progressCallback(result);
-            }
+      return new Promise((resolve, reject) => {
+        const unsubPromise = tx
+          .signAndSend(
+            account.address,
+            { signer: injector.signer },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (result: any) => {
+              if (progressCallback) {
+                progressCallback(result);
+              }
 
-            const { status, txHash, events } = result;
-            if (status.isInBlock) {
-              console.log(`Withdrawal transaction included at blockHash ${status.asInBlock}`);
-              console.log(`Transaction hash: ${txHash}`);
+              const { status, txHash, events } = result;
+              if (status.isInBlock) {
+                console.log(`Withdrawal transaction included at blockHash ${status.asInBlock}`);
+                console.log(`Transaction hash: ${txHash}`);
 
-              // Check for errors in events
-              const errorEvent = events.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (eventRecord: any) =>
-                  eventRecord.event.section === 'system' &&
-                  eventRecord.event.method === 'ExtrinsicFailed',
-              );
+                // Check for errors in events
+                const errorEvent = events.find(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (eventRecord: any) =>
+                    eventRecord.event.section === 'system' &&
+                    eventRecord.event.method === 'ExtrinsicFailed',
+                );
 
-              if (errorEvent) {
+                if (errorEvent) {
+                  resolve({
+                    success: false,
+                    error: 'Withdrawal transaction failed during execution',
+                    txHash: txHash.toString(),
+                  });
+                } else {
+                  resolve({
+                    success: true,
+                    txHash: txHash.toString(),
+                    blockHash: status.asInBlock.toString(),
+                  });
+                }
+              } else if (status.isFinalized) {
+                console.log(`Withdrawal transaction finalized at blockHash ${status.asFinalized}`);
+              } else if (status.isDropped || status.isInvalid) {
                 resolve({
                   success: false,
-                  error: 'Withdrawal transaction failed during execution',
+                  error: 'Withdrawal transaction was dropped or invalid',
                   txHash: txHash.toString(),
-                });
-              } else {
-                resolve({
-                  success: true,
-                  txHash: txHash.toString(),
-                  blockHash: status.asInBlock.toString(),
                 });
               }
-            } else if (status.isFinalized) {
-              console.log(`Withdrawal transaction finalized at blockHash ${status.asFinalized}`);
-            } else if (status.isDropped || status.isInvalid) {
-              resolve({
-                success: false,
-                error: 'Withdrawal transaction was dropped or invalid',
-                txHash: txHash.toString(),
-              });
-            }
-          },
-        );
+            },
+          )
+          .catch(error => {
+            reject(error);
+          });
+
+        if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
+          (unsubPromise as Promise<unknown>).catch(err => reject(err));
+        }
       });
     } catch (error) {
       console.error('Withdrawal transaction failed:', error);
@@ -213,53 +221,61 @@ export const withdrawalService = {
     try {
       const tx = await withdrawalService.createUnlockTransaction(params);
 
-      return new Promise(resolve => {
-        tx.signAndSend(
-          account.address,
-          { signer: injector.signer },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (result: any) => {
-            if (progressCallback) {
-              progressCallback(result);
-            }
+      return new Promise((resolve, reject) => {
+        const unsubPromise = tx
+          .signAndSend(
+            account.address,
+            { signer: injector.signer },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (result: any) => {
+              if (progressCallback) {
+                progressCallback(result);
+              }
 
-            const { status, txHash, events } = result;
-            if (status.isInBlock) {
-              console.log(`Unlock transaction included at blockHash ${status.asInBlock}`);
-              console.log(`Transaction hash: ${txHash}`);
+              const { status, txHash, events } = result;
+              if (status.isInBlock) {
+                console.log(`Unlock transaction included at blockHash ${status.asInBlock}`);
+                console.log(`Transaction hash: ${txHash}`);
 
-              // Check for errors in events
-              const errorEvent = events.find(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (eventRecord: any) =>
-                  eventRecord.event.section === 'system' &&
-                  eventRecord.event.method === 'ExtrinsicFailed',
-              );
+                // Check for errors in events
+                const errorEvent = events.find(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (eventRecord: any) =>
+                    eventRecord.event.section === 'system' &&
+                    eventRecord.event.method === 'ExtrinsicFailed',
+                );
 
-              if (errorEvent) {
+                if (errorEvent) {
+                  resolve({
+                    success: false,
+                    error: 'Unlock transaction failed during execution',
+                    txHash: txHash.toString(),
+                  });
+                } else {
+                  resolve({
+                    success: true,
+                    txHash: txHash.toString(),
+                    blockHash: status.asInBlock.toString(),
+                  });
+                }
+              } else if (status.isFinalized) {
+                console.log(`Unlock transaction finalized at blockHash ${status.asFinalized}`);
+              } else if (status.isDropped || status.isInvalid) {
                 resolve({
                   success: false,
-                  error: 'Unlock transaction failed during execution',
+                  error: 'Unlock transaction was dropped or invalid',
                   txHash: txHash.toString(),
-                });
-              } else {
-                resolve({
-                  success: true,
-                  txHash: txHash.toString(),
-                  blockHash: status.asInBlock.toString(),
                 });
               }
-            } else if (status.isFinalized) {
-              console.log(`Unlock transaction finalized at blockHash ${status.asFinalized}`);
-            } else if (status.isDropped || status.isInvalid) {
-              resolve({
-                success: false,
-                error: 'Unlock transaction was dropped or invalid',
-                txHash: txHash.toString(),
-              });
-            }
-          },
-        );
+            },
+          )
+          .catch(error => {
+            reject(error);
+          });
+
+        if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
+          (unsubPromise as Promise<unknown>).catch(err => reject(err));
+        }
       });
     } catch (error) {
       console.error('Unlock transaction failed:', error);

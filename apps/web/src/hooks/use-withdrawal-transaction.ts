@@ -181,10 +181,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
           setWithdrawalTxHash(result.txHash || null);
         }
       } catch (err) {
-        setWithdrawalState('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        setWithdrawalError(errorMessage);
-        console.error('Withdrawal transaction error:', err);
+        const isUserCancelled = /cancelled|canceled|rejected|denied|abort/i.test(errorMessage);
+        if (isUserCancelled) {
+          setWithdrawalState('idle');
+          setWithdrawalError(null);
+        } else {
+          setWithdrawalState('error');
+          setWithdrawalError(errorMessage);
+          console.error('Withdrawal transaction error:', err);
+        }
       }
     },
     [isConnected, selectedAccount, injector, withdrawalState],
@@ -235,10 +241,16 @@ export const useWithdrawalTransaction = (): UseWithdrawalTransactionReturn => {
           setUnlockTxHash(result.txHash || null);
         }
       } catch (err) {
-        setUnlockState('error');
         const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        setUnlockError(errorMessage);
-        console.error('Unlock transaction error:', err);
+        const isUserCancelled = /cancelled|canceled|rejected|denied|abort/i.test(errorMessage);
+        if (isUserCancelled) {
+          setUnlockState('idle');
+          setUnlockError(null);
+        } else {
+          setUnlockState('error');
+          setUnlockError(errorMessage);
+          console.error('Unlock transaction error:', err);
+        }
       }
     },
     [isConnected, selectedAccount, injector, unlockState],
