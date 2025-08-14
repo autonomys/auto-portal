@@ -12,36 +12,45 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 
 ## Quick Start
 
-### 1. Configuration
+### 1. Choose environment
+
+Pick one of the provided environment presets. You can use the `.example` files directly or create your own `.env.<env>`.
+
+### 2. Start services
+
+Taurus testnet:
 
 ```bash
-# Copy and edit the environment file
-cp .env.example .env
-# Edit .env with your preferred configuration
+make start-taurus
 ```
 
-### 2. Start Services
-
-**Default (Taurus Testnet):**
+Mainnet:
 
 ```bash
-./scripts/start.sh
+make start-mainnet
 ```
 
-**With Local Development Node:**
+Local development node:
 
 ```bash
-./scripts/start.sh --with-local-node
+make start-dev
 ```
 
 ## Configuration Options
 
 ### Environment Files
 
-- `.env.example` - Template with both local and testnet configurations
-- Edit `.env` to choose your setup:
-  - **Taurus Testnet**: Uses `RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws`
-  - **Local Node**: Uses `RPC_URLS=ws://node:9944`
+- `.env.example` - General template
+- `.env.taurus.example` - Taurus testnet
+- `.env.mainnet.example` - Mainnet
+- `.env.dev.example` - Local dev node
+
+You can also pass an explicit env file to make:
+
+```bash
+make start ENV_FILE=.env.mainnet.example
+make start-local ENV_FILE=.env.dev.example
+```
 
 ### Docker Compose Profiles
 
