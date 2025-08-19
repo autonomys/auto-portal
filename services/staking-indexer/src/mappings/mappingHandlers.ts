@@ -250,21 +250,30 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
             // Process specific events
             const eventKey = event.event.section + '.' + event.event.method;
             const handler = EVENT_HANDLERS[eventKey];
-            if (handler)
-              handler({
-                event,
-                extrinsicMethodToPrimitive: extrinsicArgs,
-                cache,
-                height,
-                blockTimestamp,
-                extrinsicId,
-                eventId,
-                extrinsicSigner,
-                extrinsicEvents: events,
-                domainEpochMap,
-                operatorOwnerMap,
-                operatorDomainMap,
-              });
+            if (handler) {
+              try {
+                handler({
+                  event,
+                  extrinsicMethodToPrimitive: extrinsicArgs,
+                  cache,
+                  height,
+                  blockTimestamp,
+                  extrinsicId,
+                  eventId,
+                  extrinsicSigner,
+                  extrinsicEvents: events,
+                  domainEpochMap,
+                  operatorOwnerMap,
+                  operatorDomainMap,
+                });
+              } catch (error) {
+                const message =
+                  error instanceof Error ? (error.stack ?? error.message) : String(error);
+                logger.error(
+                  `Handler error for ${eventKey} (eventId=${eventId}, extrinsicId=${extrinsicId}): ${message}`,
+                );
+              }
+            }
 
             // Increment event index
             eventIndex++;
@@ -278,21 +287,30 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
           // Process specific events
           const eventKey = event.event.section + '.' + event.event.method;
           const handler = EVENT_HANDLERS[eventKey];
-          if (handler)
-            handler({
-              event,
-              extrinsicMethodToPrimitive,
-              cache,
-              height,
-              blockTimestamp,
-              extrinsicId,
-              eventId,
-              extrinsicSigner,
-              extrinsicEvents,
-              domainEpochMap,
-              operatorOwnerMap,
-              operatorDomainMap,
-            });
+          if (handler) {
+            try {
+              handler({
+                event,
+                extrinsicMethodToPrimitive,
+                cache,
+                height,
+                blockTimestamp,
+                extrinsicId,
+                eventId,
+                extrinsicSigner,
+                extrinsicEvents,
+                domainEpochMap,
+                operatorOwnerMap,
+                operatorDomainMap,
+              });
+            } catch (error) {
+              const message =
+                error instanceof Error ? (error.stack ?? error.message) : String(error);
+              logger.error(
+                `Handler error for ${eventKey} (eventId=${eventId}, extrinsicId=${extrinsicId}): ${message}`,
+              );
+            }
+          }
 
           // Increment event index
           eventIndex++;

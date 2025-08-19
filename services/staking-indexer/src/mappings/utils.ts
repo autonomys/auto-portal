@@ -5,6 +5,102 @@ import * as db from './db';
 import { Cache } from './db';
 import { EpochTransition } from './types';
 
+// -----------------------------
+// Deep find utility
+// -----------------------------
+
+export const deepFindByKey = (obj: any, keys: string[]): any => {
+  try {
+    if (!obj || typeof obj !== 'object') return undefined;
+    const stack: any[] = [obj];
+    const seen = new Set<any>();
+    while (stack.length) {
+      const cur = stack.pop();
+      if (!cur || typeof cur !== 'object' || seen.has(cur)) continue;
+      seen.add(cur);
+      for (const k of Object.keys(cur)) {
+        if (keys.includes(k)) return cur[k];
+        const v = cur[k];
+        if (v && typeof v === 'object') stack.push(v);
+      }
+    }
+  } catch {}
+  return undefined;
+};
+
+// -----------------------------
+// Versioned type utilities
+// -----------------------------
+
+export const unwrapVersioned = <T = any>(input: any): T => {
+  // Recursively unwrap { V0: {...} } / { V1: {...} }-style objects
+  if (!input || typeof input !== 'object') return input as T;
+  const keys = Object.keys(input);
+  if (keys.length === 1 && /^V\d+$/i.test(keys[0])) {
+    return unwrapVersioned<T>(input[keys[0]]);
+  }
+  return input as T;
+};
+
+export const coalesce = <T>(...candidates: Array<T | undefined | null>): T | undefined => {
+  for (const c of candidates) if (c !== undefined && c !== null) return c as T;
+  return undefined;
+};
+
+export const extractSealedHeaderFromArgs = (args: any): any => {
+  const sealedHeaderContainer = coalesce<any>(
+    args?.opaque_bundle?.sealedHeader,
+    args?.opaque_bundle?.sealed_header,
+    args?.opaqueBundle?.sealedHeader,
+    args?.opaqueBundle?.sealed_header,
+    args?.bundle?.sealedHeader,
+    args?.bundle?.sealed_header,
+    args?.sealedHeader,
+    args?.sealed_header,
+  );
+  const deep = !sealedHeaderContainer
+    ? deepFindByKey(args, ['sealedHeader', 'sealed_header'])
+    : undefined;
+  const target = sealedHeaderContainer ?? deep;
+  if (!target) return undefined;
+  const sealedHeader = unwrapVersioned<any>(target);
+  // Some chains expose { header: {...} } while others yield header fields directly
+  return sealedHeader?.header ?? sealedHeader;
+};
+
+export const extractReceiptNumbers = (
+  receiptInput: any,
+): {
+  domainBlockNumber?: bigint;
+  consensusBlockNumber?: bigint;
+} => {
+  const base = unwrapVersioned<any>(receiptInput) ?? {};
+  const r = base?.receipt ? unwrapVersioned<any>(base.receipt) : base;
+  const dbn = coalesce<number | string>(r.domainBlockNumber, r.domain_block_number);
+  const cbn = coalesce<number | string>(r.consensusBlockNumber, r.consensus_block_number);
+  return {
+    domainBlockNumber: dbn !== undefined ? BigInt(dbn.toString()) : undefined,
+    consensusBlockNumber: cbn !== undefined ? BigInt(cbn.toString()) : undefined,
+  };
+};
+
+export const extractProofOfElection = (
+  header: any,
+): {
+  domainId?: string;
+  operatorId?: string;
+} => {
+  if (!header) return {};
+  const poeContainer =
+    header.proofOfElection ??
+    header.proof_of_election ??
+    deepFindByKey(header, ['proofOfElection', 'proof_of_election']) ??
+    {};
+  const domainId = (poeContainer?.domainId ?? poeContainer?.domain_id)?.toString();
+  const operatorId = (poeContainer?.operatorId ?? poeContainer?.operator_id)?.toString();
+  return { domainId, operatorId };
+};
+
 export const getNominationId = (address: string, domainId: string, operatorId: string): string =>
   address + '-' + domainId + '-' + operatorId;
 

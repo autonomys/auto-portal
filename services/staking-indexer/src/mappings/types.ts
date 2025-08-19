@@ -3,8 +3,11 @@ export type ExtrinsicPrimitive = {
   args: any;
 };
 
+// Versioned bundle header can be wrapped in Rust-like enums { V0: {...} }
+// Keep a permissive type to avoid runtime crashes when shapes vary
 export interface SealedBundleHeader {
-  header: BundleHeader;
+  header?: BundleHeader;
+  [k: string]: any;
 }
 
 interface BundleHeader {
@@ -18,8 +21,8 @@ interface ProofOfElection {
 }
 
 export interface ExecutionReceipt {
-  domainBlockNumber: number;
-  consensusBlockNumber: number;
+  domainBlockNumber?: number;
+  consensusBlockNumber?: number;
 }
 
 export interface EpochTransition {
