@@ -54,6 +54,7 @@ storybook-static/
 # Env files
 .env*
 !.env.example
+!.env.*.example
 
 # Mac system files
 .DS_Store

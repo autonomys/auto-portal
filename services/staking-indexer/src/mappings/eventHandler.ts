@@ -2,7 +2,13 @@ import { capitalizeFirstLetter, EventRecord, stringify } from '@autonomys/auto-u
 import * as db from './db';
 import { Cache } from './db';
 import { SealedBundleHeader } from './types';
-import { findOneExtrinsicEvent } from './utils';
+import {
+  extractProofOfElection,
+  extractReceiptNumbers,
+  extractSealedHeaderFromArgs,
+  findOneExtrinsicEvent,
+  unwrapVersioned,
+} from './utils';
 
 type EventHandler = (params: {
   event: EventRecord;
@@ -273,12 +279,25 @@ export const EVENT_HANDLERS: Record<string, EventHandler> = {
     operatorOwnerMap,
   }) => {
     const bundleHash = event.event.data[1].toString();
-    const { header } = extrinsicMethodToPrimitive.args.opaque_bundle
-      .sealedHeader as SealedBundleHeader;
-    const domainId = header.proofOfElection.domainId.toString();
-    const operatorId = header.proofOfElection.operatorId.toString();
+    // Unwrap versioned sealed header across enum shapes
+    const header: any = extractSealedHeaderFromArgs(extrinsicMethodToPrimitive?.args);
 
-    const { domainBlockNumber, consensusBlockNumber } = header.receipt;
+    // Fallback: unwrap proof of election regardless of case/shape
+    let { domainId, operatorId } = extractProofOfElection(header);
+    if (!domainId || !operatorId) {
+      // As a last resort, attempt to read from event payload (some runtimes emit in event data)
+      const h0 = (event.event.data[0] as any)?.toPrimitive?.() ?? (event.event.data[0] as any);
+      const hdrFromEvent = unwrapVersioned<any>(
+        h0?.opaque_bundle?.sealedHeader ?? h0?.sealedHeader,
+      );
+      const hdr = hdrFromEvent?.header ?? hdrFromEvent;
+      const poe = extractProofOfElection(hdr);
+      domainId = domainId ?? poe.domainId;
+      operatorId = operatorId ?? poe.operatorId;
+      if (!domainId || !operatorId) return;
+    }
+
+    const { domainBlockNumber, consensusBlockNumber } = extractReceiptNumbers(header.receipt);
 
     const operatorOwner = operatorOwnerMap.get(operatorId) ?? '';
     const epoch = domainEpochMap.get(domainId);
@@ -289,15 +308,17 @@ export const EVENT_HANDLERS: Record<string, EventHandler> = {
       return; // Skip this event or use a default value
     }
 
+    if (domainBlockNumber === undefined || consensusBlockNumber === undefined) return;
+
     cache.bundleSubmission.push(
       db.createBundleSubmission(
         bundleHash,
         operatorOwner,
         domainId,
         operatorId,
-        BigInt(domainBlockNumber),
+        domainBlockNumber,
         BigInt(epoch),
-        BigInt(consensusBlockNumber),
+        consensusBlockNumber,
         extrinsicId,
         eventId,
         BigInt(height),

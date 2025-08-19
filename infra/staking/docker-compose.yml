@@ -1,5 +1,5 @@
 volumes:
-  node-data: {}
+  node_data: {}
   postgres_staking_db: {}
   redis_db: {}
 
@@ -9,7 +9,7 @@ services:
     profiles: [local-node] # Make node service optional
     image: ghcr.io/autonomys/node:${NODE_DOCKER_TAG}
     volumes:
-      - node-data:/var/subspace:rw
+      - node_data:/var/subspace:rw
     ports:
       - '30333:30333/tcp'
       - '30433:30433/tcp'

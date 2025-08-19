@@ -17,7 +17,7 @@ RUN yarn install
 RUN yarn build
 
 # Set working directory to the staking-worker package
-WORKDIR /app/packages/staking-worker
+WORKDIR /app/services/staking-worker
 
 # Use node directly to run the built file
 CMD ["node", "dist/main.js"] 

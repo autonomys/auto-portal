@@ -34,7 +34,7 @@ The indexer infrastructure supports the blockchain data indexing system with fle
 
 #### **Network Options:**
 
-- **External Networks**: Connect to Taurus testnet or Mainnet via public RPC
+- **External Network**: Connect to Mainnet via public RPC
 - **Local Node** (optional): Run local Autonomys development node
 
 ## Quick Start
@@ -71,14 +71,6 @@ The infrastructure uses profiles for optional services:
 - **`local-node` profile**: Optional local Autonomys node for development
 
 ## Network Configuration
-
-### **Taurus Testnet (Recommended)**
-
-```bash
-# In .env file:
-NETWORK_ID=taurus
-RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
-```
 
 ### **Local Development**
 

@@ -30,21 +30,13 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
   const cache = db.initializeCache();
   let eventIndex = 0;
 
-  // FIX: Between 824014 and 835747 on Taurus Testnet domains.operators() return a parsing error, so in between these blocks, we query at the last valid block instead
-  const apiPatched =
-    unsafeApi && height > 824013 && height < 835748
-      ? await unsafeApi.at('0x77cc55c79e3adfbe38c79ce3475e2cace1c47e3a04166dc2ca9b1cfd49c26f5f')
-      : api;
+  const apiPatched = api;
 
   // Use to query the parent block operators (for the last unlock of an operator (unlockNominator))
   /*
     One optimization is to store the parent block api and data in global variable to avoid re-querying the same data when processing the next block!
   */
-  const parentBlockApi = unsafeApi
-    ? height > 824013 && height <= 835748
-      ? apiPatched
-      : await unsafeApi.at(parentHash)
-    : api;
+  const parentBlockApi = unsafeApi ? await unsafeApi.at(parentHash) : api;
 
   const query = [
     apiPatched.query.domains.operators.entries(),
@@ -250,21 +242,30 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
             // Process specific events
             const eventKey = event.event.section + '.' + event.event.method;
             const handler = EVENT_HANDLERS[eventKey];
-            if (handler)
-              handler({
-                event,
-                extrinsicMethodToPrimitive: extrinsicArgs,
-                cache,
-                height,
-                blockTimestamp,
-                extrinsicId,
-                eventId,
-                extrinsicSigner,
-                extrinsicEvents: events,
-                domainEpochMap,
-                operatorOwnerMap,
-                operatorDomainMap,
-              });
+            if (handler) {
+              try {
+                handler({
+                  event,
+                  extrinsicMethodToPrimitive: extrinsicArgs,
+                  cache,
+                  height,
+                  blockTimestamp,
+                  extrinsicId,
+                  eventId,
+                  extrinsicSigner,
+                  extrinsicEvents: events,
+                  domainEpochMap,
+                  operatorOwnerMap,
+                  operatorDomainMap,
+                });
+              } catch (error) {
+                const message =
+                  error instanceof Error ? (error.stack ?? error.message) : String(error);
+                logger.error(
+                  `Handler error for ${eventKey} (eventId=${eventId}, extrinsicId=${extrinsicId}): ${message}`,
+                );
+              }
+            }
 
             // Increment event index
             eventIndex++;
@@ -278,21 +279,30 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
           // Process specific events
           const eventKey = event.event.section + '.' + event.event.method;
           const handler = EVENT_HANDLERS[eventKey];
-          if (handler)
-            handler({
-              event,
-              extrinsicMethodToPrimitive,
-              cache,
-              height,
-              blockTimestamp,
-              extrinsicId,
-              eventId,
-              extrinsicSigner,
-              extrinsicEvents,
-              domainEpochMap,
-              operatorOwnerMap,
-              operatorDomainMap,
-            });
+          if (handler) {
+            try {
+              handler({
+                event,
+                extrinsicMethodToPrimitive,
+                cache,
+                height,
+                blockTimestamp,
+                extrinsicId,
+                eventId,
+                extrinsicSigner,
+                extrinsicEvents,
+                domainEpochMap,
+                operatorOwnerMap,
+                operatorDomainMap,
+              });
+            } catch (error) {
+              const message =
+                error instanceof Error ? (error.stack ?? error.message) : String(error);
+              logger.error(
+                `Handler error for ${eventKey} (eventId=${eventId}, extrinsicId=${extrinsicId}): ${message}`,
+              );
+            }
+          }
 
           // Increment event index
           eventIndex++;
