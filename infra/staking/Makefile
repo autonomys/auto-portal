@@ -46,7 +46,7 @@ setup: ## First-time setup (copy .env.example if needed)
 	fi; \
 	if [ ! -f "$$FILE" ] && [ -f .env ]; then FILE=.env; fi; \
 	echo "$(YELLOW)Building staking-indexer manifest with env file: $(BLUE)$$FILE$(NC)"; \
-	set -a; . "$$FILE"; set +a; \
+	set -a; if [ -f "$$FILE" ]; then . "./$$FILE"; else echo "$(RED)Env file not found: $$FILE$(NC)" >&2; fi; set +a; \
 	cd ../../services/staking-indexer && yarn build --silent && echo "$(GREEN)✅ SubQuery project.yaml built$(NC)"
 	@echo "$(YELLOW)💡 Quick setup options:$(NC)"
 	@echo "  • For Mainnet: Use .env (default) or .env.mainnet.example"
@@ -123,16 +123,15 @@ status: ## Check service health and status
 
 # Reset target
 .PHONY: reset
-reset: ## Reset all data (WARNING: This will delete all volumes and data)
+reset: ## Reset DB/Redis data (node data is preserved)
 	@echo "$(RED)⚠️  WARNING: This will delete ALL data and volumes!$(NC)"
 	@echo "$(YELLOW)Are you sure? [y/N]$(NC)"; \
 	read -r response; \
 	if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
 		echo "$(BLUE)Stopping services...$(NC)"; \
 		docker compose down; \
-		echo "$(BLUE)Removing volumes...$(NC)"; \
-		docker compose down -v; \
-		docker volume rm -f staking_postgres_staking_db staking_redis_db staking_node-data 2>/dev/null || true; \
+		echo "$(BLUE)Removing DB and Redis volumes (preserving node data)...$(NC)"; \
+		docker volume rm -f staking_postgres_staking_db staking_redis_db 2>/dev/null || true; \
 		echo "$(BLUE)Cleaning Hasura metadata...$(NC)"; \
 		rm -rf hasura/metadata/databases 2>/dev/null || true; \
 		echo "$(GREEN)✅ All data reset$(NC)"; \
