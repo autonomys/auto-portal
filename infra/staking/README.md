@@ -1,10 +1,10 @@
 # Auto Portal Indexer Infrastructure
 
-This directory contains the Docker Compose setup for the Auto Portal staking indexer infrastructure, supporting both local development nodes and external testnet connections.
+This directory contains the Docker Compose setup for the Auto Portal staking indexer infrastructure, supporting mainnet and an optional local development node.
 
 ## Features
 
-- **Flexible Node Configuration**: Choose between local development node or external testnet
+- **Flexible Node Configuration**: Choose between mainnet or an optional local development node
 - **SubQuery Indexing**: Indexes staking events and operator data
 - **PostgreSQL Storage**: Persistent database with connection pooling
 - **Redis Task Queue**: For background worker processing
@@ -16,15 +16,7 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 
 Pick one of the provided environment presets. You can use the `.example` files directly or create your own `.env.<env>`.
 
-### 2. Start services
-
-Taurus testnet:
-
-```bash
-make start-taurus
-```
-
-Mainnet:
+### 2. Start services (Mainnet)
 
 ```bash
 make start-mainnet
@@ -38,10 +30,9 @@ make start-dev
 
 ## Configuration Options
 
-### Environment Files
+### Environment Files (provided)
 
 - `.env.example` - General template
-- `.env.taurus.example` - Taurus testnet
 - `.env.mainnet.example` - Mainnet
 - `.env.dev.example` - Local dev node
 
@@ -68,7 +59,7 @@ graph TD
 
     C{Node Type}
     C -->|Local| D[Local Node :9944]
-    C -->|External| E[Taurus RPC]
+    C -->|External| E[Mainnet RPC]
 
     F[SubQuery Indexer] --> G
     F --> C
@@ -154,24 +145,24 @@ docker compose logs -f postgres-staking
 - No external dependencies
 - Limited to development chain
 
-**External Node (default):**
+**External Node (default: Mainnet):**
 
-- Connects to Taurus testnet
+- Connects to Autonomys mainnet
 - Real network data
 - No local node resource usage
 - Requires internet connection
 
-### Environment Variables
+### Environment Variables (Mainnet)
 
 Key configuration variables in `.env`:
 
 ```bash
 # Network Configuration
-RPC_URLS=wss://rpc.taurus.autonomys.xyz/ws
-CHAIN_ID=0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e
+RPC_URLS=wss://rpc.mainnet.autonomys.xyz/ws
+CHAIN_ID=0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd
 
 # Starting Block (adjust based on your needs)
-START_BLOCK_STAKING=3250000
+START_BLOCK_STAKING=3851328
 
 # Database
 STAKING_DB_DATABASE=staking

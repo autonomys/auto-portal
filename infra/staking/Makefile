@@ -49,12 +49,12 @@ setup: ## First-time setup (copy .env.example if needed)
 	set -a; . "$$FILE"; set +a; \
 	cd ../../services/staking-indexer && yarn build --silent && echo "$(GREEN)✅ SubQuery project.yaml built$(NC)"
 	@echo "$(YELLOW)💡 Quick setup options:$(NC)"
-	@echo "  • For Taurus testnet (recommended): Use .env as-is"
-	@echo "  • For local development: Adjust NETWORK_ID and RPC_URLS in .env"
+	@echo "  • For Mainnet: Use .env (default) or .env.mainnet.example"
+	@echo "  • For local development: Adjust NETWORK_ID=dev and RPC_URLS in .env"
 
 # Start target (with optional profiles)
 .PHONY: start
-start: setup ## Start services (use 'make start PROFILES=local-node' or ENV=[mainnet|taurus|dev])
+start: setup ## Start services (use 'make start PROFILES=local-node' or ENV=[mainnet|dev])
 	@echo "$(BLUE)Starting staking services...$(NC)"
 	@# Resolve env file from ENV if ENV_FILE is default .env
 	@FILE=$(ENV_FILE); \
@@ -230,12 +230,9 @@ setup-hasura: ## Configure Hasura to track all staking tables
 	fi 
 
 # Convenience targets
-.PHONY: start-mainnet start-taurus start-dev
+.PHONY: start-mainnet start-dev
 start-mainnet: ## Start services using .env.mainnet or .env.mainnet.example
 	@$(MAKE) start ENV=mainnet
-
-start-taurus: ## Start services using .env.taurus or .env.taurus.example
-	@$(MAKE) start ENV=taurus
 
 start-dev: ## Start services with local node using .env.dev or .env.dev.example
 	@$(MAKE) start-local ENV=dev
