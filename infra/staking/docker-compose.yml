@@ -1,5 +1,7 @@
 volumes:
-  node_data: {}
+  node_data:
+    external: true
+    name: node_data
   postgres_staking_db: {}
   redis_db: {}
 

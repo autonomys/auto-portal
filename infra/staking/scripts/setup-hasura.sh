@@ -19,8 +19,8 @@ if ! docker compose ps | grep -q "hasura.*Up"; then
     exit 1
 fi
 
-# Run the track tables script
-"${PROJECT_DIR}/hasura/track-tables.sh"
+# Run the track tables script, forwarding ENV_FILE if provided
+ENV_FILE="${ENV_FILE}" "${PROJECT_DIR}/hasura/track-tables.sh"
 
 echo ""
 echo "✅ Hasura setup complete!"

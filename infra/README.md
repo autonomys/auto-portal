@@ -47,20 +47,20 @@ cd infra/indexer
 cp .env.example .env
 # Edit .env to choose network (Taurus testnet recommended)
 
-# Start with external testnet (default)
-./scripts/start.sh
+# Start services (auto-detects local node when RPC_URLS contains 'node:9944')
+make start
 
-# OR start with local development node
-./scripts/start.sh --with-local-node
+# Use specific env file
+make start ENV_FILE=.env.mainnet.example
 
 # View logs
-docker compose -f docker-compose.yml -f docker-compose.workers.yml logs -f
+make logs
 
 # Stop all services
-./scripts/stop.sh
+make stop
 
-# Reset and start fresh (removes all data)
-./scripts/reset.sh
+# Reset data (removes DB/Redis volumes)
+make reset
 ```
 
 ## Docker Compose Profiles
@@ -68,17 +68,9 @@ docker compose -f docker-compose.yml -f docker-compose.workers.yml logs -f
 The infrastructure uses profiles for optional services:
 
 - **Default services**: PostgreSQL, PgCat, Redis, SubQuery indexer, Staking worker (always run)
-- **`local-node` profile**: Optional local Autonomys node for development
+- **`local-node` profile**: Optional local Autonomys node
 
 ## Network Configuration
-
-### **Local Development**
-
-```bash
-# In .env file (uncomment local section):
-NETWORK_ID=dev
-RPC_URLS=ws://node:9944
-```
 
 ## Access Points
 

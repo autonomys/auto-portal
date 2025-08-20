@@ -16,17 +16,19 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 
 Pick one of the provided environment presets. You can use the `.example` files directly or create your own `.env.<env>`.
 
-### 2. Start services (Mainnet)
+### 2. Start services
 
 ```bash
-make start-mainnet
+make start
 ```
 
-Local development node:
+Use a specific env file:
 
 ```bash
-make start-dev
+make start ENV_FILE=.env.mainnet.example
 ```
+
+Local node is auto-detected when your env file sets `RPC_URLS` to include `node:9944` (e.g. `ws://node:9944`).
 
 ## Configuration Options
 
@@ -39,8 +41,7 @@ make start-dev
 You can also pass an explicit env file to make:
 
 ```bash
-make start ENV_FILE=.env.mainnet.example
-make start-local ENV_FILE=.env.dev.example
+make start ENV_FILE=.env.dev.example
 ```
 
 ### Docker Compose Profiles
@@ -48,7 +49,7 @@ make start-local ENV_FILE=.env.dev.example
 The setup uses Docker Compose profiles for optional services:
 
 - **No profiles** (default): All core staking services (PostgreSQL, PgCat, Redis, SubQuery, Worker)
-- **`local-node`**: Additionally includes local Autonomys development node
+- **`local-node`**: Local Autonomys development node. This profile is enabled automatically when `RPC_URLS` contains `node:9944`.
 
 ## Service Architecture
 
@@ -114,32 +115,33 @@ HASURA_GRAPHQL_ENABLE_INTROSPECTION=true   # Consider disabling in production
 ## Common Commands
 
 ```bash
-# Start with Taurus testnet (recommended)
-./scripts/start.sh
-
-# Start with local development node
-./scripts/start.sh --with-local-node
-
-# View all logs
-docker compose logs -f
-
-# View specific service logs
-docker compose logs -f staking_subquery_node
-docker compose logs -f postgres-staking
+# Start services (auto-detects local node from RPC_URLS)
+make start [ENV_FILE=.env.mainnet.example]
 
 # Stop all services
-./scripts/stop.sh
+make stop
 
-# Reset database and restart
-./scripts/reset.sh
+# View all logs
+make logs
+
+# View specific service logs
+make logs SERVICE=subquery-node
+make logs SERVICE=postgres-staking
+
+# Show status/health
+make status
+
+# Reset DB/Redis data (prompts for confirmation)
+make reset
 ```
 
 ## Development Notes
 
 ### Local vs External Node
 
-**Local Node (`--with-local-node`):**
+**Local Node (auto-detected):**
 
+- Set `RPC_URLS=ws://node:9944` in your env file to enable the local node profile
 - Runs Autonomys node in development mode
 - Faster for testing indexer logic
 - No external dependencies
@@ -158,6 +160,7 @@ Key configuration variables in `.env`:
 
 ```bash
 # Network Configuration
+# For external (mainnet) RPC
 RPC_URLS=wss://rpc.mainnet.autonomys.xyz/ws
 CHAIN_ID=0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd
 
