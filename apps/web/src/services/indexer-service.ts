@@ -2,6 +2,8 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import type {
   staking_operator_registrations_bool_exp,
   staking_operator_registrations_order_by,
+  OperatorEpochSharePricesResponse,
+  OperatorEpochSharePriceRow,
 } from '@/types/indexer';
 import { config } from '@/config';
 
@@ -95,6 +97,45 @@ const GET_OPERATORS = gql`
   }
 `;
 
+// GraphQL: latest N epoch share prices for an operator
+const GET_LATEST_SHARE_PRICES = gql`
+  query GetLatestSharePrices($operatorId: String!, $limit: Int!) {
+    operator_epoch_share_prices(
+      where: { operator_id: { _eq: $operatorId } }
+      order_by: { epoch_index: desc }
+      limit: $limit
+    ) {
+      operator_id
+      domain_id
+      epoch_index
+      share_price
+      total_stake
+      total_shares
+      timestamp
+      block_height
+    }
+  }
+`;
+
+// GraphQL: share prices since a given ISO timestamp (inclusive)
+const GET_SHARE_PRICES_SINCE = gql`
+  query GetSharePricesSince($operatorId: String!, $since: timestamptz!) {
+    operator_epoch_share_prices(
+      where: { operator_id: { _eq: $operatorId }, timestamp: { _gte: $since } }
+      order_by: { epoch_index: asc }
+    ) {
+      operator_id
+      domain_id
+      epoch_index
+      share_price
+      total_stake
+      total_shares
+      timestamp
+      block_height
+    }
+  }
+`;
+
 // Service functions
 export const indexerService = {
   // Check if indexer is enabled
@@ -161,11 +202,56 @@ export const indexerService = {
     }
   },
 
+  // Fetch latest N share price rows for an operator
+  async getOperatorLatestSharePrices(
+    operatorId: string,
+    limit = 50,
+  ): Promise<OperatorEpochSharePriceRow[]> {
+    if (!this.isEnabled()) {
+      throw new Error('Indexer is disabled. Cannot fetch share prices.');
+    }
+
+    try {
+      const cappedLimit = Math.max(1, Math.min(50, limit));
+      const result = await getClient().query<OperatorEpochSharePricesResponse>({
+        query: GET_LATEST_SHARE_PRICES,
+        variables: { operatorId, limit: cappedLimit },
+        fetchPolicy: 'network-only',
+      });
+      return result.data.operator_epoch_share_prices;
+    } catch (error) {
+      console.error('❌ Failed to fetch latest share prices:', error);
+      throw error;
+    }
+  },
+
+  // Fetch share price rows since a given ISO timestamp
+  async getOperatorSharePricesSince(
+    operatorId: string,
+    sinceISO: string,
+  ): Promise<OperatorEpochSharePriceRow[]> {
+    if (!this.isEnabled()) {
+      throw new Error('Indexer is disabled. Cannot fetch share prices.');
+    }
+
+    try {
+      const result = await getClient().query<OperatorEpochSharePricesResponse>({
+        query: GET_SHARE_PRICES_SINCE,
+        variables: { operatorId, since: sinceISO },
+        fetchPolicy: 'network-only',
+      });
+      return result.data.operator_epoch_share_prices;
+    } catch (error) {
+      console.error('❌ Failed to fetch share prices since timestamp:', error);
+      throw error;
+    }
+  },
+
   // Get Apollo Client instance (for direct usage if needed)
   getClient() {
     return getClient();
   },
 };
 
-export { GET_OPERATORS };
+export { GET_OPERATORS, GET_LATEST_SHARE_PRICES, GET_SHARE_PRICES_SINCE };
 export default indexerService;
