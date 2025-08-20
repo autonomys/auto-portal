@@ -22,7 +22,7 @@
     "indexer:codegen": "yarn workspace staking codegen",
     "infra:setup": "make -C infra/staking setup",
     "infra:start": "make -C infra/staking start",
-    "infra:start-local": "make -C infra/staking start-local",
+    "infra:start-local": "make -C infra/staking start",
     "infra:stop": "make -C infra/staking stop",
     "infra:logs": "make -C infra/staking logs",
     "infra:status": "make -C infra/staking status",

@@ -7,10 +7,18 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-if [ -f "${PROJECT_DIR}/.env" ]; then
-    # Safe environment loading that handles spaces and special characters
+# Load env from ENV_FILE if provided, otherwise default to .env if present
+ENV_FILE_PATH="${ENV_FILE:-${PROJECT_DIR}/.env}"
+# If ENV_FILE is a relative path, resolve it relative to PROJECT_DIR
+case "${ENV_FILE_PATH}" in
+  /*) ;; # absolute path
+  *) ENV_FILE_PATH="${PROJECT_DIR}/${ENV_FILE_PATH}" ;;
+esac
+
+if [ -f "${ENV_FILE_PATH}" ]; then
     set -a
-    source "${PROJECT_DIR}/.env"
+    # shellcheck disable=SC1090
+    source "${ENV_FILE_PATH}"
     set +a
 fi
 
