@@ -1,3 +1,5 @@
+import type { ReturnDetails } from '@/lib/apy';
+
 export interface Operator {
   id: string;
   name: string; // Display name or default to ID
@@ -12,6 +14,8 @@ export interface Operator {
   // Current Status
   status: 'active' | 'inactive' | 'slashed' | 'degraded';
   totalStaked: string; // Total AI3 in pool
+  // Derived metrics (optional)
+  estimatedReturnDetails?: ReturnDetails;
 }
 
 export interface OperatorStats {
