@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatAI3, formatNumber, formatPercentage } from '@/lib/formatting';
+import { formatAI3, formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
+import { config } from '@/config';
 import { usePositions } from '@/hooks/use-positions';
 import { Tooltip } from '@/components/ui/tooltip';
 import { PositionBreakdown } from '@/components/positions';
@@ -69,6 +70,22 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
           </div>
           <div className="flex flex-col items-end space-y-2">
             <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
+            {config.features.enableIndexer && (
+              <div className="text-right">
+                <div
+                  className={`text-sm font-mono ${
+                    operator.estimatedReturnDetails
+                      ? getAPYColor(operator.estimatedReturnDetails.annualizedReturn * 100)
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {operator.estimatedReturnDetails
+                    ? `${(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%`
+                    : '--'}
+                </div>
+                <div className="text-xs text-muted-foreground">Est. APY</div>
+              </div>
+            )}
           </div>
         </div>
 
