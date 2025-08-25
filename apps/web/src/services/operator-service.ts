@@ -4,6 +4,8 @@ import { getSharedApiConnection } from './api-service';
 import { mapRpcToOperator } from '@/lib/operator-mapper';
 import { TARGET_OPERATORS } from '@/constants/target-operators';
 import { config } from '@/config';
+import indexerService from '@/services/indexer-service';
+import { calculateReturnDetails, type ReturnDetails } from '@/lib/apy';
 
 export const operatorService = async (networkId: string = config.network.defaultNetworkId) => {
   const api = await getSharedApiConnection(networkId);
@@ -63,9 +65,60 @@ export const operatorService = async (networkId: string = config.network.default
     }
   };
 
+  const estimateOperatorReturnDetails = async (
+    operatorId: string,
+    lookbackDays: number,
+  ): Promise<ReturnDetails | null> => {
+    if (!config.features.enableIndexer) return null;
+
+    try {
+      // Latest price
+      const latestRows = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
+      if (!latestRows?.length) return null;
+
+      const MS_PER_DAY = 24 * 60 * 60 * 1000;
+      // Earliest price in window
+      const sinceISO = new Date(Date.now() - lookbackDays * MS_PER_DAY).toISOString();
+      const earliestRows = await indexerService.getOperatorSharePricesSince(operatorId, sinceISO);
+      if (!earliestRows?.length) return null;
+
+      const startPrice = {
+        price: Number(earliestRows[0].share_price),
+        date: new Date(earliestRows[0].timestamp),
+      };
+      const endPrice = {
+        price: Number(latestRows[0].share_price),
+        date: new Date(latestRows[0].timestamp),
+      };
+
+      const returnDetails = calculateReturnDetails(startPrice, endPrice);
+      return returnDetails;
+    } catch (err) {
+      console.warn('Failed to estimate APY for operator', operatorId, err);
+      return null;
+    }
+  };
+
   return {
     getAllOperators,
     getOperatorById,
     getOperatorStats,
+    estimateOperatorReturnDetails,
+    // Convenience: fetch a single operator and enrich with APY when available
+    getOperatorWithApy: async (
+      operatorId: string,
+      lookbackDays: number,
+    ): Promise<Operator | null> => {
+      const op = await getOperatorById(operatorId);
+      if (!op) return null;
+
+      const returnDetails = await estimateOperatorReturnDetails(operatorId, lookbackDays);
+      if (!returnDetails) return op;
+
+      return {
+        ...op,
+        estimatedReturnDetails: returnDetails,
+      };
+    },
   };
 };
