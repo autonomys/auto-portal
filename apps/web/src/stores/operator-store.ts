@@ -43,9 +43,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         const lookbackDays = 7; // default UI lookback window
         const enrichmentPromises = operators.map(async op => {
           try {
-            const details = await (
-              await operatorService()
-            ).estimateOperatorReturnDetails(op.id, lookbackDays);
+            const details = await opService.estimateOperatorReturnDetails(op.id, lookbackDays);
             return { id: op.id, details } as const;
           } catch {
             return { id: op.id, details: null } as const;
