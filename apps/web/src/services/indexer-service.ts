@@ -100,7 +100,7 @@ const GET_OPERATORS = gql`
 // GraphQL: latest N epoch share prices for an operator
 const GET_LATEST_SHARE_PRICES = gql`
   query GetLatestSharePrices($operatorId: String!, $limit: Int!) {
-    operator_epoch_share_prices(
+    staking_operator_epoch_share_prices(
       where: { operator_id: { _eq: $operatorId } }
       order_by: { epoch_index: desc }
       limit: $limit
@@ -120,7 +120,7 @@ const GET_LATEST_SHARE_PRICES = gql`
 // GraphQL: share prices since a given ISO timestamp (inclusive)
 const GET_SHARE_PRICES_SINCE = gql`
   query GetSharePricesSince($operatorId: String!, $since: timestamptz!) {
-    operator_epoch_share_prices(
+    staking_operator_epoch_share_prices(
       where: { operator_id: { _eq: $operatorId }, timestamp: { _gte: $since } }
       order_by: { epoch_index: asc }
     ) {
