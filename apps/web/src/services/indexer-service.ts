@@ -100,9 +100,9 @@ const GET_OPERATORS = gql`
 // GraphQL: latest N epoch share prices for an operator
 const GET_LATEST_SHARE_PRICES = gql`
   query GetLatestSharePrices($operatorId: String!, $limit: Int!) {
-    staking_operator_epoch_share_prices(
+    operator_epoch_share_prices: staking_operator_epoch_share_prices(
       where: { operator_id: { _eq: $operatorId } }
-      order_by: { epoch_index: desc }
+      order_by: [{ timestamp: desc }, { epoch_index: desc }]
       limit: $limit
     ) {
       operator_id
@@ -117,12 +117,13 @@ const GET_LATEST_SHARE_PRICES = gql`
   }
 `;
 
-// GraphQL: share prices since a given ISO timestamp (inclusive)
+// GraphQL: first N share price rows since a given timestamp (inclusive)
 const GET_SHARE_PRICES_SINCE = gql`
-  query GetSharePricesSince($operatorId: String!, $since: timestamptz!) {
-    staking_operator_epoch_share_prices(
+  query GetSharePricesSince($operatorId: String!, $since: timestamptz!, $limit: Int!) {
+    operator_epoch_share_prices: staking_operator_epoch_share_prices(
       where: { operator_id: { _eq: $operatorId }, timestamp: { _gte: $since } }
-      order_by: { epoch_index: asc }
+      order_by: [{ timestamp: asc }, { epoch_index: asc }]
+      limit: $limit
     ) {
       operator_id
       domain_id
@@ -218,6 +219,7 @@ export const indexerService = {
         variables: { operatorId, limit: cappedLimit },
         fetchPolicy: 'network-only',
       });
+
       return result.data.operator_epoch_share_prices;
     } catch (error) {
       console.error('❌ Failed to fetch latest share prices:', error);
@@ -225,21 +227,25 @@ export const indexerService = {
     }
   },
 
-  // Fetch share price rows since a given ISO timestamp
+  // Fetch share price rows since a given timestamp (accepts Date or ISO string)
   async getOperatorSharePricesSince(
     operatorId: string,
-    sinceISO: string,
+    since: string | Date,
+    limit = 1,
   ): Promise<OperatorEpochSharePriceRow[]> {
     if (!this.isEnabled()) {
       throw new Error('Indexer is disabled. Cannot fetch share prices.');
     }
 
     try {
+      const sinceISO = typeof since === 'string' ? since : since.toISOString();
+      const cappedLimit = Math.max(1, Math.min(50, limit));
       const result = await getClient().query<OperatorEpochSharePricesResponse>({
         query: GET_SHARE_PRICES_SINCE,
-        variables: { operatorId, since: sinceISO },
+        variables: { operatorId, since: sinceISO, limit: cappedLimit },
         fetchPolicy: 'network-only',
       });
+
       return result.data.operator_epoch_share_prices;
     } catch (error) {
       console.error('❌ Failed to fetch share prices since timestamp:', error);
