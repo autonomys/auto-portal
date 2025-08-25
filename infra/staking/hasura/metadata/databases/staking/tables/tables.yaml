@@ -1,0 +1,9 @@
+- table:
+    schema: staking
+    name: operator_epoch_share_prices
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        allow_aggregations: true
