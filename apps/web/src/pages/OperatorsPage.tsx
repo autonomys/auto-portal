@@ -23,10 +23,6 @@ export const OperatorsPage: React.FC = () => {
     navigate(`/staking/${operatorId}`);
   };
 
-  const handleViewDetails = (operatorId: string) => {
-    navigate(`/operators/${operatorId}`);
-  };
-
   const handleWithdraw = (operatorId: string) => {
     navigate(`/withdraw/${operatorId}`);
   };
@@ -101,7 +97,6 @@ export const OperatorsPage: React.FC = () => {
           operators={operators}
           loading={loading}
           onStake={handleStake}
-          onViewDetails={handleViewDetails}
           onWithdraw={handleWithdraw}
         />
       ) : (
@@ -109,7 +104,6 @@ export const OperatorsPage: React.FC = () => {
           operators={operators}
           loading={loading}
           onStake={handleStake}
-          onViewDetails={handleViewDetails}
           onWithdraw={handleWithdraw}
         />
       )}

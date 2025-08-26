@@ -13,6 +13,7 @@ export const mapIndexerToOperator = (
     currentTotalShares?: string | number | null;
     nominationTax?: number | null;
     minimumNominatorStake?: string | number | null;
+    totalStorageFeeDeposit?: string | number | null;
   },
 ): Operator => {
   // Convert stake amounts from shannons to AI3
@@ -23,6 +24,10 @@ export const mapIndexerToOperator = (
   const totalStaked = rpcData?.currentTotalStake
     ? shannonsToAI3(String(rpcData.currentTotalStake)).toFixed(4)
     : '0.0000';
+  const totalStorageFund = rpcData?.totalStorageFeeDeposit
+    ? shannonsToAI3(String(rpcData.totalStorageFeeDeposit)).toFixed(4)
+    : '0.0000';
+  const totalPoolValue = (parseFloat(totalStaked) + parseFloat(totalStorageFund)).toFixed(4);
 
   return {
     id: registration.id,
@@ -34,6 +39,8 @@ export const mapIndexerToOperator = (
     minimumNominatorStake: minimumStake,
     status: 'active' as const, // TODO: Derive from operator status in indexer
     totalStaked,
+    totalStorageFund,
+    totalPoolValue,
   };
 };
 
@@ -57,6 +64,10 @@ export const mapRpcToOperator = (
   const totalStaked = rpcData.currentTotalStake
     ? shannonsToAI3(rpcData.currentTotalStake).toFixed(4)
     : '0.0000';
+  const totalStorageFund = rpcData.totalStorageFeeDeposit
+    ? shannonsToAI3(rpcData.totalStorageFeeDeposit).toFixed(4)
+    : '0.0000';
+  const totalPoolValue = (parseFloat(totalStaked) + parseFloat(totalStorageFund)).toFixed(4);
 
   return {
     id: operatorId,
@@ -68,5 +79,7 @@ export const mapRpcToOperator = (
     minimumNominatorStake: minimumStake,
     status: 'active' as const,
     totalStaked,
+    totalStorageFund,
+    totalPoolValue,
   };
 };

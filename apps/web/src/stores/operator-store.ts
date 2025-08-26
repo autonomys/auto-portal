@@ -36,33 +36,43 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       // Apply current filters
       get().applyFilters();
 
-      // Enrich with estimated APY (return details) in the background
-      const lookbackDays = 7; // default UI lookback window
+      // Enrich with estimated APY windows (1/3/7/30d) in the background
       const enrichmentPromises = operators.map(async op => {
         try {
-          const details = await opService.estimateOperatorReturnDetails(op.id, lookbackDays);
-          return { id: op.id, details } as const;
+          const windows = await opService.estimateOperatorReturnDetailsWindows(op.id);
+          const d1 = windows?.d1 ?? null;
+          return { id: op.id, windows, d1 } as const;
         } catch {
-          return { id: op.id, details: null } as const;
+          return { id: op.id, windows: {}, d1: null } as const;
         }
       });
 
       const results = await Promise.allSettled(enrichmentPromises);
-      const idToDetails = new Map<
+      const idToWindows = new Map<
         string,
-        NonNullable<OperatorStore['operators'][number]['estimatedReturnDetails']> | null
+        OperatorStore['operators'][number]['estimatedReturnDetailsWindows']
+      >();
+      const idToD1 = new Map<
+        string,
+        OperatorStore['operators'][number]['estimatedReturnDetails'] | null
       >();
       for (const r of results) {
         if (r.status === 'fulfilled') {
-          idToDetails.set(r.value.id, r.value.details);
+          idToWindows.set(r.value.id, r.value.windows);
+          idToD1.set(r.value.id, r.value.d1);
         }
       }
 
-      const enriched = get().operators.map(op =>
-        idToDetails.has(op.id) && idToDetails.get(op.id)
-          ? { ...op, estimatedReturnDetails: idToDetails.get(op.id) || undefined }
-          : op,
-      );
+      const enriched = get().operators.map(op => {
+        const windows = idToWindows.get(op.id) || undefined;
+        const d1 = idToD1.get(op.id) || undefined;
+        if (!windows && !d1) return op;
+        return {
+          ...op,
+          ...(d1 ? { estimatedReturnDetails: d1 } : {}),
+          ...(windows ? { estimatedReturnDetailsWindows: windows } : {}),
+        };
+      });
 
       set({ operators: enriched });
       get().applyFilters();

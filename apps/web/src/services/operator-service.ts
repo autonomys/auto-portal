@@ -1,5 +1,5 @@
 import { operator } from '@autonomys/auto-consensus';
-import type { Operator, OperatorStats } from '@/types/operator';
+import type { Operator, OperatorStats, ReturnDetailsWindows } from '@/types/operator';
 import { getSharedApiConnection } from './api-service';
 import { mapRpcToOperator } from '@/lib/operator-mapper';
 import { TARGET_OPERATORS } from '@/constants/target-operators';
@@ -97,11 +97,72 @@ export const operatorService = async (networkId: string = config.network.default
     }
   };
 
+  const estimateOperatorReturnDetailsWindows = async (
+    operatorId: string,
+  ): Promise<ReturnDetailsWindows> => {
+    try {
+      const latestRows = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
+      if (!latestRows?.length) return {};
+
+      const endPrice = {
+        price: Number(latestRows[0].share_price),
+        date: new Date(latestRows[0].timestamp),
+      };
+
+      const MS_PER_DAY = 24 * 60 * 60 * 1000;
+      // Use the timestamp of the latest available sample as the reference "now"
+      const endTs = endPrice.date.getTime();
+      type WindowKey = keyof ReturnDetailsWindows;
+      const windows: Array<{ key: WindowKey; days: number }> = [
+        { key: 'd1', days: 1 },
+        { key: 'd3', days: 3 },
+        { key: 'd7', days: 7 },
+        { key: 'd30', days: 30 },
+      ];
+
+      const cutoffDates = windows.map(w => new Date(endTs - w.days * MS_PER_DAY));
+      // Strategy: fetch the last sample at or before each cutoff (to ensure full window)
+      const untilPromises = cutoffDates.map(cutoff =>
+        indexerService.getOperatorSharePricesUntil(operatorId, cutoff, 1),
+      );
+
+      const results = await Promise.allSettled(untilPromises);
+
+      const details: ReturnDetailsWindows = {};
+      results.forEach((res, idx) => {
+        if (res.status === 'fulfilled' && res.value?.length) {
+          const startRow = res.value[0];
+          const startPrice = {
+            price: Number(startRow.share_price),
+            date: new Date(startRow.timestamp),
+          };
+          // Ensure the start sample is at or before the cutoff (guaranteed by the query)
+          // Also ensure the actual span is at least the requested window length
+          const requestedDays = windows[idx].days;
+          const actualDays = (endTs - startPrice.date.getTime()) / MS_PER_DAY;
+          if (actualDays + 1e-9 < requestedDays) return;
+
+          const rd = calculateReturnDetails(startPrice, endPrice);
+          if (rd) {
+            const key = windows[idx].key;
+            details[key] = rd;
+          }
+        }
+      });
+
+      return details;
+    } catch (err) {
+      console.warn('Failed to estimate APY windows for operator', operatorId, err);
+      return {};
+    }
+  };
+
   return {
     getAllOperators,
     getOperatorById,
     getOperatorStats,
     estimateOperatorReturnDetails,
+    estimateOperatorReturnDetailsWindows,
     // Convenience: fetch a single operator and enrich with APY when available
     getOperatorWithApy: async (
       operatorId: string,
@@ -116,6 +177,19 @@ export const operatorService = async (networkId: string = config.network.default
       return {
         ...op,
         estimatedReturnDetails: returnDetails,
+      };
+    },
+    getOperatorWithApyWindows: async (operatorId: string): Promise<Operator | null> => {
+      const op = await getOperatorById(operatorId);
+      if (!op) return null;
+
+      const windows = await estimateOperatorReturnDetailsWindows(operatorId);
+      const d1 = windows.d1 ?? null;
+
+      return {
+        ...op,
+        ...(d1 ? { estimatedReturnDetails: d1 } : {}),
+        estimatedReturnDetailsWindows: windows,
       };
     },
   };

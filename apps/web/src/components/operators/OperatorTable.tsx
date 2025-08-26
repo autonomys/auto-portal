@@ -1,15 +1,19 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
+import { formatPercentage, getAPYColor, formatNumber } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import { usePositions } from '@/hooks/use-positions';
+import { Tooltip } from '@/components/ui/tooltip';
+import { ApyTooltip } from '@/components/operators/ApyTooltip';
+import { OperatorPoolBreakdown } from '@/components/operators/OperatorPoolBreakdown';
+import { PositionBreakdown } from '@/components/positions';
+import { formatAI3 } from '@/lib/formatting';
 
 interface OperatorTableProps {
   operators: Operator[];
   loading?: boolean;
   onStake: (operatorId: string) => void;
-  onViewDetails: (operatorId: string) => void;
   onWithdraw: (operatorId: string) => void;
 }
 
@@ -17,10 +21,17 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   operators,
   loading = false,
   onStake,
-  onViewDetails,
   onWithdraw,
 }) => {
   const { positions } = usePositions({ refreshInterval: 0 });
+
+  const positionByOperatorId = React.useMemo(() => {
+    const map = new Map<string, ReturnType<typeof usePositions>['positions'][number]>();
+    for (const p of positions) {
+      map.set(p.operatorId, p);
+    }
+    return map;
+  }, [positions]);
 
   const operatorIdsWithUserPosition = React.useMemo(() => {
     const ids = new Set<string>();
@@ -59,10 +70,11 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
-
+              <th className="text-left p-4 font-medium text-muted-foreground">Total Value</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Your Position</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
@@ -79,16 +91,19 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="h-4 bg-muted rounded w-12" />
-                </td>
-                <td className="p-4">
-                  <div className="h-4 bg-muted rounded w-8" />
-                </td>
-                <td className="p-4">
                   <div className="h-4 bg-muted rounded w-20" />
                 </td>
                 <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-12" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-16" />
+                </td>
+                <td className="p-4">
                   <div className="h-6 bg-muted rounded w-16" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-20" />
                 </td>
                 <td className="p-4">
                   <div className="flex space-x-2">
@@ -131,89 +146,146 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   }
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-muted/50">
-          <tr>
-            <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
-
-            <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-            <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {operators.map((operator, index) => (
-            <tr
-              key={operator.id}
-              className={`
+    <div className="border border-border rounded-xl">
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed min-w-[1000px]">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground w-[20%]">
+                Operator
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
+                Total Value
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+                Tax
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
+                Est. APY
+              </th>
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+                Status
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
+                Your Position
+              </th>
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[24%]">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {operators.map((operator, index) => (
+              <tr
+                key={operator.id}
+                className={`
                 border-t border-border hover:bg-muted/50 transition-colors
                 ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}
               `}
-            >
-              <td className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-medium text-sm">
-                      {getOperatorInitial(operator.name)}
-                    </span>
+              >
+                <td className="p-3 sm:p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-medium text-sm">
+                        {getOperatorInitial(operator.name)}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-medium text-foreground truncate">{operator.name}</div>
+                      <div className="text-sm text-muted-foreground">{operator.domainName}</div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-medium text-foreground truncate">{operator.name}</div>
-                    <div className="text-sm text-muted-foreground">{operator.domainName}</div>
-                  </div>
-                </div>
-              </td>
+                </td>
 
-              <td className="p-4">
-                <span className="font-mono">{formatPercentage(operator.nominationTax)}</span>
-              </td>
-              <td className="p-4">
-                <div className="font-mono font-medium">
-                  {formatNumber(operator.totalStaked)} AI3
-                </div>
-              </td>
-              <td className="p-4">
-                {operator.estimatedReturnDetails ? (
-                  <span
-                    className={`font-mono ${getAPYColor(
-                      operator.estimatedReturnDetails.annualizedReturn * 100,
-                    )}`}
-                  >
-                    {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground">--</span>
-                )}
-              </td>
-              <td className="p-4">
-                <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
-              </td>
-              <td className="p-4">
-                <div className="flex space-x-2">
-                  <Button size="sm" onClick={() => onStake(operator.id)}>
-                    Stake
-                  </Button>
-                  {operatorIdsWithUserPosition.has(operator.id) && (
-                    <Button
-                      size="sm"
-                      variant="warningOutline"
-                      onClick={() => onWithdraw(operator.id)}
+                <td className="p-3 sm:p-4 text-right">
+                  {operator.totalPoolValue ? (
+                    <Tooltip
+                      side="left"
+                      content={
+                        <OperatorPoolBreakdown
+                          totalStaked={operator.totalStaked}
+                          totalStorageFund={operator.totalStorageFund}
+                        />
+                      }
                     >
-                      Withdraw
-                    </Button>
+                      <span className="font-mono font-medium cursor-help">
+                        {formatNumber(operator.totalPoolValue)} AI3
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <span className="text-muted-foreground">--</span>
                   )}
-                  <Button size="sm" variant="outline" onClick={() => onViewDetails(operator.id)}>
-                    Details
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+                <td className="p-3 sm:p-4 text-right">
+                  <span className="font-mono">{formatPercentage(operator.nominationTax)}</span>
+                </td>
+                <td className="p-3 sm:p-4 text-right">
+                  {operator.estimatedReturnDetails ? (
+                    <Tooltip
+                      side="left"
+                      content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
+                    >
+                      <span
+                        className={`font-mono cursor-help ${getAPYColor(
+                          operator.estimatedReturnDetails.annualizedReturn * 100,
+                        )}`}
+                      >
+                        {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <span className="text-muted-foreground">NA</span>
+                  )}
+                </td>
+                <td className="p-3 sm:p-4 text-center">
+                  <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
+                </td>
+                <td className="p-3 sm:p-4 text-right">
+                  {(() => {
+                    const userPosition = positionByOperatorId.get(operator.id);
+                    if (!userPosition) {
+                      return <span className="text-muted-foreground">--</span>;
+                    }
+
+                    const totalValue =
+                      userPosition.positionValue +
+                      userPosition.storageFeeDeposit +
+                      (userPosition.pendingDeposit?.amount || 0);
+
+                    if (totalValue <= 0) {
+                      return <span className="text-muted-foreground">--</span>;
+                    }
+
+                    return (
+                      <Tooltip side="left" content={<PositionBreakdown position={userPosition} />}>
+                        <span className="font-mono font-medium cursor-help">
+                          {formatAI3(totalValue, 2)}
+                        </span>
+                      </Tooltip>
+                    );
+                  })()}
+                </td>
+                <td className="p-3 sm:p-4">
+                  <div className="flex space-x-1 justify-center flex-wrap gap-1">
+                    <Button size="sm" onClick={() => onStake(operator.id)}>
+                      Stake
+                    </Button>
+                    {operatorIdsWithUserPosition.has(operator.id) && (
+                      <Button
+                        size="sm"
+                        variant="warningOutline"
+                        onClick={() => onWithdraw(operator.id)}
+                      >
+                        Withdraw
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
