@@ -16,6 +16,7 @@ export interface Operator {
   totalStaked: string; // Total AI3 in pool
   // Derived metrics (optional)
   estimatedReturnDetails?: ReturnDetails;
+  estimatedReturnDetailsWindows?: ReturnDetailsWindows;
 }
 
 export interface OperatorStats {
@@ -32,6 +33,13 @@ export type FilterState = {
 
   statusFilter?: Operator['status'][];
 };
+
+export interface ReturnDetailsWindows {
+  d1?: ReturnDetails;
+  d3?: ReturnDetails;
+  d7?: ReturnDetails;
+  d30?: ReturnDetails;
+}
 
 export interface OperatorStore {
   // State

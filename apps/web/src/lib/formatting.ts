@@ -66,7 +66,7 @@ export const getPercentageColor = (
 /**
  * Get color class for APY values
  */
-export const getAPYColor = (apy: number) => getPercentageColor(apy, { good: 16, warning: 12 });
+export const getAPYColor = (apy: number) => getPercentageColor(apy, { good: 20, warning: 5 });
 
 /**
  * Truncate address for display

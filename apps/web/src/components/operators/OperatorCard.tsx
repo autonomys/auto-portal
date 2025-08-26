@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatAI3, formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
 import { usePositions } from '@/hooks/use-positions';
 import { Tooltip } from '@/components/ui/tooltip';
+import { ApyTooltip } from '@/components/operators/ApyTooltip';
 import { PositionBreakdown } from '@/components/positions';
 import type { Operator } from '@/types/operator';
 
@@ -70,17 +71,22 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
           <div className="flex flex-col items-end space-y-2">
             <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
             <div className="text-right">
-              <div
-                className={`text-sm font-mono ${
-                  operator.estimatedReturnDetails
-                    ? getAPYColor(operator.estimatedReturnDetails.annualizedReturn * 100)
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {operator.estimatedReturnDetails
-                  ? `${(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%`
-                  : '--'}
-              </div>
+              {operator.estimatedReturnDetails ? (
+                <Tooltip
+                  side="top"
+                  content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
+                >
+                  <div
+                    className={`text-sm font-mono cursor-help ${getAPYColor(
+                      operator.estimatedReturnDetails.annualizedReturn * 100,
+                    )}`}
+                  >
+                    {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
+                  </div>
+                </Tooltip>
+              ) : (
+                <div className="text-sm font-mono text-muted-foreground">--</div>
+              )}
               <div className="text-xs text-muted-foreground">Est. APY</div>
             </div>
           </div>

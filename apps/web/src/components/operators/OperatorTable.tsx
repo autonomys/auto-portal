@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
 import type { Operator } from '@/types/operator';
 import { usePositions } from '@/hooks/use-positions';
+import { Tooltip } from '@/components/ui/tooltip';
+import { ApyTooltip } from '@/components/operators/ApyTooltip';
 
 interface OperatorTableProps {
   operators: Operator[];
@@ -177,13 +179,18 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
               </td>
               <td className="p-4">
                 {operator.estimatedReturnDetails ? (
-                  <span
-                    className={`font-mono ${getAPYColor(
-                      operator.estimatedReturnDetails.annualizedReturn * 100,
-                    )}`}
+                  <Tooltip
+                    side="top"
+                    content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
                   >
-                    {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
-                  </span>
+                    <span
+                      className={`font-mono cursor-help ${getAPYColor(
+                        operator.estimatedReturnDetails.annualizedReturn * 100,
+                      )}`}
+                    >
+                      {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
+                    </span>
+                  </Tooltip>
                 ) : (
                   <span className="text-muted-foreground">--</span>
                 )}

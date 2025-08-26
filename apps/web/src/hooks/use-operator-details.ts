@@ -25,8 +25,7 @@ export const useOperatorDetails = (operatorId: string): UseOperatorDetailsReturn
         setError(null);
 
         const service = await operatorService();
-        const lookbackDays = 7;
-        const operatorData = await service.getOperatorWithApy(operatorId, lookbackDays);
+        const operatorData = await service.getOperatorWithApyWindows(operatorId);
 
         if (!operatorData) {
           setError('Operator not found');
