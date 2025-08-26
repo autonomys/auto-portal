@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
-import { config } from '@/config';
 import type { Operator } from '@/types/operator';
 import { usePositions } from '@/hooks/use-positions';
 
@@ -140,9 +139,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
 
             <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Total Staked</th>
-            {config.features.enableIndexer && (
-              <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
-            )}
+            <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
             <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
           </tr>
@@ -178,21 +175,19 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   {formatNumber(operator.totalStaked)} AI3
                 </div>
               </td>
-              {config.features.enableIndexer && (
-                <td className="p-4">
-                  {operator.estimatedReturnDetails ? (
-                    <span
-                      className={`font-mono ${getAPYColor(
-                        operator.estimatedReturnDetails.annualizedReturn * 100,
-                      )}`}
-                    >
-                      {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">--</span>
-                  )}
-                </td>
-              )}
+              <td className="p-4">
+                {operator.estimatedReturnDetails ? (
+                  <span
+                    className={`font-mono ${getAPYColor(
+                      operator.estimatedReturnDetails.annualizedReturn * 100,
+                    )}`}
+                  >
+                    {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">--</span>
+                )}
+              </td>
               <td className="p-4">
                 <Badge variant={getStatusVariant(operator.status)}>{operator.status}</Badge>
               </td>

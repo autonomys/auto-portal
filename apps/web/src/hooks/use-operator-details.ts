@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { operatorService } from '@/services/operator-service';
 import type { Operator } from '@/types/operator';
-import { config } from '@/config';
 
 interface UseOperatorDetailsReturn {
   operator: Operator | null;
@@ -25,11 +24,9 @@ export const useOperatorDetails = (operatorId: string): UseOperatorDetailsReturn
         setLoading(true);
         setError(null);
 
-        const service = await operatorService(); // Use value from config
+        const service = await operatorService();
         const lookbackDays = 7;
-        const operatorData = config.features.enableIndexer
-          ? await service.getOperatorWithApy(operatorId, lookbackDays)
-          : await service.getOperatorById(operatorId);
+        const operatorData = await service.getOperatorWithApy(operatorId, lookbackDays);
 
         if (!operatorData) {
           setError('Operator not found');

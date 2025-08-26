@@ -7,13 +7,9 @@ import type {
 } from '@/types/indexer';
 import { config } from '@/config';
 
-// Only create Apollo Client if indexer is enabled
-const createApolloClient = () => {
-  if (!config.features.enableIndexer) {
-    throw new Error('Indexer is disabled. Enable with VITE_ENABLE_INDEXER=true');
-  }
-
-  return new ApolloClient({
+// Create Apollo Client for indexer
+const createApolloClient = () =>
+  new ApolloClient({
     uri: config.indexer.endpoint,
     cache: new InMemoryCache({
       typePolicies: {
@@ -36,16 +32,11 @@ const createApolloClient = () => {
       },
     },
   });
-};
 
 // Lazy-initialized client
 let client: ApolloClient<object> | null = null;
 
 const getClient = () => {
-  if (!config.features.enableIndexer) {
-    throw new Error('Indexer is disabled. Enable with VITE_ENABLE_INDEXER=true');
-  }
-
   if (!client) {
     client = createApolloClient();
   }
@@ -139,18 +130,8 @@ const GET_SHARE_PRICES_SINCE = gql`
 
 // Service functions
 export const indexerService = {
-  // Check if indexer is enabled
-  isEnabled(): boolean {
-    return config.features.enableIndexer;
-  },
-
   // Test connection to indexer
   async testConnection(): Promise<boolean> {
-    if (!this.isEnabled()) {
-      console.log('⚠️ Indexer is disabled');
-      return false;
-    }
-
     try {
       const result = await getClient().query({
         query: TEST_CONNECTION,
@@ -176,10 +157,6 @@ export const indexerService = {
       order_by?: staking_operator_registrations_order_by;
     } = {},
   ) {
-    if (!this.isEnabled()) {
-      throw new Error('Indexer is disabled. Cannot fetch operators from indexer.');
-    }
-
     const {
       limit = 50,
       offset = 0,
@@ -208,10 +185,6 @@ export const indexerService = {
     operatorId: string,
     limit = 50,
   ): Promise<OperatorEpochSharePriceRow[]> {
-    if (!this.isEnabled()) {
-      throw new Error('Indexer is disabled. Cannot fetch share prices.');
-    }
-
     try {
       const cappedLimit = Math.max(1, Math.min(50, limit));
       const result = await getClient().query<OperatorEpochSharePricesResponse>({
@@ -233,10 +206,6 @@ export const indexerService = {
     since: string | Date,
     limit = 1,
   ): Promise<OperatorEpochSharePriceRow[]> {
-    if (!this.isEnabled()) {
-      throw new Error('Indexer is disabled. Cannot fetch share prices.');
-    }
-
     try {
       const sinceISO = typeof since === 'string' ? since : since.toISOString();
       const cappedLimit = Math.max(1, Math.min(50, limit));

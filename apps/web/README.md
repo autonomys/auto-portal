@@ -2,18 +2,15 @@
 
 ## Indexer-backed features
 
-The web app can optionally fetch data from a public staking indexer to power additional UI features.
+The web app fetches data from a public staking indexer by default to power additional UI features.
 
-How to enable:
+Configuration:
 
-1. Set `VITE_ENABLE_INDEXER=true` in `apps/web/.env`.
-2. Optionally override `VITE_INDEXER_ENDPOINT` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
+- Optionally set `VITE_INDEXER_ENDPOINT` in `apps/web/.env` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
 
 Notes:
 
 - Reads are public; no access key is required for the data we use.
-- When the indexer is disabled, the app falls back to RPC-only mode with a reduced feature set.
-- This toggle is generic and will back any features we add that rely on historical/aggregated chain data.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
