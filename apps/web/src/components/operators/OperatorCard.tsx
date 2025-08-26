@@ -6,6 +6,7 @@ import { formatAI3, formatNumber, formatPercentage, getAPYColor } from '@/lib/fo
 import { usePositions } from '@/hooks/use-positions';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ApyTooltip } from '@/components/operators/ApyTooltip';
+import { OperatorPoolBreakdown } from '@/components/operators/OperatorPoolBreakdown';
 import { PositionBreakdown } from '@/components/positions';
 import type { Operator } from '@/types/operator';
 
@@ -90,39 +91,45 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
             <div className="text-xs text-muted-foreground">Tax</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold font-mono">
-              {formatNumber(operator.minimumNominatorStake)}
-            </div>
-            <div className="text-xs text-muted-foreground">Min Stake</div>
+            {operator.totalPoolValue ? (
+              <Tooltip
+                side="top"
+                content={
+                  <OperatorPoolBreakdown
+                    totalStaked={operator.totalStaked}
+                    totalStorageFund={operator.totalStorageFund}
+                  />
+                }
+              >
+                <div className="text-2xl font-bold font-mono cursor-help">
+                  {formatNumber(operator.totalPoolValue)} AI3
+                </div>
+              </Tooltip>
+            ) : (
+              <div className="text-2xl font-bold font-mono text-muted-foreground">--</div>
+            )}
+            <div className="text-xs text-muted-foreground">Operator Total Value</div>
           </div>
         </div>
 
-        {/* Pool Stats + Your Position (if any) */}
-        <div className="mb-4 p-3 bg-muted rounded-lg">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+        {/* Your Position (if any) */}
+        {hasUserPosition && userPosition && (
+          <div className="mb-4 p-3 bg-muted rounded-lg">
             <div className="text-center">
-              <div className="text-sm font-medium text-foreground font-mono">
-                {formatNumber(operator.totalStaked)} AI3
-              </div>
-              <div className="text-xs text-muted-foreground">Total Staked</div>
+              <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
+                <span className="text-sm font-medium text-foreground font-mono cursor-help">
+                  {formatAI3(
+                    userPosition.positionValue +
+                      userPosition.storageFeeDeposit +
+                      (userPosition.pendingDeposit?.amount || 0),
+                    2,
+                  )}
+                </span>
+              </Tooltip>
+              <div className="text-xs text-muted-foreground">Your Total Position</div>
             </div>
-            {hasUserPosition && userPosition && (
-              <div className="text-center">
-                <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
-                  <span className="text-sm font-medium text-foreground font-mono cursor-help">
-                    {formatAI3(
-                      userPosition.positionValue +
-                        userPosition.storageFeeDeposit +
-                        (userPosition.pendingDeposit?.amount || 0),
-                      2,
-                    )}
-                  </span>
-                </Tooltip>
-                <div className="text-xs text-muted-foreground">Your Total Position</div>
-              </div>
-            )}
           </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3">
