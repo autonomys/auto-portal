@@ -225,13 +225,14 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                       side="left"
                       content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
                     >
-                      <span
-                        className={`font-mono cursor-help ${getAPYColor(
-                          operator.estimatedReturnDetails.annualizedReturn * 100,
-                        )}`}
-                      >
-                        {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
-                      </span>
+                      {(() => {
+                        const displayApy = operator.estimatedReturnDetails.annualizedReturn * 100;
+                        return (
+                          <span className={`font-mono cursor-help ${getAPYColor(displayApy)}`}>
+                            {displayApy.toFixed(2)}%
+                          </span>
+                        );
+                      })()}
                     </Tooltip>
                   ) : (
                     <span className="text-muted-foreground">NA</span>

@@ -39,3 +39,29 @@ export const calculateReturnDetails = (
     endDate,
   };
 };
+
+// Adjust returns to account for portion of capital that is actually staked
+import { STAKE_RATIO } from '@/constants/staking';
+
+export const adjustReturnDetailsForStakeRatio = (
+  details: ReturnDetails,
+  stakeRatio: number = STAKE_RATIO,
+): ReturnDetails => ({
+  ...details,
+  periodReturn: details.periodReturn * stakeRatio,
+  annualizedReturn: details.annualizedReturn * stakeRatio,
+});
+
+export type ReturnWindowsKeys = 'd1' | 'd3' | 'd7' | 'd30';
+
+export const adjustReturnDetailsWindowsForStakeRatio = (
+  windows: Partial<Record<ReturnWindowsKeys, ReturnDetails>>,
+  stakeRatio: number = STAKE_RATIO,
+) => {
+  const adjusted: Partial<Record<ReturnWindowsKeys, ReturnDetails>> = {};
+  (['d1', 'd3', 'd7', 'd30'] as ReturnWindowsKeys[]).forEach(key => {
+    const v = windows[key];
+    if (v) adjusted[key] = adjustReturnDetailsForStakeRatio(v, stakeRatio);
+  });
+  return adjusted;
+};
