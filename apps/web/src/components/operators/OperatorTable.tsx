@@ -146,7 +146,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   }
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden">
+    <div className="border border-border rounded-xl">
       <div className="overflow-x-auto">
         <table className="w-full table-fixed min-w-[1000px]">
           <thead className="bg-muted/50">
@@ -200,7 +200,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 <td className="p-3 sm:p-4 text-right">
                   {operator.totalPoolValue ? (
                     <Tooltip
-                      side="top"
+                      side="left"
                       content={
                         <OperatorPoolBreakdown
                           totalStaked={operator.totalStaked}
@@ -222,7 +222,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 <td className="p-3 sm:p-4 text-right">
                   {operator.estimatedReturnDetails ? (
                     <Tooltip
-                      side="top"
+                      side="left"
                       content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
                     >
                       <span
@@ -257,7 +257,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     }
 
                     return (
-                      <Tooltip side="top" content={<PositionBreakdown position={userPosition} />}>
+                      <Tooltip side="left" content={<PositionBreakdown position={userPosition} />}>
                         <span className="font-mono font-medium cursor-help">
                           {formatAI3(totalValue, 2)}
                         </span>
