@@ -17,6 +17,9 @@ export interface Operator {
   // Derived metrics (optional)
   estimatedReturnDetails?: ReturnDetails;
   estimatedReturnDetailsWindows?: ReturnDetailsWindows;
+  // Aggregates
+  totalStorageFund?: string; // Operator-level storage fund balance in AI3
+  totalPoolValue?: string; // totalStaked + totalStorageFund in AI3
 }
 
 export interface OperatorStats {
