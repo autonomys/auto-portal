@@ -5,7 +5,12 @@ import { mapRpcToOperator } from '@/lib/operator-mapper';
 import { TARGET_OPERATORS } from '@/constants/target-operators';
 import { config } from '@/config';
 import indexerService from '@/services/indexer-service';
-import { calculateReturnDetails, type ReturnDetails } from '@/lib/apy';
+import {
+  calculateReturnDetails,
+  adjustReturnDetailsForStakeRatio,
+  adjustReturnDetailsWindowsForStakeRatio,
+  type ReturnDetails,
+} from '@/lib/apy';
 
 export const operatorService = async (networkId: string = config.network.defaultNetworkId) => {
   const api = await getSharedApiConnection(networkId);
@@ -90,7 +95,7 @@ export const operatorService = async (networkId: string = config.network.default
       };
 
       const returnDetails = calculateReturnDetails(startPrice, endPrice);
-      return returnDetails;
+      return returnDetails ? adjustReturnDetailsForStakeRatio(returnDetails) : null;
     } catch (err) {
       console.warn('Failed to estimate APY for operator', operatorId, err);
       return null;
@@ -150,7 +155,7 @@ export const operatorService = async (networkId: string = config.network.default
         }
       });
 
-      return details;
+      return adjustReturnDetailsWindowsForStakeRatio(details) as ReturnDetailsWindows;
     } catch (err) {
       console.warn('Failed to estimate APY windows for operator', operatorId, err);
       return {};

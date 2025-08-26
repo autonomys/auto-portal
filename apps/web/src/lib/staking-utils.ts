@@ -1,9 +1,9 @@
 import type { StakingCalculations, StakingValidation } from '@/types/staking';
 import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
+import { STORAGE_FUND_PERCENTAGE } from '@/constants/staking';
 
 export const TRANSACTION_FEE = 0.0001; // Fallback fee
-const STORAGE_FUND_PERCENTAGE = 0.2; // 20%
 
 export const calculateStakingAmounts = (
   amount: string,

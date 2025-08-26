@@ -66,13 +66,14 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
                   side="top"
                   content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
                 >
-                  <div
-                    className={`text-sm font-mono cursor-help ${getAPYColor(
-                      operator.estimatedReturnDetails.annualizedReturn * 100,
-                    )}`}
-                  >
-                    {(operator.estimatedReturnDetails.annualizedReturn * 100).toFixed(2)}%
-                  </div>
+                  {(() => {
+                    const displayApy = operator.estimatedReturnDetails.annualizedReturn * 100;
+                    return (
+                      <div className={`text-sm font-mono cursor-help ${getAPYColor(displayApy)}`}>
+                        {displayApy.toFixed(2)}%
+                      </div>
+                    );
+                  })()}
                 </Tooltip>
               ) : (
                 <div className="text-sm font-mono text-muted-foreground">NA</div>
