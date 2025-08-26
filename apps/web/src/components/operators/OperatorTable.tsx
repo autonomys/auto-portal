@@ -11,7 +11,6 @@ interface OperatorTableProps {
   operators: Operator[];
   loading?: boolean;
   onStake: (operatorId: string) => void;
-  onViewDetails: (operatorId: string) => void;
   onWithdraw: (operatorId: string) => void;
 }
 
@@ -19,7 +18,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   operators,
   loading = false,
   onStake,
-  onViewDetails,
   onWithdraw,
 }) => {
   const { positions } = usePositions({ refreshInterval: 0 });
@@ -212,9 +210,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                       Withdraw
                     </Button>
                   )}
-                  <Button size="sm" variant="outline" onClick={() => onViewDetails(operator.id)}>
-                    Details
-                  </Button>
                 </div>
               </td>
             </tr>

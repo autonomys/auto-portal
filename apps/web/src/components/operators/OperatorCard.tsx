@@ -12,16 +12,10 @@ import type { Operator } from '@/types/operator';
 interface OperatorCardProps {
   operator: Operator;
   onStake: (operatorId: string) => void;
-  onViewDetails: (operatorId: string) => void;
   onWithdraw: (operatorId: string) => void;
 }
 
-export const OperatorCard: React.FC<OperatorCardProps> = ({
-  operator,
-  onStake,
-  onViewDetails,
-  onWithdraw,
-}) => {
+export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, onWithdraw }) => {
   const { positions } = usePositions({ refreshInterval: 0 });
   const userPosition = positions.find(p => p.operatorId === operator.id);
   const getStatusVariant = (status: Operator['status']) => {
@@ -59,12 +53,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
               </span>
             </div>
             <div>
-              <button
-                className="text-lg font-semibold text-foreground underline underline-offset-4 hover:text-primary transition-colors"
-                onClick={() => onViewDetails(operator.id)}
-              >
-                {operator.name}
-              </button>
+              <h3 className="text-lg font-semibold text-foreground">{operator.name}</h3>
               <p className="text-sm text-muted-foreground">{operator.domainName}</p>
             </div>
           </div>
