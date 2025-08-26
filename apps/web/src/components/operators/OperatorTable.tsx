@@ -192,7 +192,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     </span>
                   </Tooltip>
                 ) : (
-                  <span className="text-muted-foreground">--</span>
+                  <span className="text-muted-foreground">NA</span>
                 )}
               </td>
               <td className="p-4">

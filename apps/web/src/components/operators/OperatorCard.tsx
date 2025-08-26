@@ -85,7 +85,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({
                   </div>
                 </Tooltip>
               ) : (
-                <div className="text-sm font-mono text-muted-foreground">--</div>
+                <div className="text-sm font-mono text-muted-foreground">NA</div>
               )}
               <div className="text-xs text-muted-foreground">Est. APY</div>
             </div>

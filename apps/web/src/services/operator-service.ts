@@ -110,7 +110,8 @@ export const operatorService = async (networkId: string = config.network.default
       };
 
       const MS_PER_DAY = 24 * 60 * 60 * 1000;
-      const now = Date.now();
+      // Use the timestamp of the latest available sample as the reference "now"
+      const endTs = endPrice.date.getTime();
       type WindowKey = keyof ReturnDetailsWindows;
       const windows: Array<{ key: WindowKey; days: number }> = [
         { key: 'd1', days: 1 },
@@ -119,13 +120,13 @@ export const operatorService = async (networkId: string = config.network.default
         { key: 'd30', days: 30 },
       ];
 
-      const sinceDates = windows.map(w => new Date(now - w.days * MS_PER_DAY).toISOString());
-
-      const sincePromises = sinceDates.map(sinceISO =>
-        indexerService.getOperatorSharePricesSince(operatorId, sinceISO, 1),
+      const cutoffDates = windows.map(w => new Date(endTs - w.days * MS_PER_DAY));
+      // Strategy: fetch the last sample at or before each cutoff (to ensure full window)
+      const untilPromises = cutoffDates.map(cutoff =>
+        indexerService.getOperatorSharePricesUntil(operatorId, cutoff, 1),
       );
 
-      const results = await Promise.allSettled(sincePromises);
+      const results = await Promise.allSettled(untilPromises);
 
       const details: ReturnDetailsWindows = {};
       results.forEach((res, idx) => {
@@ -135,6 +136,12 @@ export const operatorService = async (networkId: string = config.network.default
             price: Number(startRow.share_price),
             date: new Date(startRow.timestamp),
           };
+          // Ensure the start sample is at or before the cutoff (guaranteed by the query)
+          // Also ensure the actual span is at least the requested window length
+          const requestedDays = windows[idx].days;
+          const actualDays = (endTs - startPrice.date.getTime()) / MS_PER_DAY;
+          if (actualDays + 1e-9 < requestedDays) return;
+
           const rd = calculateReturnDetails(startPrice, endPrice);
           if (rd) {
             const key = windows[idx].key;

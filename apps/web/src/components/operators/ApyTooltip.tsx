@@ -11,7 +11,7 @@ export const ApyTooltip: React.FC<ApyTooltipProps> = ({ windows }) => {
     <div className="flex items-center justify-between gap-3" key={label}>
       <span className="text-[11px] text-white/80">{label}</span>
       <span className={`font-mono ${value !== undefined ? getAPYColor(value) : 'text-white/50'}`}>
-        {value !== undefined ? `${value.toFixed(2)}%` : '--'}
+        {value !== undefined ? `${value.toFixed(2)}%` : 'NA'}
       </span>
     </div>
   );
