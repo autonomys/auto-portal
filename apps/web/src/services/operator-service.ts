@@ -184,11 +184,11 @@ export const operatorService = async (networkId: string = config.network.default
       if (!op) return null;
 
       const windows = await estimateOperatorReturnDetailsWindows(operatorId);
-      const d7 = windows.d7 ?? null;
+      const d1 = windows.d1 ?? null;
 
       return {
         ...op,
-        ...(d7 ? { estimatedReturnDetails: d7 } : {}),
+        ...(d1 ? { estimatedReturnDetails: d1 } : {}),
         estimatedReturnDetailsWindows: windows,
       };
     },

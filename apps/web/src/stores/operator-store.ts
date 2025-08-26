@@ -40,10 +40,10 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       const enrichmentPromises = operators.map(async op => {
         try {
           const windows = await opService.estimateOperatorReturnDetailsWindows(op.id);
-          const d7 = windows?.d7 ?? null;
-          return { id: op.id, windows, d7 } as const;
+          const d1 = windows?.d1 ?? null;
+          return { id: op.id, windows, d1 } as const;
         } catch {
-          return { id: op.id, windows: {}, d7: null } as const;
+          return { id: op.id, windows: {}, d1: null } as const;
         }
       });
 
@@ -52,24 +52,24 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         string,
         OperatorStore['operators'][number]['estimatedReturnDetailsWindows']
       >();
-      const idToD7 = new Map<
+      const idToD1 = new Map<
         string,
         OperatorStore['operators'][number]['estimatedReturnDetails'] | null
       >();
       for (const r of results) {
         if (r.status === 'fulfilled') {
           idToWindows.set(r.value.id, r.value.windows);
-          idToD7.set(r.value.id, r.value.d7);
+          idToD1.set(r.value.id, r.value.d1);
         }
       }
 
       const enriched = get().operators.map(op => {
         const windows = idToWindows.get(op.id) || undefined;
-        const d7 = idToD7.get(op.id) || undefined;
-        if (!windows && !d7) return op;
+        const d1 = idToD1.get(op.id) || undefined;
+        if (!windows && !d1) return op;
         return {
           ...op,
-          ...(d7 ? { estimatedReturnDetails: d7 } : {}),
+          ...(d1 ? { estimatedReturnDetails: d1 } : {}),
           ...(windows ? { estimatedReturnDetailsWindows: windows } : {}),
         };
       });
