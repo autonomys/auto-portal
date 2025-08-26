@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import type { OperatorStore, FilterState } from '@/types/operator';
 import { operatorService } from '@/services/operator-service';
-import { config } from '@/config';
-
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
   domainFilter: 'all',
@@ -38,38 +36,36 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       // Apply current filters
       get().applyFilters();
 
-      // If indexer is enabled, enrich with estimated APY (return details) in the background
-      if (config.features.enableIndexer) {
-        const lookbackDays = 7; // default UI lookback window
-        const enrichmentPromises = operators.map(async op => {
-          try {
-            const details = await opService.estimateOperatorReturnDetails(op.id, lookbackDays);
-            return { id: op.id, details } as const;
-          } catch {
-            return { id: op.id, details: null } as const;
-          }
-        });
-
-        const results = await Promise.allSettled(enrichmentPromises);
-        const idToDetails = new Map<
-          string,
-          NonNullable<OperatorStore['operators'][number]['estimatedReturnDetails']> | null
-        >();
-        for (const r of results) {
-          if (r.status === 'fulfilled') {
-            idToDetails.set(r.value.id, r.value.details);
-          }
+      // Enrich with estimated APY (return details) in the background
+      const lookbackDays = 7; // default UI lookback window
+      const enrichmentPromises = operators.map(async op => {
+        try {
+          const details = await opService.estimateOperatorReturnDetails(op.id, lookbackDays);
+          return { id: op.id, details } as const;
+        } catch {
+          return { id: op.id, details: null } as const;
         }
+      });
 
-        const enriched = get().operators.map(op =>
-          idToDetails.has(op.id) && idToDetails.get(op.id)
-            ? { ...op, estimatedReturnDetails: idToDetails.get(op.id) || undefined }
-            : op,
-        );
-
-        set({ operators: enriched });
-        get().applyFilters();
+      const results = await Promise.allSettled(enrichmentPromises);
+      const idToDetails = new Map<
+        string,
+        NonNullable<OperatorStore['operators'][number]['estimatedReturnDetails']> | null
+      >();
+      for (const r of results) {
+        if (r.status === 'fulfilled') {
+          idToDetails.set(r.value.id, r.value.details);
+        }
       }
+
+      const enriched = get().operators.map(op =>
+        idToDetails.has(op.id) && idToDetails.get(op.id)
+          ? { ...op, estimatedReturnDetails: idToDetails.get(op.id) || undefined }
+          : op,
+      );
+
+      set({ operators: enriched });
+      get().applyFilters();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch operators';
       set({ loading: false, error: errorMessage });

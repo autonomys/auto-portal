@@ -69,8 +69,6 @@ export const operatorService = async (networkId: string = config.network.default
     operatorId: string,
     lookbackDays: number,
   ): Promise<ReturnDetails | null> => {
-    if (!config.features.enableIndexer) return null;
-
     try {
       // Latest price
       const latestRows = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
