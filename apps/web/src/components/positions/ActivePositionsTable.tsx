@@ -69,11 +69,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
         </div>
 
         {/* Position Details */}
-        <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground font-sans">
-          <div>
-            <span className="block text-xs text-muted-foreground">Storage Fund</span>
-            <span className="font-mono">{formatAI3(position.storageFeeDeposit, 4)}</span>
-          </div>
+        <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground font-sans">
           <div>
             <span className="block text-xs text-muted-foreground">Last Updated</span>
             <span>{formatTimeAgo(position.lastUpdated.getTime())}</span>
