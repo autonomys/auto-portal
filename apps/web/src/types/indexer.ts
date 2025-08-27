@@ -106,3 +106,12 @@ export interface OperatorEpochSharePriceRow {
 export interface OperatorEpochSharePricesResponse {
   operator_epoch_share_prices: OperatorEpochSharePriceRow[];
 }
+
+// Aggregate response for staking_nominators count
+export interface NominatorAggregateResponse {
+  staking_nominators_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}

@@ -148,6 +148,19 @@ const GET_SHARE_PRICES_UNTIL = gql`
   }
 `;
 
+// GraphQL: aggregate nominator count for an operator (active only)
+const GET_NOMINATOR_COUNT = gql`
+  query GetNominatorCount($operatorId: String!) {
+    staking_nominators_aggregate(
+      where: { operator_id: { _eq: $operatorId }, status: { _eq: "active" } }
+    ) {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
 // Service functions
 export const indexerService = {
   // Test connection to indexer
@@ -264,11 +277,35 @@ export const indexerService = {
     }
   },
 
+  // Fetch nominator count for an operator
+  async getNominatorCount(operatorId: string): Promise<number> {
+    try {
+      const result = await getClient().query<{
+        staking_nominators_aggregate: { aggregate: { count: number } };
+      }>({
+        query: GET_NOMINATOR_COUNT,
+        variables: { operatorId },
+        fetchPolicy: 'network-only',
+      });
+
+      return result.data.staking_nominators_aggregate.aggregate.count;
+    } catch (error) {
+      console.error('❌ Failed to fetch nominator count:', error);
+      throw error;
+    }
+  },
+
   // Get Apollo Client instance (for direct usage if needed)
   getClient() {
     return getClient();
   },
 };
 
-export { GET_OPERATORS, GET_LATEST_SHARE_PRICES, GET_SHARE_PRICES_SINCE, GET_SHARE_PRICES_UNTIL };
+export {
+  GET_OPERATORS,
+  GET_LATEST_SHARE_PRICES,
+  GET_SHARE_PRICES_SINCE,
+  GET_SHARE_PRICES_UNTIL,
+  GET_NOMINATOR_COUNT,
+};
 export default indexerService;

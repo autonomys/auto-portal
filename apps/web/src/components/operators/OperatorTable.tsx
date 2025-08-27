@@ -66,22 +66,39 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   if (loading) {
     return (
       <div className="border border-border rounded-xl overflow-hidden">
-        <table className="w-full">
+        <table className="w-full table-fixed min-w-[1000px]">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Total Value</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Your Position</th>
-              <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+              <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground w-[20%]">
+                Operator
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
+                Total Value
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+                Nominators
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+                Tax
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
+                Est. APY
+              </th>
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[7%]">
+                Status
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
+                Your Position
+              </th>
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[17%]">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {Array.from({ length: 4 }).map((_, index) => (
               <tr key={index} className="border-t border-border animate-pulse">
-                <td className="p-4">
+                <td className="p-3 sm:p-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-muted rounded-full" />
                     <div className="space-y-1">
@@ -90,23 +107,26 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     </div>
                   </div>
                 </td>
-                <td className="p-4">
+                <td className="p-3 sm:p-4 text-right">
                   <div className="h-4 bg-muted rounded w-20" />
                 </td>
-                <td className="p-4">
+                <td className="p-3 sm:p-4 text-right">
                   <div className="h-4 bg-muted rounded w-12" />
                 </td>
-                <td className="p-4">
+                <td className="p-3 sm:p-4 text-right">
+                  <div className="h-4 bg-muted rounded w-12" />
+                </td>
+                <td className="p-3 sm:p-4 text-right">
                   <div className="h-4 bg-muted rounded w-16" />
                 </td>
-                <td className="p-4">
+                <td className="p-3 sm:p-4 text-center">
                   <div className="h-6 bg-muted rounded w-16" />
                 </td>
-                <td className="p-4">
+                <td className="p-3 sm:p-4 text-right">
                   <div className="h-4 bg-muted rounded w-20" />
                 </td>
-                <td className="p-4">
-                  <div className="flex space-x-2">
+                <td className="p-3 sm:p-4">
+                  <div className="flex space-x-2 justify-center">
                     <div className="h-8 bg-muted rounded w-16" />
                     <div className="h-8 bg-muted rounded w-16" />
                   </div>
@@ -158,18 +178,21 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 Total Value
               </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+                Nominators
+              </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
                 Tax
               </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
                 Est. APY
               </th>
-              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[7%]">
                 Status
               </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
                 Your Position
               </th>
-              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[24%]">
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[17%]">
                 Actions
               </th>
             </tr>
@@ -212,6 +235,13 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                         {formatNumber(operator.totalPoolValue)} AI3
                       </span>
                     </Tooltip>
+                  ) : (
+                    <span className="text-muted-foreground">--</span>
+                  )}
+                </td>
+                <td className="p-3 sm:p-4 text-right">
+                  {typeof operator.nominatorCount === 'number' ? (
+                    <span className="font-mono">{formatNumber(operator.nominatorCount)}</span>
                   ) : (
                     <span className="text-muted-foreground">--</span>
                   )}

@@ -16,6 +16,12 @@
 - table:
     schema: staking
     name: nominators
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        allow_aggregations: true
 - table:
     schema: staking
     name: nominators_unlocked_events

@@ -56,6 +56,9 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
             <div>
               <h3 className="text-lg font-semibold text-foreground">{operator.name}</h3>
               <p className="text-sm text-muted-foreground">{operator.domainName}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(operator.nominationTax)} tax
+              </p>
             </div>
           </div>
           <div className="flex flex-col items-end space-y-2">
@@ -86,12 +89,6 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
         {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="text-center">
-            <div className="text-2xl font-bold font-mono">
-              {formatPercentage(operator.nominationTax)}
-            </div>
-            <div className="text-xs text-muted-foreground">Tax</div>
-          </div>
-          <div className="text-center">
             {operator.totalPoolValue ? (
               <Tooltip
                 side="top"
@@ -111,6 +108,14 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
             )}
             <div className="text-xs text-muted-foreground">Operator Total Value</div>
           </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold font-mono">
+              {typeof operator.nominatorCount === 'number'
+                ? formatNumber(operator.nominatorCount)
+                : '--'}
+            </div>
+            <div className="text-xs text-muted-foreground">Nominators</div>
+          </div>
         </div>
 
         {/* Your Position (if any) */}
@@ -118,7 +123,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
           <div className="mb-4 p-3 bg-muted rounded-lg">
             <div className="text-center">
               <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
-                <span className="text-sm font-medium text-foreground font-mono cursor-help">
+                <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
                   {formatAI3(
                     userPosition.positionValue +
                       userPosition.storageFeeDeposit +
