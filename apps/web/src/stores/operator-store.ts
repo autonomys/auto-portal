@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { OperatorStore, FilterState } from '@/types/operator';
 import { operatorService } from '@/services/operator-service';
+import indexerService from '@/services/indexer-service';
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
   domainFilter: 'all',
@@ -76,6 +77,36 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
       set({ operators: enriched });
       get().applyFilters();
+
+      // Enrich with active nominator counts in the background
+      try {
+        const countPromises = operators.map(async op => {
+          try {
+            const count = await indexerService.getNominatorCount(op.id);
+            return { id: op.id, count } as const;
+          } catch {
+            return { id: op.id, count: null } as const;
+          }
+        });
+
+        const countResults = await Promise.allSettled(countPromises);
+        const idToCount = new Map<string, number>();
+        for (const r of countResults) {
+          if (r.status === 'fulfilled' && r.value.count !== null) {
+            idToCount.set(r.value.id, r.value.count as number);
+          }
+        }
+
+        if (idToCount.size > 0) {
+          const withCounts = get().operators.map(op =>
+            idToCount.has(op.id) ? { ...op, nominatorCount: idToCount.get(op.id)! } : op,
+          );
+          set({ operators: withCounts });
+          get().applyFilters();
+        }
+      } catch {
+        // Swallow errors; UI will render placeholders
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch operators';
       set({ loading: false, error: errorMessage });

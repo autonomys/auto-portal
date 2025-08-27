@@ -20,6 +20,7 @@ export interface Operator {
   // Aggregates
   totalStorageFund?: string; // Operator-level storage fund balance in AI3
   totalPoolValue?: string; // totalStaked + totalStorageFund in AI3
+  nominatorCount?: number; // Active nominators for this operator
 }
 
 export interface OperatorStats {
