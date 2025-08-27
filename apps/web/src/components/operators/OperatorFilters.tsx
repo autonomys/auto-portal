@@ -1,7 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import type { FilterState } from '@/types/operator';
 
 interface OperatorFiltersProps {
@@ -21,70 +20,12 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
     onFiltersChange({ searchQuery: e.target.value });
   };
 
-  const handleDomainChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFiltersChange({ domainFilter: e.target.value });
-  };
-
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const [sortBy, sortOrder] = e.target.value.split('-') as [
-      FilterState['sortBy'],
-      FilterState['sortOrder'],
-    ];
-    onFiltersChange({ sortBy, sortOrder });
-  };
-
-  const resetFilters = () => {
-    onFiltersChange({
-      searchQuery: '',
-      domainFilter: 'all',
-      sortBy: 'totalStaked',
-      sortOrder: 'desc',
-    });
-  };
-
-  const getSortValue = () => `${filters.sortBy}-${filters.sortOrder}`;
-
-  const hasActiveFilters = () =>
-    filters.searchQuery.trim() !== '' ||
-    filters.domainFilter !== 'all' ||
-    filters.sortBy !== 'totalStaked' ||
-    filters.sortOrder !== 'desc';
-
   return (
     <div className="space-y-4">
-      {/* Main Filters Row */}
+      {/* Search Only */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex flex-wrap gap-3">
-          {/* Domain Filter */}
-          <select
-            value={filters.domainFilter}
-            onChange={handleDomainChange}
-            className="px-3 py-2 border border-input bg-background rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[160px]"
-            disabled={loading}
-          >
-            <option value="all">All Domains</option>
-            <option value="0">Auto EVM</option>
-          </select>
-
-          {/* Sort Options */}
-          <select
-            value={getSortValue()}
-            onChange={handleSortChange}
-            className="px-3 py-2 border border-input bg-background rounded-lg text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[180px]"
-            disabled={loading}
-          >
-            <option value="totalStaked-desc">Sort: Total Staked (High to Low)</option>
-            <option value="totalStaked-asc">Sort: Total Staked (Low to High)</option>
-            <option value="tax-asc">Sort: Tax (Low to High)</option>
-            <option value="tax-desc">Sort: Tax (High to Low)</option>
-          </select>
-
-          {/* Reset Button */}
-          {hasActiveFilters() && (
-            <Button variant="outline" onClick={resetFilters} disabled={loading} className="text-sm">
-              Reset
-            </Button>
-          )}
+          {/* Search placeholder - filters removed since there are only 2 operators */}
         </div>
 
         {/* Search */}
@@ -108,7 +49,6 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
         <p>
           Showing <span className="font-medium text-foreground">{totalResults} operators</span>
           {filters.searchQuery && <> matching "{filters.searchQuery}"</>}
-          {filters.domainFilter !== 'all' && <> in Auto EVM</>}
         </p>
 
         {loading && (
