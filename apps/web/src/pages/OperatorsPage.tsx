@@ -2,13 +2,15 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { OperatorFilters, OperatorGrid, OperatorTable } from '@/components/operators';
 import { useOperators, useOperatorFilters } from '@/hooks/use-operators';
+import { formatAI3 } from '@/lib/formatting';
 
 export const OperatorsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { operators, loading, error, operatorCount, clearError } = useOperators();
+  const { operators, loading, error, operatorCount, clearError, allOperators } = useOperators();
   const { filters, setFilters } = useOperatorFilters();
 
   // Derive view mode from URL params with proper validation, default to grid
@@ -18,6 +20,17 @@ export const OperatorsPage: React.FC = () => {
   };
 
   const viewMode = getValidatedViewMode();
+
+  const totalNetworkValue = React.useMemo(
+    () =>
+      allOperators.reduce((sum, op) => {
+        const poolValue = op.totalPoolValue
+          ? parseFloat(op.totalPoolValue)
+          : parseFloat(op.totalStaked || '0') + parseFloat(op.totalStorageFund || '0');
+        return Number.isNaN(poolValue) ? sum : sum + poolValue;
+      }, 0),
+    [allOperators],
+  );
 
   const handleStake = (operatorId: string) => {
     navigate(`/staking/${operatorId}`);
@@ -40,6 +53,22 @@ export const OperatorsPage: React.FC = () => {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Operators</h1>
+      </div>
+
+      {/* Network Total Value */}
+      <div className="mb-6">
+        <Card className="border-0">
+          <CardContent className="py-6">
+            <div className="text-center space-y-1">
+              <div className="text-3xl font-mono font-bold text-foreground">
+                {formatAI3(totalNetworkValue, 0)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Total Staked Value (All Operators)
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Error State */}
