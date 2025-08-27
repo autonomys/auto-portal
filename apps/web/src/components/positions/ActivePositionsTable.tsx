@@ -13,12 +13,10 @@ import type { UserPosition } from '@/types/position';
 interface ActivePositionsTableProps {
   refreshInterval?: number;
   networkId?: string;
-  onOperatorClick?: (operatorId: string) => void;
 }
 
 interface PositionRowProps {
   position: UserPosition;
-  onOperatorClick?: (operatorId: string) => void;
   onWithdrawClick?: (position: UserPosition) => void;
   onAddStakeClick?: (position: UserPosition) => void;
   isWalletConnected: boolean;
@@ -26,7 +24,6 @@ interface PositionRowProps {
 
 const PositionRow: React.FC<PositionRowProps> = ({
   position,
-  onOperatorClick,
   onWithdrawClick,
   onAddStakeClick,
   isWalletConnected,
@@ -112,16 +109,6 @@ const PositionRow: React.FC<PositionRowProps> = ({
           </Tooltip>
         </div>
         <div className="flex gap-2 justify-end">
-          {onOperatorClick && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onOperatorClick(position.operatorId)}
-              className="text-xs font-sans"
-            >
-              View Details
-            </Button>
-          )}
           {position.positionValue > 0 && onAddStakeClick && (
             <Button
               size="sm"
@@ -152,7 +139,6 @@ const PositionRow: React.FC<PositionRowProps> = ({
 export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   refreshInterval,
   networkId,
-  onOperatorClick,
 }) => {
   const { positions, loading, error, lastUpdated } = usePositions({
     refreshInterval,
@@ -239,7 +225,6 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
               <PositionRow
                 key={position.operatorId}
                 position={position}
-                onOperatorClick={onOperatorClick}
                 onWithdrawClick={handleWithdrawClick}
                 onAddStakeClick={handleAddStakeClick}
                 isWalletConnected={isConnected}
