@@ -25,7 +25,6 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
       {/* Search Only */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex flex-wrap gap-3">
-          {/* Search placeholder - filters removed since there are only 2 operators */}
         </div>
 
         {/* Search */}
