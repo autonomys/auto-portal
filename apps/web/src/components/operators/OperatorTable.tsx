@@ -161,7 +161,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
                 Total Value
               </th>
-              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
                 Nominators
               </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
@@ -170,13 +170,13 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
                 Est. APY
               </th>
-              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[7%]">
                 Status
               </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
                 Your Position
               </th>
-              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[24%]">
+              <th className="text-center p-3 sm:p-4 font-medium text-muted-foreground w-[17%]">
                 Actions
               </th>
             </tr>
