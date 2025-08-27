@@ -24,8 +24,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({
     <div className="space-y-4">
       {/* Search Only */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex flex-wrap gap-3">
-        </div>
+        <div className="flex flex-wrap gap-3"></div>
 
         {/* Search */}
         <div className="relative w-full sm:w-auto">
