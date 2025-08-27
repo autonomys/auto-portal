@@ -4,14 +4,13 @@ import { Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { OperatorFilters, OperatorGrid, OperatorTable } from '@/components/operators';
-import { useOperators, useOperatorFilters } from '@/hooks/use-operators';
+import { useOperators } from '@/hooks/use-operators';
 import { formatAI3 } from '@/lib/formatting';
 
 export const OperatorsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { operators, loading, error, operatorCount, clearError, allOperators } = useOperators();
-  const { filters, setFilters } = useOperatorFilters();
+  const { operators, loading, error, clearError, allOperators } = useOperators();
 
   // Derive view mode from URL params with proper validation, default to grid
   const getValidatedViewMode = (): 'grid' | 'table' => {
@@ -89,12 +88,7 @@ export const OperatorsPage: React.FC = () => {
       {/* Filters & Search */}
       <div className="mb-8">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between mb-4">
-          <OperatorFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            totalResults={operatorCount}
-            loading={loading}
-          />
+          <OperatorFilters loading={loading} />
 
           {/* View Toggle (Desktop Only) */}
           <div className="hidden lg:flex items-center space-x-2 bg-muted rounded-lg p-1">
