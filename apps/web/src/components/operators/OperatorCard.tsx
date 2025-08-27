@@ -84,7 +84,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="text-center">
             <div className="text-2xl font-bold font-mono">
               {formatPercentage(operator.nominationTax)}
@@ -110,6 +110,14 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
               <div className="text-2xl font-bold font-mono text-muted-foreground">--</div>
             )}
             <div className="text-xs text-muted-foreground">Operator Total Value</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold font-mono">
+              {typeof operator.nominatorCount === 'number'
+                ? formatNumber(operator.nominatorCount)
+                : '--'}
+            </div>
+            <div className="text-xs text-muted-foreground">Nominators</div>
           </div>
         </div>
 

@@ -71,6 +71,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
             <tr>
               <th className="text-left p-4 font-medium text-muted-foreground">Operator</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Total Value</th>
+              <th className="text-left p-4 font-medium text-muted-foreground">Nominators</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Tax</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Est. APY</th>
               <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
@@ -92,6 +93,9 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                 </td>
                 <td className="p-4">
                   <div className="h-4 bg-muted rounded w-20" />
+                </td>
+                <td className="p-4">
+                  <div className="h-4 bg-muted rounded w-12" />
                 </td>
                 <td className="p-4">
                   <div className="h-4 bg-muted rounded w-12" />
@@ -157,6 +161,9 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[15%]">
                 Total Value
               </th>
+              <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[10%]">
+                Nominators
+              </th>
               <th className="text-right p-3 sm:p-4 font-medium text-muted-foreground w-[8%]">
                 Tax
               </th>
@@ -212,6 +219,13 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                         {formatNumber(operator.totalPoolValue)} AI3
                       </span>
                     </Tooltip>
+                  ) : (
+                    <span className="text-muted-foreground">--</span>
+                  )}
+                </td>
+                <td className="p-3 sm:p-4 text-right">
+                  {typeof operator.nominatorCount === 'number' ? (
+                    <span className="font-mono">{formatNumber(operator.nominatorCount)}</span>
                   ) : (
                     <span className="text-muted-foreground">--</span>
                   )}
