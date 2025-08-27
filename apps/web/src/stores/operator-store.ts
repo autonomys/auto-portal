@@ -93,7 +93,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         const idToCount = new Map<string, number>();
         for (const r of countResults) {
           if (r.status === 'fulfilled' && r.value.count !== null) {
-            idToCount.set(r.value.id, r.value.count as number);
+            idToCount.set(r.value.id, r.value.count);
           }
         }
 

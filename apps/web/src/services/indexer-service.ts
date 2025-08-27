@@ -288,7 +288,7 @@ export const indexerService = {
         fetchPolicy: 'network-only',
       });
 
-      return result.data.staking_nominators_aggregate.aggregate.count ?? 0;
+      return result.data.staking_nominators_aggregate.aggregate.count;
     } catch (error) {
       console.error('❌ Failed to fetch nominator count:', error);
       throw error;
