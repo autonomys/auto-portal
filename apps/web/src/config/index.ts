@@ -16,12 +16,7 @@ const resolveNetworkId = () => {
 };
 
 export const config = {
-  // Feature flags
-  features: {
-    enableIndexer: import.meta.env.VITE_ENABLE_INDEXER === 'true',
-  },
-
-  // Indexer configuration (only used when enableIndexer is true)
+  // Indexer configuration
   indexer: {
     endpoint:
       import.meta.env.VITE_INDEXER_ENDPOINT ||

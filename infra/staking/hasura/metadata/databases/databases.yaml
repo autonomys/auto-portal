@@ -1,0 +1,7 @@
+- name: staking
+  kind: postgres
+  configuration:
+    connection_info:
+      database_url:
+        from_env: HASURA_GRAPHQL_DATABASE_URL
+  tables: '!include staking/tables/tables.yaml'

@@ -90,3 +90,28 @@ export interface IndexerToOperatorMapping {
   status: 'active' | 'inactive' | 'slashed' | 'degraded'; // derived
   totalStaked: string; // needs RPC fallback or separate query
 }
+
+// Epoch share price rows (snake_case as typically exposed by indexer for SubQuery entities)
+export interface OperatorEpochSharePriceRow {
+  operator_id: string;
+  domain_id: string;
+  epoch_index: number;
+  share_price: string;
+  total_stake: string;
+  total_shares: string;
+  timestamp: string;
+  block_height: string;
+}
+
+export interface OperatorEpochSharePricesResponse {
+  operator_epoch_share_prices: OperatorEpochSharePriceRow[];
+}
+
+// Aggregate response for staking_nominators count
+export interface NominatorAggregateResponse {
+  staking_nominators_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}

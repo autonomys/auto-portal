@@ -1,0 +1,63 @@
+- table:
+    schema: staking
+    name: bundle_submissions
+- table:
+    schema: staking
+    name: domain_instantiations
+- table:
+    schema: staking
+    name: domains
+- table:
+    schema: staking
+    name: nominator_deposits
+- table:
+    schema: staking
+    name: nominator_withdrawals
+- table:
+    schema: staking
+    name: nominators
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        allow_aggregations: true
+- table:
+    schema: staking
+    name: nominators_unlocked_events
+- table:
+    schema: staking
+    name: operator_deregistrations
+- table:
+    schema: staking
+    name: operator_epoch_share_prices
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        allow_aggregations: true
+- table:
+    schema: staking
+    name: operator_registrations
+- table:
+    schema: staking
+    name: operator_rewards
+- table:
+    schema: staking
+    name: operator_tax_collections
+- table:
+    schema: staking
+    name: operators
+- table:
+    schema: staking
+    name: runtime_creations
+- table:
+    schema: staking
+    name: storage_fund_accounts
+- table:
+    schema: staking
+    name: unlocked_events
+- table:
+    schema: staking
+    name: withdrawals

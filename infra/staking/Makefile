@@ -73,8 +73,7 @@ start: setup ## Start services (use 'make start PROFILES=local-node' or ENV=[mai
 	@echo "$(GREEN)✅ Services started$(NC)"
 	@echo "$(BLUE)Waiting for services to be ready...$(NC)"
 	@sleep 5
-	@echo "$(BLUE)Setting up Hasura...$(NC)"
-	@$(MAKE) setup-hasura
+	@echo "$(YELLOW)💡 Next: apply Hasura metadata with: make hasura-restart$(NC)"
 	@echo "$(YELLOW)💡 Check status with: make status$(NC)"
 
 # Start with local node (convenience target)
@@ -91,8 +90,7 @@ start-local: setup ## Start services with local blockchain node (use ENV=dev or 
 	@echo "$(GREEN)✅ Services started with local node$(NC)"
 	@echo "$(BLUE)Waiting for services to be ready...$(NC)"
 	@sleep 5
-	@echo "$(BLUE)Setting up Hasura...$(NC)"
-	@$(MAKE) setup-hasura
+	@echo "$(YELLOW)💡 Next: apply Hasura metadata with: make hasura-restart$(NC)"
 
 # Stop target
 .PHONY: stop
@@ -191,42 +189,50 @@ rebuild: stop build start ## Stop, rebuild, and start services
 
 # Hasura setup
 .PHONY: generate-secret
-generate-secret: ## Generate a secure admin secret for production
+generate-secret: ## Generate a secure Hasura admin secret for production
 	@echo "$(BLUE)Generating secure Hasura admin secret...$(NC)"
 	@openssl rand -hex 32 2>/dev/null || echo "Please install openssl to generate secure secrets"
 	@echo "$(YELLOW)💡 Add this to your .env file as HASURA_GRAPHQL_ADMIN_SECRET$(NC)"
 
-.PHONY: setup-hasura
-setup-hasura: ## Configure Hasura to track all staking tables
+# New: Hasura metadata management
+.PHONY: hasura-apply
+hasura-apply: ## Apply Hasura metadata from ./hasura/metadata to the running instance
 	@if docker compose ps | grep -q "hasura.*Up"; then \
-		echo "$(BLUE)Setting up Hasura GraphQL Engine...$(NC)"; \
-		./scripts/setup-hasura.sh; \
-		echo "$(GREEN)✅ Hasura setup complete$(NC)"; \
-		echo "$(YELLOW)📊 Access points:$(NC)"; \
-		FILE=$(ENV_FILE); \
-		if [ "$$FILE" = ".env" ] && [ -n "$(ENV)" ]; then \
-			if [ -f ".env.$(ENV)" ]; then FILE=".env.$(ENV)"; \
-			elif [ -f ".env.$(ENV).example" ]; then FILE=".env.$(ENV).example"; fi; \
-		fi; \
-		if [ ! -f "$$FILE" ] && [ -f .env ]; then FILE=.env; fi; \
-		if [ -f "$$FILE" ]; then \
-			HASURA_PORT=$$(grep HASURA_GRAPHQL_PORT $$FILE | cut -d'=' -f2 | head -1); \
-			NODE_ENV=$$(grep NODE_ENV $$FILE | cut -d'=' -f2 | head -1); \
-			echo "  • GraphQL: http://localhost:$${HASURA_PORT:-8080}/v1/graphql"; \
-			if [ "$${NODE_ENV:-development}" = "development" ]; then \
-				ADMIN_SECRET=$$(grep HASURA_GRAPHQL_ADMIN_SECRET $$FILE | cut -d'=' -f2 | head -1); \
-				echo "  • Console: http://localhost:$${HASURA_PORT:-8080}/console (password: $${ADMIN_SECRET:-devsecret})"; \
-			else \
-				echo "  • Console: http://localhost:$${HASURA_PORT:-8080}/console (password: [HIDDEN])"; \
-			fi; \
-		else \
-			echo "  • GraphQL: http://localhost:8080/v1/graphql"; \
-			echo "  • Console: http://localhost:8080/console (password: devsecret)"; \
-		fi; \
+		echo "$(BLUE)Applying Hasura metadata...$(NC)"; \
+		docker compose exec hasura sh -lc 'set -e; if command -v hasura-cli >/dev/null 2>&1; then CLI=hasura-cli; elif command -v hasura >/dev/null 2>&1; then CLI=hasura; else echo "hasura CLI not found" >&2; exit 1; fi; $$CLI metadata apply --endpoint http://localhost:8080 --admin-secret "$$HASURA_GRAPHQL_ADMIN_SECRET" --metadata-dir /hasura-metadata'; \
+		echo "$(GREEN)✅ Metadata applied$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Hasura is not running. Skipping setup.$(NC)"; \
-		echo "$(YELLOW)💡 Start services first with: make start$(NC)"; \
-	fi 
+		echo "$(YELLOW)⚠️  Hasura is not running. Start services with: make start$(NC)"; \
+		exit 1; \
+	fi
+
+.PHONY: hasura-reload
+hasura-reload: ## Reload Hasura metadata (refresh caches; does not re-read files)
+	@FILE=$(ENV_FILE); \
+	if [ "$$FILE" = ".env" ] && [ -n "$(ENV)" ]; then \
+		if [ -f ".env.$(ENV)" ]; then FILE=".env.$(ENV)"; \
+		elif [ -f ".env.$(ENV).example" ]; then FILE=".env.$(ENV).example"; fi; \
+	fi; \
+	if [ ! -f "$$FILE" ] && [ -f .env ]; then FILE=.env; fi; \
+	HASURA_PORT=$$(grep HASURA_GRAPHQL_PORT $$FILE | cut -d'=' -f2 | head -1); \
+	ADMIN_SECRET=$$(grep HASURA_GRAPHQL_ADMIN_SECRET $$FILE | cut -d'=' -f2 | head -1); \
+	ADMIN_SECRET=$${ADMIN_SECRET:-devsecret}; \
+	echo "$(BLUE)Reloading Hasura metadata...$(NC)"; \
+	curl -sS -X POST http://localhost:$${HASURA_PORT:-8080}/v1/metadata \
+	  -H 'Content-Type: application/json' \
+	  -H "x-hasura-admin-secret: $$ADMIN_SECRET" \
+	  -d '{"type":"reload_metadata","args":{"reload_remote_schemas":true,"reload_sources":true}}' | cat; \
+	echo "\n$(GREEN)✅ Metadata reloaded$(NC)"
+
+.PHONY: hasura-restart
+hasura-restart: ## Restart Hasura container (re-applies metadata on boot via cli-migrations)
+	@if docker compose ps | grep -q "hasura.*Up"; then \
+		echo "$(BLUE)Restarting Hasura...$(NC)"; \
+		docker compose restart hasura; \
+		echo "$(GREEN)✅ Hasura restarted$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Hasura is not running. Start services with: make start$(NC)"; \
+	fi
 
 # Convenience targets
 .PHONY: start-mainnet start-dev

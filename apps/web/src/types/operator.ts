@@ -1,3 +1,5 @@
+import type { ReturnDetails } from '@/lib/apy';
+
 export interface Operator {
   id: string;
   name: string; // Display name or default to ID
@@ -12,6 +14,13 @@ export interface Operator {
   // Current Status
   status: 'active' | 'inactive' | 'slashed' | 'degraded';
   totalStaked: string; // Total AI3 in pool
+  // Derived metrics (optional)
+  estimatedReturnDetails?: ReturnDetails;
+  estimatedReturnDetailsWindows?: ReturnDetailsWindows;
+  // Aggregates
+  totalStorageFund?: string; // Operator-level storage fund balance in AI3
+  totalPoolValue?: string; // totalStaked + totalStorageFund in AI3
+  nominatorCount?: number; // Active nominators for this operator
 }
 
 export interface OperatorStats {
@@ -28,6 +37,13 @@ export type FilterState = {
 
   statusFilter?: Operator['status'][];
 };
+
+export interface ReturnDetailsWindows {
+  d1?: ReturnDetails;
+  d3?: ReturnDetails;
+  d7?: ReturnDetails;
+  d30?: ReturnDetails;
+}
 
 export interface OperatorStore {
   // State

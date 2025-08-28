@@ -2,14 +2,15 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { OperatorFilters, OperatorGrid, OperatorTable } from '@/components/operators';
-import { useOperators, useOperatorFilters } from '@/hooks/use-operators';
+import { useOperators } from '@/hooks/use-operators';
+import { formatAI3 } from '@/lib/formatting';
 
 export const OperatorsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { operators, loading, error, operatorCount, clearError } = useOperators();
-  const { filters, setFilters } = useOperatorFilters();
+  const { operators, loading, error, clearError, allOperators } = useOperators();
 
   // Derive view mode from URL params with proper validation, default to grid
   const getValidatedViewMode = (): 'grid' | 'table' => {
@@ -19,12 +20,19 @@ export const OperatorsPage: React.FC = () => {
 
   const viewMode = getValidatedViewMode();
 
+  const totalNetworkValue = React.useMemo(
+    () =>
+      allOperators.reduce((sum, op) => {
+        const poolValue = op.totalPoolValue
+          ? parseFloat(op.totalPoolValue)
+          : parseFloat(op.totalStaked || '0') + parseFloat(op.totalStorageFund || '0');
+        return Number.isNaN(poolValue) ? sum : sum + poolValue;
+      }, 0),
+    [allOperators],
+  );
+
   const handleStake = (operatorId: string) => {
     navigate(`/staking/${operatorId}`);
-  };
-
-  const handleViewDetails = (operatorId: string) => {
-    navigate(`/operators/${operatorId}`);
   };
 
   const handleWithdraw = (operatorId: string) => {
@@ -46,6 +54,22 @@ export const OperatorsPage: React.FC = () => {
         <h1 className="text-2xl font-semibold text-foreground">Operators</h1>
       </div>
 
+      {/* Network Total Value */}
+      <div className="mb-6">
+        <Card className="border-0">
+          <CardContent className="py-6">
+            <div className="text-center space-y-1">
+              <div className="text-3xl font-mono font-bold text-foreground">
+                {formatAI3(totalNetworkValue, 0)}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Total Staked Value (All Operators)
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Error State */}
       {error && (
         <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -64,12 +88,7 @@ export const OperatorsPage: React.FC = () => {
       {/* Filters & Search */}
       <div className="mb-8">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between mb-4">
-          <OperatorFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            totalResults={operatorCount}
-            loading={loading}
-          />
+          <OperatorFilters loading={loading} />
 
           {/* View Toggle (Desktop Only) */}
           <div className="hidden lg:flex items-center space-x-2 bg-muted rounded-lg p-1">
@@ -101,7 +120,6 @@ export const OperatorsPage: React.FC = () => {
           operators={operators}
           loading={loading}
           onStake={handleStake}
-          onViewDetails={handleViewDetails}
           onWithdraw={handleWithdraw}
         />
       ) : (
@@ -109,7 +127,6 @@ export const OperatorsPage: React.FC = () => {
           operators={operators}
           loading={loading}
           onStake={handleStake}
-          onViewDetails={handleViewDetails}
           onWithdraw={handleWithdraw}
         />
       )}

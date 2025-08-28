@@ -21,12 +21,17 @@ Hasura provides a GraphQL API layer on top of the PostgreSQL database populated 
    docker compose up -d
    ```
 
-2. **Set up Hasura** (track all tables):
+2. **Apply/Reload Metadata**:
 
    ```bash
-   make setup-hasura
-   # or
-   ./scripts/setup-hasura.sh
+   # Apply metadata from repo to running Hasura
+   make hasura-apply
+
+   # Or just reload metadata/caches without changing files
+   make hasura-reload
+
+   # If needed, restart Hasura (cli-migrations image reapplies metadata on boot)
+   make hasura-restart
    ```
 
 3. **Access Hasura Console**:
@@ -114,7 +119,7 @@ Hasura exposes tables exactly as they exist in PostgreSQL with snake_case naming
 ## Development Tips
 
 1. **Use the Console** to explore the schema and test queries
-2. **Export metadata** after making changes:
+2. **Export metadata** after making changes (optional, if CLI available):
    ```bash
    hasura metadata export --endpoint http://localhost:8080 --admin-secret devsecret
    ```
@@ -123,6 +128,6 @@ Hasura exposes tables exactly as they exist in PostgreSQL with snake_case naming
 
 ## Troubleshooting
 
-- **Tables not showing**: Run `make setup-hasura` to track all tables
+- **Tables not showing**: Run `make hasura-apply` then `make hasura-reload`
 - **Permission denied**: Include the admin secret in your requests
 - **Connection refused**: Ensure all services are running with `docker compose ps`

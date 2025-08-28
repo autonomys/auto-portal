@@ -168,11 +168,7 @@ export const DashboardPage: React.FC = () => {
       {/* Active Positions */}
       {isConnected && hasPositions && (
         <div id="positions-section" className="max-w-6xl mx-auto">
-          <ActivePositionsTable
-            onOperatorClick={operatorId => {
-              navigate(`/operators/${operatorId}`);
-            }}
-          />
+          <ActivePositionsTable />
         </div>
       )}
 

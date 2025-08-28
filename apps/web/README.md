@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+## Indexer-backed features
+
+The web app fetches data from a public staking indexer by default to power additional UI features.
+
+Configuration:
+
+- Optionally set `VITE_INDEXER_ENDPOINT` in `apps/web/.env` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
+
+Notes:
+
+- Reads are public; no access key is required for the data we use.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
