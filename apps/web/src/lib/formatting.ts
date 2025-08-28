@@ -49,25 +49,24 @@ export const formatCompactNumber = (value: string | number): string => {
 };
 
 /**
- * Get color class for percentage values
- */
-export const getPercentageColor = (
-  percentage: number,
-  thresholds: { good: number; warning: number },
-) => {
-  if (percentage >= thresholds.good) {
-    return 'text-success-600';
-  }
-  if (percentage >= thresholds.warning) {
-    return 'text-warning-600';
-  }
-  return 'text-destructive-600';
-};
-
-/**
  * Get color class for APY values
  */
-export const getAPYColor = (apy: number) => getPercentageColor(apy, { good: 20, warning: 5 });
+export const getAPYColor = (apy: number) => {
+  // Use positive color scale as APY increases; avoid implying small positive APY is bad
+  if (apy < 0) {
+    return 'text-destructive-600';
+  }
+  if (apy < 5) {
+    return 'text-foreground';
+  }
+  if (apy < 10) {
+    return 'text-success-500';
+  }
+  if (apy < 20) {
+    return 'text-success-600';
+  }
+  return 'text-success-700';
+};
 
 /**
  * Truncate address for display
