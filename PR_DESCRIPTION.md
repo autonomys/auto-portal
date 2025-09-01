@@ -7,7 +7,7 @@ This PR fixes issue #98 where button placement was uneven when a user had no pos
 ## Changes Made
 
 - **OperatorCard**: Always show both Stake and Withdraw buttons, but disable Withdraw when no position exists
-- **OperatorTable**: Always show both Stake and Withdraw buttons, but disable Withdraw when no position exists  
+- **OperatorTable**: Always show both Stake and Withdraw buttons, but disable Withdraw when no position exists
 - **Position Display**: Show 0.00 instead of '--' when user has no position with an operator
 - **Consistent Layout**: Maintains uniform button alignment regardless of user's staking status
 
@@ -28,6 +28,7 @@ This PR fixes issue #98 where button placement was uneven when a user had no pos
 ## Screenshots
 
 The fix ensures that:
+
 1. Users with no positions see both buttons (Withdraw disabled)
 2. Users with positions see both buttons (Withdraw enabled)
 3. Position values show 0.00 instead of '--' for consistency
