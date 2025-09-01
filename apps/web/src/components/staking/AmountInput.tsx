@@ -10,6 +10,10 @@ interface AmountInputProps {
   disabled?: boolean;
   availableBalance?: number;
   estimatedFee?: number;
+  label?: string;
+  unit?: string;
+  placeholder?: string;
+  onMaxClick?: () => void;
 }
 
 export const AmountInput: React.FC<AmountInputProps> = ({
@@ -19,10 +23,18 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   disabled = false,
   availableBalance = 0,
   estimatedFee,
+  label = 'Amount to Stake',
+  unit = 'AI3',
+  placeholder = '0.00',
+  onMaxClick,
 }) => {
   const feeToUse = (estimatedFee ?? TRANSACTION_FEE) * 3;
 
   const handleMaxClick = () => {
+    if (onMaxClick) {
+      onMaxClick();
+      return;
+    }
     // Calculate maximum stakeable amount by subtracting transaction fee from available balance
     // Use estimated fee * 3 as requested to account for fee buffer
     const maxStakeableAmount = Math.max(0, availableBalance - feeToUse);
@@ -39,13 +51,13 @@ export const AmountInput: React.FC<AmountInputProps> = ({
 
   return (
     <div className="stack-sm">
-      <label className="block text-label">Amount to Stake</label>
+      <label className="block text-label">{label}</label>
       <div className="relative">
         <Input
           type="text"
           value={amount}
           onChange={handleInputChange}
-          placeholder="0.00"
+          placeholder={placeholder}
           disabled={disabled}
           className={`text-code text-lg pr-20 ${errors.length > 0 ? 'border-destructive' : ''}`}
         />
@@ -55,12 +67,12 @@ export const AmountInput: React.FC<AmountInputProps> = ({
             variant="outline"
             size="sm"
             onClick={handleMaxClick}
-            disabled={disabled || availableBalance <= feeToUse}
+            disabled={disabled || (!onMaxClick && availableBalance <= feeToUse)}
             className="h-7 px-3 text-caption"
           >
             MAX
           </Button>
-          <span className="text-muted-foreground text-code">AI3</span>
+          <span className="text-muted-foreground text-code">{unit}</span>
         </div>
       </div>
       {errors.length > 0 && (

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { AmountInput } from './AmountInput';
+//
 import { useWithdrawalTransaction } from '@/hooks/use-withdrawal-transaction';
 import { useOperators } from '@/hooks/use-operators';
 import { useWallet } from '@/hooks/use-wallet';
@@ -25,7 +26,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   onCancel,
 }) => {
   const [withdrawalMethod, setWithdrawalMethod] = useState<WithdrawalMethod>('partial');
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string>('');
   const { operators } = useOperators();
   const { selectedAccount, isConnected } = useWallet();
 
@@ -42,9 +43,12 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   // Find the operator data for validation
   const operator = operators.find(op => op.id === position.operatorId);
 
+  // Parse amount as number when needed
+  const amountNumber = parseFloat(amount) || 0;
+
   // Calculate withdrawal preview
   const withdrawalPreview = getWithdrawalPreview(
-    withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amount,
+    withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amountNumber,
     withdrawalMethod,
     position.positionValue,
     position.storageFeeDeposit,
@@ -54,7 +58,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const validationResult =
     operator && selectedAccount
       ? validateWithdrawal(
-          withdrawalMethod === 'all' ? position.positionValue + position.storageFeeDeposit : amount,
+          withdrawalMethod === 'all'
+            ? position.positionValue + position.storageFeeDeposit
+            : amountNumber,
           position.positionValue + position.storageFeeDeposit,
           operator,
           selectedAccount.address === operator.ownerAccount, // Check if user is the operator owner
@@ -73,15 +79,15 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
         operatorId: position.operatorId,
         withdrawalType: 'all',
       });
-    } else if (withdrawalMethod === 'partial' && amount > 0) {
+    } else if (withdrawalMethod === 'partial' && amountNumber > 0) {
       // Pass gross amount to SDK; it will account for storage refund internally
       estimateWithdrawalFee({
         operatorId: position.operatorId,
-        amount,
+        amount: amountNumber,
         withdrawalType: 'partial',
       });
     }
-  }, [withdrawalMethod, amount, position.operatorId, estimateWithdrawalFee]);
+  }, [withdrawalMethod, amountNumber, position.operatorId, estimateWithdrawalFee]);
 
   // Handle successful withdrawal (guard to prevent duplicate callback invocations)
   const lastHandledWithdrawalHashRef = useRef<string | null>(null);
@@ -115,7 +121,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
       await executeWithdraw({
         operatorId: position.operatorId,
         // Pass gross amount for partial withdrawals; SDK computes shares and refund
-        amount: isEffectivelyFullWithdrawal ? undefined : amount,
+        amount: isEffectivelyFullWithdrawal ? undefined : amountNumber,
         withdrawalType: isEffectivelyFullWithdrawal ? 'all' : 'partial',
       });
     } catch (error) {
@@ -123,42 +129,46 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     }
   };
 
-  const handleAmountChange = (value: number) => {
+  const handleAmountChange = (value: string) => {
     setAmount(value);
   };
 
   const isValidAmount =
     withdrawalMethod === 'all' ||
-    (amount > 0 && amount <= position.positionValue + position.storageFeeDeposit);
+    (amountNumber > 0 && amountNumber <= position.positionValue + position.storageFeeDeposit);
 
-  const showPreview = withdrawalMethod === 'all' || (withdrawalMethod === 'partial' && amount > 0);
+  const showPreview =
+    withdrawalMethod === 'all' || (withdrawalMethod === 'partial' && amountNumber > 0);
+
+  // Amount input errors
+  const amountErrors: string[] = [];
+  if (withdrawalMethod === 'partial') {
+    if (amount !== '' && amountNumber > position.positionValue + position.storageFeeDeposit) {
+      amountErrors.push('Amount exceeds your total position value');
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
       {/* Withdrawal Input Form */}
-      <Card className="h-full">
+      <Card className="h-full flex flex-col">
         <CardHeader>
-          <CardTitle className="text-h3">Withdraw from {position.operatorName}</CardTitle>
-          <div className="stack-xs">
-            <div className="inline-sm">
-              <span className="text-label text-muted-foreground">Stake Value:</span>
-              <span className="text-code font-semibold">
-                {formatAI3(position.positionValue, 4)}
-              </span>
-            </div>
-            <div className="inline-sm">
-              <span className="text-label text-muted-foreground">Storage Fund Deposit:</span>
-              <span className="text-code">{formatAI3(position.storageFeeDeposit, 4)}</span>
-            </div>
-            <div className="inline-sm">
-              <span className="text-label text-muted-foreground font-medium">Total Position:</span>
-              <span className="text-code font-semibold">
-                {formatAI3(position.positionValue + position.storageFeeDeposit, 4)}
-              </span>
-            </div>
-          </div>
+          <CardTitle className="text-h3">Amount to withdraw</CardTitle>
         </CardHeader>
-        <CardContent className="stack-lg">
+        <CardContent className="stack-lg flex flex-col flex-1">
+          {/* Minimum Stake */}
+          <div className="stack-xs">
+            <div className="flex justify-between items-center">
+              <span className="text-label text-muted-foreground">Minimum stake</span>
+              <span className="text-code font-semibold">
+                {operator ? formatAI3(operator.minimumNominatorStake, 4) : '--'}
+              </span>
+            </div>
+            <p className="text-caption text-muted-foreground">
+              Remaining stake must be greater than or equal to minimum stake, otherwise a full
+              withdrawal will be forced
+            </p>
+          </div>
           {/* Wallet Connection Alert */}
           {!isConnected && (
             <Alert variant="warning">
@@ -193,36 +203,17 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
           {/* Amount Input for Partial Withdrawal */}
           {withdrawalMethod === 'partial' && (
-            <div className="stack-sm">
-              <label className="text-label">Total Amount to Receive</label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={amount || ''}
-                  onChange={e => handleAmountChange(Number(e.target.value) || 0)}
-                  onWheel={e => e.currentTarget.blur()}
-                  onKeyDown={e => {
-                    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                      e.preventDefault();
-                    }
-                  }}
-                  placeholder="Enter total amount you want to receive"
-                  max={position.positionValue + position.storageFeeDeposit}
-                  className="text-code pr-12"
-                  disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-label text-muted-foreground">
-                  AI3
-                </span>
-              </div>
-              {amount > position.positionValue + position.storageFeeDeposit && (
-                <p className="text-body-small text-destructive">
-                  Amount exceeds your total position value
-                </p>
-              )}
-            </div>
+            <AmountInput
+              amount={amount}
+              onAmountChange={handleAmountChange}
+              errors={amountErrors}
+              disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
+              label="Total Amount to Receive"
+              unit="AI3"
+              onMaxClick={() =>
+                setAmount(String(position.positionValue + position.storageFeeDeposit))
+              }
+            />
           )}
 
           {/* Minimum Stake Validation Warning */}
@@ -250,7 +241,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           <Alert variant="warning">
             <AlertDescription>
               <span className="font-medium">Two-step process:</span> After withdrawal request, funds
-              will have a locking period before you can claim them.
+              will have a locking period of 14,400 blocks (~1 day) before you can claim them.
             </AlertDescription>
           </Alert>
 
@@ -262,7 +253,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           )}
 
           {/* Action Buttons */}
-          <div className="inline-md pt-4">
+          <div className="inline-md pt-4 mt-auto">
             <Button
               variant="outline"
               onClick={onCancel}
@@ -363,6 +354,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             return (
               <TransactionPreview
                 type="withdrawal"
+                title={validationResult.willWithdrawAll ? 'Full Withdrawal Summary' : undefined}
                 className="h-full"
                 items={withdrawalItems}
                 totalLabel="You will receive"
@@ -370,9 +362,9 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 totalTooltip={`From stake: ${formatAI3(actualNetAmount, 4)} • Storage refund: ${formatAI3(actualStorageFeeRefund, 4)}`}
                 additionalInfo={additionalInfo}
                 notes={[
-                  'Withdrawal requests are processed according to the protocol schedule',
+                  'Withdrawal requests are processed at the end of each epoch',
                   'Storage fee refunds depend on storage fund performance',
-                  'There is a locking period before funds can be claimed',
+                  'Funds can be unlocked after 14,400 blocks (~1 day)',
                   validationResult.willWithdrawAll
                     ? 'This will close your entire position due to minimum stake requirements'
                     : withdrawalMethod === 'partial'
