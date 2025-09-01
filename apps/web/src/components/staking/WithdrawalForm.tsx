@@ -210,9 +210,10 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               disabled={withdrawalState === 'signing' || withdrawalState === 'pending'}
               label="Total Amount to Receive"
               unit="AI3"
-              onMaxClick={() =>
-                setAmount(String(position.positionValue + position.storageFeeDeposit))
-              }
+              onMaxClick={() => {
+                setWithdrawalMethod('all');
+                setAmount('');
+              }}
             />
           )}
 
