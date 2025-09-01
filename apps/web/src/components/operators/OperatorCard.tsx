@@ -119,9 +119,9 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
         </div>
 
         {/* Your Position (if any) */}
-        {hasUserPosition && userPosition && (
-          <div className="mb-4 p-3 bg-muted rounded-lg">
-            <div className="text-center">
+        <div className="mb-4 p-3 bg-muted rounded-lg">
+          <div className="text-center">
+            {userPosition ? (
               <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
                 <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
                   {formatAI3(
@@ -132,25 +132,26 @@ export const OperatorCard: React.FC<OperatorCardProps> = ({ operator, onStake, o
                   )}
                 </span>
               </Tooltip>
-              <div className="text-xs text-muted-foreground">Your Total Position</div>
-            </div>
+            ) : (
+              <span className="text-sm font-medium text-foreground font-mono">0.00</span>
+            )}
+            <div className="text-xs text-muted-foreground">Your Total Position</div>
           </div>
-        )}
+        </div>
 
         {/* Actions */}
         <div className="flex gap-3">
           <Button className="flex-1" onClick={() => onStake(operator.id)}>
             Stake
           </Button>
-          {hasUserPosition && (
-            <Button
-              variant="warningOutline"
-              className="flex-1"
-              onClick={() => onWithdraw(operator.id)}
-            >
-              Withdraw
-            </Button>
-          )}
+          <Button
+            variant="warningOutline"
+            className="flex-1"
+            onClick={() => onWithdraw(operator.id)}
+            disabled={!hasUserPosition}
+          >
+            Withdraw
+          </Button>
         </div>
       </CardContent>
     </Card>
