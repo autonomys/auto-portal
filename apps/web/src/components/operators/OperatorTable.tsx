@@ -275,7 +275,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   {(() => {
                     const userPosition = positionByOperatorId.get(operator.id);
                     if (!userPosition) {
-                      return <span className="text-muted-foreground">--</span>;
+                      return <span className="text-muted-foreground">0.00</span>;
                     }
 
                     const totalValue =
@@ -284,7 +284,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                       (userPosition.pendingDeposit?.amount || 0);
 
                     if (totalValue <= 0) {
-                      return <span className="text-muted-foreground">--</span>;
+                      return <span className="text-muted-foreground">0.00</span>;
                     }
 
                     return (
@@ -301,15 +301,14 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                     <Button size="sm" onClick={() => onStake(operator.id)}>
                       Stake
                     </Button>
-                    {operatorIdsWithUserPosition.has(operator.id) && (
-                      <Button
-                        size="sm"
-                        variant="warningOutline"
-                        onClick={() => onWithdraw(operator.id)}
-                      >
-                        Withdraw
-                      </Button>
-                    )}
+                    <Button
+                      size="sm"
+                      variant="warningOutline"
+                      onClick={() => onWithdraw(operator.id)}
+                      disabled={!operatorIdsWithUserPosition.has(operator.id)}
+                    >
+                      Withdraw
+                    </Button>
                   </div>
                 </td>
               </tr>

@@ -1,10 +1,13 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Info } from 'lucide-react';
+import { Tooltip } from '@/components/ui/tooltip';
+import { ApyTooltip } from '@/components/operators/ApyTooltip';
+import { OperatorPoolBreakdown } from '@/components/operators/OperatorPoolBreakdown';
+import { PositionBreakdown } from '@/components/positions/PositionBreakdown';
 import type { Operator } from '@/types/operator';
 import { useOperatorPosition } from '@/hooks/use-positions';
-import { formatAI3AmountWithCommas } from '@/lib/staking-utils';
+import { formatAI3, formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
 
 interface OperatorSummaryProps {
   operator: Operator;
@@ -17,112 +20,114 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
     switch (status) {
       case 'active':
         return 'default';
-      case 'inactive':
-        return 'secondary';
       case 'degraded':
-        return 'destructive';
+        return 'secondary';
+      case 'inactive':
+        return 'outline';
       case 'slashed':
         return 'destructive';
       default:
-        return 'secondary';
+        return 'outline';
     }
   };
 
   const getOperatorInitial = (name: string) => name.charAt(0).toUpperCase();
 
-  // Calculate user's share percentage
-  const calculateUserShare = (): string => {
-    if (!userPosition || userPosition.positionValue === 0) {
-      return '0.00';
-    }
-
-    const totalStaked = parseFloat(operator.totalStaked);
-    if (totalStaked === 0) {
-      return '0.00';
-    }
-
-    const userStake =
-      userPosition.positionValue +
-      (userPosition.pendingDeposit ? userPosition.pendingDeposit.amount : 0);
-    const sharePercentage = (userStake / totalStaked) * 100;
-
-    return sharePercentage.toFixed(2);
-  };
-
   return (
     <Card className="mb-8">
-      <CardContent className="pt-6">
-        <div className="inline-md mb-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-            <span className="text-primary font-bold text-xl text-code">
-              {getOperatorInitial(operator.name)}
-            </span>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-h2">{operator.name}</h2>
-            <p className="text-body text-muted-foreground">Domain: {operator.domainName}</p>
-          </div>
-          <Badge variant={getStatusBadgeVariant(operator.status)}>{operator.status}</Badge>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-code">{operator.nominationTax}%</p>
-            <p className="text-body-small text-muted-foreground">Tax Rate</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-code">{calculateUserShare()}%</p>
-            <div className="inline-xs justify-center">
-              <p className="text-body-small text-muted-foreground">Your Share</p>
-              <div className="relative group">
-                <Info className="w-3 h-3 text-muted-foreground cursor-help" />
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-caption rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 min-w-max">
-                  {!userPosition || userPosition.positionValue === 0 ? (
-                    'You have no position with this operator'
-                  ) : (
-                    <div>
-                      {userPosition.pendingDeposit ? (
-                        <>
-                          <div>
-                            Active: {formatAI3AmountWithCommas(userPosition.positionValue)} AI3
-                          </div>
-                          <div>
-                            Pending: {formatAI3AmountWithCommas(userPosition.pendingDeposit.amount)}{' '}
-                            AI3
-                          </div>
-                          <div className="border-t border-gray-600 pt-1 mt-1 font-medium">
-                            Total:{' '}
-                            {formatAI3AmountWithCommas(
-                              userPosition.positionValue + userPosition.pendingDeposit.amount,
-                            )}{' '}
-                            AI3
-                          </div>
-                        </>
-                      ) : (
-                        `Your position: ${formatAI3AmountWithCommas(userPosition.positionValue)} AI3`
-                      )}
-                    </div>
-                  )}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
-                </div>
-              </div>
+      <CardContent className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-lg">
+                {getOperatorInitial(operator.name)}
+              </span>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">{operator.name}</h3>
+              <p className="text-sm text-muted-foreground">{operator.domainName}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatPercentage(operator.nominationTax)} tax
+              </p>
             </div>
           </div>
-          <div className="text-center">
-            <p className="text-lg text-code">
-              {formatAI3AmountWithCommas(parseFloat(operator.totalStaked))} AI3
-            </p>
-            <p className="text-body-small text-muted-foreground">Pool Size</p>
+          <div className="flex flex-col items-end space-y-2">
+            <Badge variant={getStatusBadgeVariant(operator.status)}>{operator.status}</Badge>
+            <div className="text-right">
+              {operator.estimatedReturnDetails ? (
+                <Tooltip
+                  side="top"
+                  content={<ApyTooltip windows={operator.estimatedReturnDetailsWindows} />}
+                >
+                  {(() => {
+                    const displayApy = operator.estimatedReturnDetails.annualizedReturn * 100;
+                    return (
+                      <div className={`text-sm font-mono cursor-help ${getAPYColor(displayApy)}`}>
+                        {displayApy.toFixed(2)}%
+                      </div>
+                    );
+                  })()}
+                </Tooltip>
+              ) : (
+                <div className="text-sm font-mono text-muted-foreground">NA</div>
+              )}
+              <div className="text-xs text-muted-foreground">Est. APY</div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-body-small text-muted-foreground">
-            Min stake:{' '}
-            <span className="text-code">
-              {formatAI3AmountWithCommas(parseFloat(operator.minimumNominatorStake))} AI3
-            </span>
-          </p>
+        {/* Key Metrics */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="text-center">
+            {operator.totalPoolValue ? (
+              <Tooltip
+                side="top"
+                content={
+                  <OperatorPoolBreakdown
+                    totalStaked={operator.totalStaked}
+                    totalStorageFund={operator.totalStorageFund}
+                  />
+                }
+              >
+                <div className="text-2xl font-bold font-mono cursor-help">
+                  {formatNumber(operator.totalPoolValue)} AI3
+                </div>
+              </Tooltip>
+            ) : (
+              <div className="text-2xl font-bold font-mono text-muted-foreground">--</div>
+            )}
+            <div className="text-xs text-muted-foreground">Operator Total Value</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold font-mono">
+              {typeof operator.nominatorCount === 'number'
+                ? formatNumber(operator.nominatorCount)
+                : '--'}
+            </div>
+            <div className="text-xs text-muted-foreground">Nominators</div>
+          </div>
+        </div>
+
+        {/* Your Position */}
+        <div className="mb-4 p-3 bg-muted rounded-lg">
+          <div className="text-center">
+            {userPosition ? (
+              <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
+                <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
+                  {formatAI3(
+                    userPosition.positionValue +
+                      userPosition.storageFeeDeposit +
+                      (userPosition.pendingDeposit?.amount || 0),
+                    2,
+                  )}
+                </span>
+              </Tooltip>
+            ) : (
+              <span className="text-sm font-medium text-foreground font-mono">0.00</span>
+            )}
+            <div className="text-xs text-muted-foreground">Your Total Position</div>
+          </div>
         </div>
       </CardContent>
     </Card>

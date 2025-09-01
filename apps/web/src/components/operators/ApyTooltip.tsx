@@ -13,7 +13,7 @@ export const ApyTooltip: React.FC<ApyTooltipProps> = ({ windows }) => {
         {label} {isPrimary && '(displayed)'}
       </span>
       <span
-        className={`font-mono ${value !== undefined ? getAPYColor(value) : 'text-white/50'} ${isPrimary ? 'font-semibold' : ''}`}
+        className={`font-mono ${value !== undefined ? getAPYColor(value, { onDark: true }) : 'text-white/50'} ${isPrimary ? 'font-semibold' : ''}`}
       >
         {value !== undefined ? `${value.toFixed(2)}%` : 'NA'}
       </span>

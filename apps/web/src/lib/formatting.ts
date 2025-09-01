@@ -48,26 +48,31 @@ export const formatCompactNumber = (value: string | number): string => {
   return formatNumber(num);
 };
 
-/**
- * Get color class for percentage values
- */
-export const getPercentageColor = (
-  percentage: number,
-  thresholds: { good: number; warning: number },
-) => {
-  if (percentage >= thresholds.good) {
-    return 'text-success-600';
-  }
-  if (percentage >= thresholds.warning) {
-    return 'text-warning-600';
-  }
-  return 'text-destructive-600';
-};
+interface ApyColorOptions {
+  onDark?: boolean;
+}
 
 /**
  * Get color class for APY values
  */
-export const getAPYColor = (apy: number) => getPercentageColor(apy, { good: 20, warning: 5 });
+export const getAPYColor = (apy: number, options?: ApyColorOptions) => {
+  const onDark = options?.onDark === true;
+  // Use positive color scale as APY increases; avoid implying small positive APY is bad
+  if (apy < 0) {
+    return onDark ? 'text-error-400' : 'text-error-600';
+  }
+  // Neutral for small positive APY; adapt to dark backgrounds
+  if (apy < 5) {
+    return onDark ? 'text-white' : 'text-foreground';
+  }
+  if (apy < 10) {
+    return onDark ? 'text-success-300' : 'text-success-500';
+  }
+  if (apy < 20) {
+    return onDark ? 'text-success-400' : 'text-success-600';
+  }
+  return onDark ? 'text-success-500' : 'text-success-700';
+};
 
 /**
  * Truncate address for display
