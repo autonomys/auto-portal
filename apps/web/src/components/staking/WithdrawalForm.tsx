@@ -9,6 +9,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3 } from '@/lib/formatting';
 import { getWithdrawalPreview, validateWithdrawal } from '@/lib/withdrawal-utils';
 import { TransactionPreview } from '@/components/transaction';
+import { WITHDRAWAL_UNLOCK_BLOCKS, WITHDRAWAL_UNLOCK_HOURS } from '@/constants/staking';
 import type { UserPosition } from '@/types/position';
 
 interface WithdrawalFormProps {
@@ -250,7 +251,8 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           <Alert variant="warning">
             <AlertDescription>
               <span className="font-medium">Two-step process:</span> After withdrawal request, funds
-              will have a locking period before you can claim them.
+              will have a {WITHDRAWAL_UNLOCK_HOURS}-hour locking period (
+              {WITHDRAWAL_UNLOCK_BLOCKS.toLocaleString()} blocks) before you can claim them.
             </AlertDescription>
           </Alert>
 
@@ -372,7 +374,7 @@ export const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 notes={[
                   'Withdrawal requests are processed according to the protocol schedule',
                   'Storage fee refunds depend on storage fund performance',
-                  'There is a locking period before funds can be claimed',
+                  `There is a ${WITHDRAWAL_UNLOCK_HOURS}-hour locking period (${WITHDRAWAL_UNLOCK_BLOCKS.toLocaleString()} blocks) before funds can be claimed`,
                   validationResult.willWithdrawAll
                     ? 'This will close your entire position due to minimum stake requirements'
                     : withdrawalMethod === 'partial'
