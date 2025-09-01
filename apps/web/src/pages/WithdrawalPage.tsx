@@ -100,7 +100,7 @@ export const WithdrawalPage: React.FC = () => {
     return (
       <TransactionSuccess
         title="Withdrawal Successful!"
-        description={`You have successfully withdrawn ${withdrawnAmount} from ${operator!.name}. Your withdrawal will be processed according to the protocol's withdrawal schedule.`}
+        description={`You have successfully withdrawn ${withdrawnAmount} from ${operator!.name}. Your withdrawal will be available to claim after a 24-hour unlocking period (14,400 blocks).`}
         txHash={withdrawalTxHash ?? undefined}
         onPrimaryAction={() => navigate('/dashboard')}
         onSecondaryAction={() => navigate('/operators')}
