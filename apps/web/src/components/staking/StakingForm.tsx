@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AmountInput } from './AmountInput';
+//
 import { TransactionPreview } from '@/components/transaction';
+//
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions, useOperatorPosition } from '@/hooks/use-positions';
 import { useStakingTransaction } from '@/hooks/use-staking-transaction';
@@ -45,7 +47,6 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   } = useStakingTransaction();
   const submittedAmount = useRef('');
   const currentAmount = useRef(0);
-
   const [formState, setFormState] = useState<StakingFormState>({
     amount: '',
     isValid: false,
@@ -183,26 +184,11 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
       {/* Stake Input Form */}
-      <Card className="h-full">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-h3">Amount to Stake</CardTitle>
         </CardHeader>
-        <CardContent className="stack-lg">
-          {/* Current Position Info */}
-          {currentPosition && currentPosition.positionValue > 0 && (
-            <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="text-label text-muted-foreground">Current Position</span>
-                <span className="text-code font-semibold text-success">
-                  {formatAI3(currentPosition.positionValue + currentPosition.storageFeeDeposit)}
-                </span>
-              </div>
-              <p className="text-body-small text-muted-foreground mt-1">
-                You can stake any amount for subsequent nominations
-              </p>
-            </div>
-          )}
-
+        <CardContent className="stack-lg flex flex-col flex-1">
           {/* Wallet Connection Alert */}
           {!isConnected && (
             <Alert variant="warning">
@@ -212,20 +198,35 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
             </Alert>
           )}
 
-          {/* Available Balance */}
-          <div className="p-4 bg-accent/10 rounded-lg">
+          {/* Available Balance (aligned with Current Position) */}
+          <div className="flex justify-between items-center">
+            <span className="text-label text-muted-foreground">Available Balance</span>
+            <span className="text-code font-semibold">
+              {balanceLoading ? (
+                <span className="animate-pulse">Loading...</span>
+              ) : balance ? (
+                formatAI3(balance.free)
+              ) : (
+                <span className="text-warning-700">Wallet not connected</span>
+              )}
+            </span>
+          </div>
+
+          {/* Minimum Stake */}
+          <div className="stack-xs">
             <div className="flex justify-between items-center">
-              <span className="text-label text-muted-foreground">Available Balance</span>
+              <span className="text-label text-muted-foreground">Minimum stake</span>
               <span className="text-code font-semibold">
-                {balanceLoading ? (
-                  <span className="animate-pulse">Loading...</span>
-                ) : balance ? (
-                  formatAI3(balance.free)
-                ) : (
-                  <span className="text-warning-700">Wallet not connected</span>
-                )}
+                {formatAI3(parseFloat(operator.minimumNominatorStake), 4)}
               </span>
             </div>
+            {(currentPosition?.positionValue ?? 0) > 0 ? (
+              <p className="text-caption text-muted-foreground">
+                The minimum stake has already been met
+              </p>
+            ) : (
+              <p className="text-caption text-muted-foreground">Applies to first stake only</p>
+            )}
           </div>
 
           {/* Amount Input */}
@@ -271,7 +272,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
           )}
 
           {/* Action Buttons */}
-          <div className="inline-md pt-4">
+          <div className="inline-md pt-4 mt-auto">
             {isSuccess ? (
               // Success state buttons
               <>

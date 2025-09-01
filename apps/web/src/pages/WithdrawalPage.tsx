@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TransactionSuccess } from '@/components/transaction';
-import { WithdrawalForm } from '@/components/staking';
+import { WithdrawalForm, OperatorSummary } from '@/components/staking';
 import { useOperators } from '@/hooks/use-operators';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3 } from '@/lib/formatting';
@@ -84,7 +84,7 @@ export const WithdrawalPage: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-destructive font-sans">
-                {!operator ? 'Operator not found' : 'Position not found'}
+                Error: {!operator ? 'Operator not found' : 'Position not found'}
               </p>
               <Button variant="outline" onClick={handleGoBack} className="mt-4 font-sans">
                 Back to Dashboard
@@ -120,26 +120,8 @@ export const WithdrawalPage: React.FC = () => {
         </h1>
       </div>
 
-      {/* Position Summary */}
-      <Card className="mb-8">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h3 className="font-serif font-semibold text-foreground mb-2">Operator</h3>
-              <p className="text-lg font-medium">{operator!.name}</p>
-            </div>
-            <div className="md:col-span-2">
-              <h3 className="font-serif font-semibold text-foreground mb-2">Total Position</h3>
-              <p className="text-2xl font-mono font-bold text-foreground">
-                {formatAI3(position!.positionValue + position!.storageFeeDeposit, 4)}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Includes storage fund; hover breakdown shown in the withdrawal preview
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Operator Summary */}
+      <OperatorSummary operator={operator!} />
 
       {/* Withdrawal Form */}
       <WithdrawalForm
