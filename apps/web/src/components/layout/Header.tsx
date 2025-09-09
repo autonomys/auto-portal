@@ -5,6 +5,7 @@ import { layout } from '@/lib/layout';
 import { config } from '@/config';
 import { getNetworkBadge, type BadgeVariant } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface HeaderProps {
   className?: string;
@@ -53,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </NavLink>
           </nav>
 
-          {/* Wallet Connection and Network Badge */}
+          {/* Wallet Connection, Theme, and Network Badge */}
           <div className={layout.inline('md') + ' items-center gap-3'}>
             {(() => {
               const netId = config.network.defaultNetworkId;
@@ -64,6 +65,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
                 </Badge>
               );
             })()}
+            <ThemeToggle />
             <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
         </div>
