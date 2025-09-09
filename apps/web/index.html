@@ -5,6 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/autonomys-icon-dark.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Stake your AI3 tokens with trusted operators on the Autonomys Network. Discover validators, manage your staking positions, and earn rewards securely." />
+    <script>
+      // Prevent theme FOUC by applying class before React mounts
+      (function() {
+        try {
+          var key = 'theme';
+          var raw = localStorage.getItem(key);
+          var pref = (raw && JSON.parse(raw).state && JSON.parse(raw).state.preference) || 'system';
+          var isDark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var root = document.documentElement;
+          if (isDark) root.classList.add('dark'); else root.classList.remove('dark');
+          root.style.colorScheme = isDark ? 'dark' : 'light';
+        } catch (_) {}
+      })();
+    </script>
     <title>Autonomys Staking</title>
   </head>
   <body>
