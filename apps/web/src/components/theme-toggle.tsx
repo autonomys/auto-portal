@@ -21,7 +21,7 @@ export const ThemeToggle: React.FC = () => {
   };
 
   return (
-    <Tooltip content={`Theme: ${labelMap[preference]}`}>
+    <Tooltip content={`Theme: ${labelMap[preference]}`} side="bottom">
       <Button
         variant="ghost"
         size="icon"
