@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Stake your AI3 tokens with trusted operators on the Autonomys Network. Discover validators, manage your staking positions, and earn rewards securely." />
     <title>Autonomys Staking</title>
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('ui.theme');
+          var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var useDark = stored === 'dark' || (stored !== 'light' && systemDark);
+          if (useDark) document.documentElement.classList.add('dark');
+          else document.documentElement.classList.remove('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

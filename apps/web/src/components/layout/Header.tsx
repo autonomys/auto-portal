@@ -5,6 +5,9 @@ import { layout } from '@/lib/layout';
 import { config } from '@/config';
 import { getNetworkBadge, type BadgeVariant } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/components/theme/theme-provider';
 
 interface HeaderProps {
   className?: string;
@@ -12,6 +15,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <header className={`bg-background border-b border-border ${className}`}>
@@ -64,6 +68,19 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
                 </Badge>
               );
             })()}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Toggle theme"
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {resolvedTheme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
             <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
         </div>
