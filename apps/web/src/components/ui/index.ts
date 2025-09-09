@@ -40,5 +40,8 @@ export {
 export { Input, inputVariants } from './input';
 export type { InputProps } from './input';
 
+// Theme components
+export { ThemeToggle } from './theme-toggle';
+
 // Tooltip components
 export { Tooltip } from './tooltip';
