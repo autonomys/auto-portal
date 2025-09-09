@@ -4,7 +4,7 @@ import { WalletButton, WalletModal } from '@/components/wallet';
 import { layout } from '@/lib/layout';
 import { config } from '@/config';
 import { getNetworkBadge, type BadgeVariant } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { Badge, ThemeToggle } from '@/components/ui';
 
 interface HeaderProps {
   className?: string;
@@ -20,7 +20,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
           {/* Logo and Brand */}
           <div className={layout.inline('md')}>
             <div className={layout.inline('sm')}>
-              <img src="/autonomys-icon-dark.svg" alt="Autonomys" className="h-8 w-8" />
+              <img src="/autonomys-icon-dark.svg" alt="Autonomys" className="h-8 w-8 dark:invert" />
               <span className="text-h4 text-foreground">Autonomys Staking</span>
             </div>
           </div>
@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </NavLink>
           </nav>
 
-          {/* Wallet Connection and Network Badge */}
+          {/* Wallet Connection, Theme Toggle, and Network Badge */}
           <div className={layout.inline('md') + ' items-center gap-3'}>
             {(() => {
               const netId = config.network.defaultNetworkId;
@@ -64,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
                 </Badge>
               );
             })()}
+            <ThemeToggle />
             <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
         </div>
