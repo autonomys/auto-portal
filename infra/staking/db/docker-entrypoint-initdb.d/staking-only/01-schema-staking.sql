@@ -464,6 +464,8 @@ CREATE INDEX "staking_nominator_deposits_processed" ON staking.nominator_deposit
 CREATE INDEX "staking_nominator_deposits_address_domain_operator_processed" ON staking.nominator_deposits USING btree (address, domain_id, operator_id, processed);
 -- Composite index for finality-based queries (processed = false AND pending_amount > 0 AND block_height <= X)
 CREATE INDEX "staking_nominator_deposits_processed_block_height" ON staking.nominator_deposits USING btree (processed, block_height) WHERE processed = false AND pending_amount > 0;
+-- Composite index aligned to UI filter + order by (address + operator_id, order by timestamp)
+CREATE INDEX "staking_nominator_deposits_address_operator_timestamp" ON staking.nominator_deposits USING btree (address, operator_id, timestamp);
 
 -- nominator_withdrawals
 CREATE INDEX "staking_nominator_withdrawals_id" ON staking.nominator_withdrawals USING btree (id);
@@ -473,6 +475,8 @@ CREATE INDEX "staking_nominator_withdrawals_domain_id" ON staking.nominator_with
 CREATE INDEX "staking_nominator_withdrawals_processed" ON staking.nominator_withdrawals USING btree (processed);
 -- Composite index for finality-based queries (processed = false AND block_height <= X)
 CREATE INDEX "staking_nominator_withdrawals_processed_block_height" ON staking.nominator_withdrawals USING btree (processed, block_height) WHERE processed = false;
+-- Composite index aligned to UI filter + order by (address + operator_id, order by timestamp)
+CREATE INDEX "staking_nominator_withdrawals_address_operator_timestamp" ON staking.nominator_withdrawals USING btree (address, operator_id, timestamp);
 
 -- operator_epoch_share_prices
 CREATE INDEX "staking_operator_epoch_share_prices_id" ON staking.operator_epoch_share_prices USING btree (id);
@@ -481,6 +485,8 @@ CREATE INDEX "staking_operator_epoch_share_prices_domain_id" ON staking.operator
 CREATE INDEX "staking_operator_epoch_share_prices_epoch_index" ON staking.operator_epoch_share_prices USING btree (epoch_index);
 -- Composite index for share price lookups
 CREATE INDEX "staking_operator_epoch_share_prices_lookup" ON staking.operator_epoch_share_prices USING btree (operator_id, domain_id, epoch_index);
+-- Composite index aligned to UI operator timeline queries (operator_id with timestamp)
+CREATE INDEX "staking_operator_epoch_share_prices_operator_timestamp" ON staking.operator_epoch_share_prices USING btree (operator_id, timestamp);
 
 -- storage_fund_accounts
 CREATE INDEX "staking_storage_fund_accounts_id" ON staking.storage_fund_accounts USING btree (id);
@@ -509,6 +515,8 @@ CREATE INDEX "staking_nominators_id" ON staking.nominators USING btree (id);
 CREATE INDEX "staking_nominators_domain_id" ON staking.nominators USING btree (domain_id);
 CREATE INDEX "staking_nominators_operator_id" ON staking.nominators USING btree (operator_id);
 CREATE INDEX "staking_nominators_status" ON staking.nominators USING btree ("status");
+-- Composite index aligned to UI summary lookup by address + operator
+CREATE INDEX "staking_nominators_address_operator" ON staking.nominators USING btree (address, operator_id);
 
 -- operators
 CREATE INDEX "staking_operators_id" ON staking.operators USING btree (id);
