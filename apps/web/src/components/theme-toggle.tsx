@@ -33,4 +33,3 @@ export const ThemeToggle: React.FC = () => {
     </Tooltip>
   );
 };
-

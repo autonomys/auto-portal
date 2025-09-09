@@ -39,7 +39,7 @@ export const useThemeStore = create<ThemeState>()(
         set({ isDarkMode: isDark });
         try {
           applyClassToDocument(isDark);
-        } catch (error) {
+        } catch {
           // no-op in non-browser environments
         }
       },
@@ -56,7 +56,7 @@ export const useThemeStore = create<ThemeState>()(
         set({ isDarkMode: isDark });
         try {
           applyClassToDocument(isDark, doc ?? document);
-        } catch (error) {
+        } catch {
           // ignore if document is not available
         }
       },
@@ -74,7 +74,7 @@ export const useThemeStore = create<ThemeState>()(
               set({ isDarkMode: isDark });
               try {
                 applyClassToDocument(isDark);
-              } catch (error) {
+              } catch {
                 // ignore
               }
             }
@@ -96,4 +96,3 @@ export const useThemeStore = create<ThemeState>()(
     },
   ),
 );
-
