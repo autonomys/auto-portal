@@ -115,3 +115,78 @@ export interface NominatorAggregateResponse {
     };
   };
 }
+
+// Rows: staking.nominator_deposits (anonymous-select table)
+export interface DepositRow {
+  id: string;
+  address: string;
+  operator_id: string;
+  domain_id: string;
+  known_shares: string; // numeric
+  known_storage_fee_deposit: string; // numeric
+  pending_amount: string; // numeric
+  pending_storage_fee_deposit: string; // numeric
+  pending_effective_domain_epoch: string; // numeric
+  extrinsic_ids: string; // text
+  event_ids: string; // text
+  timestamp: string; // timestamptz
+  block_heights: string; // text
+  block_height: string; // numeric
+  processed: boolean;
+}
+
+export interface DepositsResponse {
+  staking_nominator_deposits: DepositRow[];
+  staking_nominator_deposits_aggregate: {
+    aggregate: { count: number };
+  };
+}
+
+// Rows: staking.nominator_withdrawals (anonymous-select table)
+export interface WithdrawalRow {
+  id: string;
+  address: string;
+  operator_id: string;
+  domain_id: string;
+  withdrawal_in_shares_amount: string; // numeric
+  withdrawal_in_shares_storage_fee_refund: string; // numeric
+  withdrawal_in_shares_domain_epoch: string; // text
+  withdrawal_in_shares_unlock_block: string; // numeric
+  total_withdrawal_amount: string; // numeric
+  total_storage_fee_withdrawal: string; // numeric
+  withdrawals_json: string; // text
+  total_pending_withdrawals: string; // numeric
+  extrinsic_ids: string; // text
+  event_ids: string; // text
+  timestamp: string; // timestamptz
+  block_height: string; // numeric
+  block_heights: string; // text
+  processed: boolean;
+}
+
+export interface WithdrawalsResponse {
+  staking_nominator_withdrawals: WithdrawalRow[];
+  staking_nominator_withdrawals_aggregate: {
+    aggregate: { count: number };
+  };
+}
+
+// Row: staking.nominators (optional header context)
+export interface NominatorSummaryRow {
+  id: string;
+  domain_id: string;
+  operator_id: string;
+  total_deposits: string; // numeric
+  total_withdrawals: string; // numeric
+  known_shares: string; // numeric
+  withdrawn_shares: string; // numeric
+  known_storage_fee_deposit: string; // numeric
+  total_storage_fee_refund: string; // numeric
+  total_deposits_count: string; // numeric
+  total_withdrawals_count: string; // numeric
+  status: string;
+}
+
+export interface NominatorSummaryResponse {
+  staking_nominators: NominatorSummaryRow[];
+}

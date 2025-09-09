@@ -4,6 +4,9 @@ import type {
   staking_operator_registrations_order_by,
   OperatorEpochSharePricesResponse,
   OperatorEpochSharePriceRow,
+  DepositsResponse,
+  WithdrawalsResponse,
+  NominatorSummaryResponse,
 } from '@/types/indexer';
 import { config } from '@/config';
 
@@ -179,6 +182,167 @@ export const indexerService = {
       console.error('❌ Indexer connection failed:', error);
       return false;
     }
+  },
+
+  // Fetch deposits for address+operator (paginated)
+  async getDepositsByOperator(params: {
+    address: string;
+    operatorId: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ rows: DepositsResponse['staking_nominator_deposits']; totalCount: number }> {
+    const { address, operatorId, limit = 25, offset = 0 } = params;
+
+    const QUERY = gql`
+      query GetDepositsByOperatorForAddress(
+        $address: String!
+        $operatorId: String!
+        $limit: Int!
+        $offset: Int!
+      ) {
+        staking_nominator_deposits(
+          where: { address: { _eq: $address }, operator_id: { _eq: $operatorId } }
+          order_by: { timestamp: desc }
+          limit: $limit
+          offset: $offset
+        ) {
+          id
+          address
+          operator_id
+          domain_id
+          known_shares
+          known_storage_fee_deposit
+          pending_amount
+          pending_storage_fee_deposit
+          pending_effective_domain_epoch
+          timestamp
+          block_height
+          block_heights
+          extrinsic_ids
+          event_ids
+          processed
+        }
+        staking_nominator_deposits_aggregate(
+          where: { address: { _eq: $address }, operator_id: { _eq: $operatorId } }
+        ) {
+          aggregate {
+            count
+          }
+        }
+      }
+    `;
+
+    const result = await getClient().query<DepositsResponse>({
+      query: QUERY,
+      variables: { address, operatorId, limit, offset },
+      fetchPolicy: 'network-only',
+    });
+
+    return {
+      rows: result.data.staking_nominator_deposits,
+      totalCount: result.data.staking_nominator_deposits_aggregate.aggregate.count,
+    };
+  },
+
+  // Fetch withdrawals for address+operator (paginated)
+  async getWithdrawalsByOperator(params: {
+    address: string;
+    operatorId: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ rows: WithdrawalsResponse['staking_nominator_withdrawals']; totalCount: number }> {
+    const { address, operatorId, limit = 25, offset = 0 } = params;
+
+    const QUERY = gql`
+      query GetWithdrawalsByOperatorForAddress(
+        $address: String!
+        $operatorId: String!
+        $limit: Int!
+        $offset: Int!
+      ) {
+        staking_nominator_withdrawals(
+          where: { address: { _eq: $address }, operator_id: { _eq: $operatorId } }
+          order_by: { timestamp: desc }
+          limit: $limit
+          offset: $offset
+        ) {
+          id
+          address
+          operator_id
+          domain_id
+          total_withdrawal_amount
+          total_storage_fee_withdrawal
+          total_pending_withdrawals
+          withdrawal_in_shares_amount
+          withdrawal_in_shares_storage_fee_refund
+          withdrawal_in_shares_domain_epoch
+          withdrawal_in_shares_unlock_block
+          withdrawals_json
+          timestamp
+          block_height
+          block_heights
+          extrinsic_ids
+          event_ids
+          processed
+        }
+        staking_nominator_withdrawals_aggregate(
+          where: { address: { _eq: $address }, operator_id: { _eq: $operatorId } }
+        ) {
+          aggregate {
+            count
+          }
+        }
+      }
+    `;
+
+    const result = await getClient().query<WithdrawalsResponse>({
+      query: QUERY,
+      variables: { address, operatorId, limit, offset },
+      fetchPolicy: 'network-only',
+    });
+
+    return {
+      rows: result.data.staking_nominator_withdrawals,
+      totalCount: result.data.staking_nominator_withdrawals_aggregate.aggregate.count,
+    };
+  },
+
+  // Fetch nominator summary row (optional)
+  async getNominatorSummary(params: {
+    address: string;
+    operatorId: string;
+  }): Promise<NominatorSummaryResponse['staking_nominators'][number] | null> {
+    const { address, operatorId } = params;
+
+    const QUERY = gql`
+      query GetNominatorSummary($address: String!, $operatorId: String!) {
+        staking_nominators(
+          where: { address: { _eq: $address }, operator_id: { _eq: $operatorId } }
+          limit: 1
+        ) {
+          id
+          domain_id
+          operator_id
+          total_deposits
+          total_withdrawals
+          known_shares
+          withdrawn_shares
+          known_storage_fee_deposit
+          total_storage_fee_refund
+          total_deposits_count
+          total_withdrawals_count
+          status
+        }
+      }
+    `;
+
+    const result = await getClient().query<NominatorSummaryResponse>({
+      query: QUERY,
+      variables: { address, operatorId },
+      fetchPolicy: 'network-only',
+    });
+
+    return result.data.staking_nominators[0] || null;
   },
 
   // Fetch operators from indexer
