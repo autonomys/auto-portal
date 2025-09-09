@@ -40,8 +40,8 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
     setThemeState(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
-    } catch (e) {
-      // ignore storage write errors
+    } catch {
+      /* ignore storage write errors */
     }
   }, []);
 
