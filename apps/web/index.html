@@ -11,7 +11,8 @@
         try {
           var key = 'theme';
           var raw = localStorage.getItem(key);
-          var pref = (raw && JSON.parse(raw).state && JSON.parse(raw).state.preference) || 'system';
+          var parsed = raw && JSON.parse(raw);
+          var pref = (parsed && parsed.state && parsed.state.preference) || 'system';
           var isDark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           var root = document.documentElement;
           if (isDark) root.classList.add('dark'); else root.classList.remove('dark');
