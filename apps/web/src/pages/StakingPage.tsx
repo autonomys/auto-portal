@@ -90,10 +90,10 @@ export const StakingPage: React.FC = () => {
 
   // Main staking form
   return (
-    <div className="py-12 max-w-6xl mx-auto">
+    <div className="py-6 sm:py-8 lg:py-12 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-xl font-serif font-semibold text-foreground">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-lg sm:text-xl font-serif font-semibold text-foreground">
           {fromPosition ? `Add Stake to ${operator.name}` : `Stake to ${operator.name}`}
         </h1>
       </div>

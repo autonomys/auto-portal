@@ -59,17 +59,17 @@ const PositionRow: React.FC<PositionRowProps> = ({
     position.positionValue + position.storageFeeDeposit + (position.pendingDeposit?.amount || 0);
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors gap-4">
       <div className="flex-1 space-y-2">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           <h4 className="font-medium font-sans">{position.operatorName}</h4>
-          <Badge variant={getStatusVariant(position.status)} className="text-xs">
+          <Badge variant={getStatusVariant(position.status)} className="text-xs w-fit">
             {position.status}
           </Badge>
         </div>
 
         {/* Position Details */}
-        <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground font-sans">
+        <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground font-sans">
           <div>
             <span className="block text-xs text-muted-foreground">Last Updated</span>
             <span>{formatTimeAgo(position.lastUpdated.getTime())}</span>
@@ -98,19 +98,19 @@ const PositionRow: React.FC<PositionRowProps> = ({
         )}
       </div>
 
-      <div className="flex flex-col items-end space-y-2 min-w-[200px]">
-        <div className="text-xl font-mono font-bold text-foreground text-right">
+      <div className="flex flex-col sm:items-end space-y-2 sm:min-w-[200px]">
+        <div className="text-xl font-mono font-bold text-foreground text-left sm:text-right">
           <Tooltip content={<PositionBreakdown position={position} />} side="left">
             <span className="cursor-help">{formatAI3(totalPositionValue, 2)}</span>
           </Tooltip>
         </div>
-        <div className="flex gap-2 justify-end">
+        <div className="flex flex-col sm:flex-row gap-2 sm:justify-end w-full sm:w-auto">
           {position.positionValue > 0 && onAddStakeClick && (
             <Button
               size="sm"
               onClick={() => onAddStakeClick(position)}
               disabled={!isWalletConnected}
-              className="text-xs font-sans"
+              className="text-xs font-sans w-full sm:w-auto"
             >
               Add Stake
             </Button>
@@ -121,7 +121,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               size="sm"
               onClick={() => onWithdrawClick(position)}
               disabled={!isWalletConnected}
-              className="text-xs font-sans"
+              className="text-xs font-sans w-full sm:w-auto"
             >
               Withdraw
             </Button>

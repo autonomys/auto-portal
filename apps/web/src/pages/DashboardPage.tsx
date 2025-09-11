@@ -72,10 +72,10 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className={'py-8 space-y-8'}>
       {/* Page Header */}
-      <div className="pb-8 text-center">
-        <div className="max-w-3xl mx-auto">
+      <div className="pb-6 sm:pb-8 text-center">
+        <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-h1 text-foreground mb-3">Dashboard</h1>
-          <p className="text-body-large text-muted-foreground">
+          <p className="text-body text-muted-foreground">
             Manage your staking positions and discover operators
           </p>
         </div>
@@ -122,13 +122,13 @@ export const DashboardPage: React.FC = () => {
 
       {/* Wallet Balance - Only show when connected */}
       {isConnected && (
-        <div className={layout.gridResponsive['1-2'] + ' gap-6 max-w-6xl mx-auto'}>
+        <div className={layout.gridResponsive['1-2'] + ' gap-4 sm:gap-6 max-w-6xl mx-auto'}>
           <Card className="relative">
             <CardHeader className="pb-2">
               <CardTitle className="text-label">Available Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold leading-tight relative">
+              <div className="text-xl sm:text-2xl font-mono font-bold leading-tight relative">
                 <span className={`${balanceLoading ? 'opacity-60' : ''}`}>
                   {balance ? formatAI3(balance.free) : '0.00 AI3'}
                 </span>
@@ -147,7 +147,7 @@ export const DashboardPage: React.FC = () => {
               <CardTitle className="text-label">Total Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-mono font-bold leading-tight relative">
+              <div className="text-xl sm:text-2xl font-mono font-bold leading-tight relative">
                 <Tooltip content={<TotalBalanceBreakdown />} side="top">
                   <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
                     {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}

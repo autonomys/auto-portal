@@ -182,7 +182,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
       {/* Stake Input Form */}
       <Card className="h-full flex flex-col">
         <CardHeader>
@@ -272,7 +272,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
           )}
 
           {/* Action Buttons */}
-          <div className="inline-md pt-4 mt-auto">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 mt-auto">
             {isSuccess ? (
               // Success state buttons
               <>
@@ -299,13 +299,15 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
                   disabled={!formState.isValid || formState.isSubmitting || !canExecute}
                   className="flex-1"
                 >
-                  {isSigning
-                    ? 'Awaiting signature...'
-                    : isPending
-                      ? 'Submitting...'
-                      : !isConnected
-                        ? 'Connect Wallet to Stake'
-                        : 'Stake Tokens'}
+                  <span className="truncate">
+                    {isSigning
+                      ? 'Awaiting signature...'
+                      : isPending
+                        ? 'Submitting...'
+                        : !isConnected
+                          ? 'Connect Wallet'
+                          : 'Stake Tokens'}
+                  </span>
                 </Button>
               </>
             )}

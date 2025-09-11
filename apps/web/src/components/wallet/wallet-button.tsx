@@ -35,7 +35,7 @@ const AccountDropdown: React.FC<AccountDropdownProps> = ({
   };
 
   return (
-    <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+    <div className="absolute right-0 top-full mt-1 w-64 sm:w-80 bg-white border border-gray-200 rounded-md shadow-lg z-50">
       <div className="p-2">
         <div className="text-xs text-gray-500 mb-2">Select Account</div>
         {accounts.map((account: WalletAccount) => (
@@ -127,21 +127,21 @@ export const WalletButton: React.FC<WalletButtonProps> = ({ onOpenModal }) => {
         <Button
           variant="secondary"
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center space-x-3"
+          className="flex items-center space-x-2 sm:space-x-3 min-w-0"
         >
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-success-500 rounded-full" />
-            <div className="flex flex-col items-start">
-              <span className="text-sm font-medium">
+          <div className="flex items-center space-x-2 min-w-0">
+            <div className="w-2 h-2 bg-success-500 rounded-full flex-shrink-0" />
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-sm font-medium truncate max-w-[120px] sm:max-w-none">
                 {selectedAccount.name || shortenAddress(selectedAccount.address)}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground truncate">
                 {balance ? formatAI3(balance.free, 2) : 'Loading...'}
               </span>
             </div>
           </div>
           <svg
-            className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 transition-transform flex-shrink-0 ${showDropdown ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

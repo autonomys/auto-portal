@@ -17,9 +17,9 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Loading skeletons */}
-        {Array.from({ length: 4 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} className="border border-border rounded-xl p-6 animate-pulse">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-muted rounded-full" />
@@ -77,7 +77,7 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
       {operators.map(operator => (
         <OperatorCard
           key={operator.id}

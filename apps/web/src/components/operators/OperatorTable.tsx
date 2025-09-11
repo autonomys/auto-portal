@@ -168,7 +168,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   return (
     <div className="border border-border rounded-xl">
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed min-w-[1000px]">
+        <table className="w-full table-fixed min-w-[800px] lg:min-w-[1000px]">
           <thead className="bg-muted/50">
             <tr>
               <th className="text-left p-3 sm:p-4 font-medium text-muted-foreground w-[20%]">
@@ -297,8 +297,8 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                   })()}
                 </td>
                 <td className="p-3 sm:p-4">
-                  <div className="flex space-x-1 justify-center flex-wrap gap-1">
-                    <Button size="sm" onClick={() => onStake(operator.id)}>
+                  <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 justify-center items-center gap-1">
+                    <Button size="sm" onClick={() => onStake(operator.id)} className="w-full sm:w-auto min-w-[70px]">
                       Stake
                     </Button>
                     <Button
@@ -306,6 +306,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
                       variant="warningOutline"
                       onClick={() => onWithdraw(operator.id)}
                       disabled={!operatorIdsWithUserPosition.has(operator.id)}
+                      className="w-full sm:w-auto min-w-[70px]"
                     >
                       Withdraw
                     </Button>

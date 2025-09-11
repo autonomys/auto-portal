@@ -48,18 +48,18 @@ export const OperatorsPage: React.FC = () => {
   };
 
   return (
-    <div className="py-8">
+    <div className="py-4 sm:py-6 lg:py-8">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Operators</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Operators</h1>
       </div>
 
       {/* Network Total Value */}
       <div className="mb-6">
         <Card className="border-0">
-          <CardContent className="py-6">
+          <CardContent className="py-4 sm:py-6">
             <div className="text-center space-y-1">
-              <div className="text-3xl font-mono font-bold text-foreground">
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-foreground">
                 {formatAI3(totalNetworkValue, 0)}
               </div>
               <div className="text-sm text-muted-foreground">
@@ -87,29 +87,31 @@ export const OperatorsPage: React.FC = () => {
 
       {/* Filters & Search */}
       <div className="mb-8">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between mb-4">
-          <OperatorFilters loading={loading} />
+        <div className="flex flex-col gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between">
+            <OperatorFilters loading={loading} />
 
-          {/* View Toggle (Desktop Only) */}
-          <div className="hidden lg:flex items-center space-x-2 bg-muted rounded-lg p-1">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleViewModeChange('grid')}
-              className="h-8 px-3"
-            >
-              <Grid className="w-4 h-4 mr-1" />
-              Grid
-            </Button>
-            <Button
-              variant={viewMode === 'table' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => handleViewModeChange('table')}
-              className="h-8 px-3"
-            >
-              <List className="w-4 h-4 mr-1" />
-              Table
-            </Button>
+            {/* View Toggle */}
+            <div className="flex items-center space-x-2 bg-muted rounded-lg p-1 self-start sm:self-auto">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => handleViewModeChange('grid')}
+                className="h-8 px-3"
+              >
+                <Grid className="w-4 h-4 sm:mr-1" />
+                <span className="hidden sm:inline">Grid</span>
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => handleViewModeChange('table')}
+                className="h-8 px-3"
+              >
+                <List className="w-4 h-4 sm:mr-1" />
+                <span className="hidden sm:inline">Table</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
