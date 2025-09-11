@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </button>
 
             {/* Network badge hidden on very small screens to save space */}
-            <div className="hidden xs:flex">
+            <div className="hidden sm:flex">
               {(() => {
                 const netId = config.network.defaultNetworkId;
                 const { label, variant } = getNetworkBadge(netId);
