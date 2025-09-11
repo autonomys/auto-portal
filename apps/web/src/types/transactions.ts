@@ -13,18 +13,18 @@ export interface OperatorTransactionBase {
 
 export interface DepositTransaction extends OperatorTransactionBase {
   type: 'deposit';
-  amount: string; // pending_amount or known amount as string
-  storageFee: string; // known or pending storage fee deposit as string
-  effectiveEpoch?: string; // pending_effective_domain_epoch as string
-  status: 'pending' | 'processing' | 'finalized';
+  amount: string; // pending_amount
+  storageFee: string;
+  effectiveEpoch?: string | number; // pending_effective_domain_epoch
+  status: 'pending' | 'complete';
 }
 
 export interface WithdrawalTransaction extends OperatorTransactionBase {
   type: 'withdrawal';
   amount: string; // total_withdrawal_amount
   storageFeeRefund: string; // total_storage_fee_withdrawal
-  unlockBlock?: string; // withdrawal_in_shares_unlock_block
-  status: 'pending_unlock' | 'recorded';
+  unlockBlock?: string | number; // withdrawal_in_shares_unlock_block
+  status: 'pending' | 'complete';
 }
 
 export type OperatorTransaction = DepositTransaction | WithdrawalTransaction;

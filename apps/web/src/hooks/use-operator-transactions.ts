@@ -7,6 +7,14 @@ import type {
   DepositTransaction,
   WithdrawalTransaction,
 } from '@/types/transactions';
+import { deriveDepositStatus, deriveWithdrawalStatus } from '@/lib/transaction-status';
+import { getCurrentDomainEpochIndex } from '@/lib/epoch-utils';
+import {
+  checkWithdrawalUnlockStatus,
+  getCurrentDomainBlockNumber,
+  type WithdrawalUnlockStatus,
+} from '@/lib/withdrawal-utils';
+import { multiplySharesBySharePrice } from '@/lib/fixed-point';
 
 interface UseOperatorTransactionsOptions {
   pageSize?: number;
@@ -27,51 +35,7 @@ interface UseOperatorTransactionsReturn {
   setPage: (p: number) => void;
 }
 
-const toDepositTx = (row: DepositRow): DepositTransaction => {
-  const isPending = Number(row.pending_amount || '0') > 0;
-  const status: DepositTransaction['status'] = isPending
-    ? 'pending'
-    : row.processed
-      ? 'finalized'
-      : 'processing';
-
-  return {
-    id: row.id,
-    operatorId: row.operator_id,
-    domainId: row.domain_id,
-    address: row.address,
-    timestamp: row.timestamp,
-    blockHeight: row.block_height,
-    extrinsicIds: row.extrinsic_ids,
-    eventIds: row.event_ids,
-    type: 'deposit',
-    amount: row.pending_amount ?? '0',
-    storageFee: row.pending_storage_fee_deposit ?? row.known_storage_fee_deposit ?? '0',
-    effectiveEpoch: row.pending_effective_domain_epoch?.toString(),
-    status,
-  };
-};
-
-const toWithdrawalTx = (row: WithdrawalRow): WithdrawalTransaction => {
-  const isPending = Number(row.total_pending_withdrawals || '0') > 0;
-  const status: WithdrawalTransaction['status'] = isPending ? 'pending_unlock' : 'recorded';
-
-  return {
-    id: row.id,
-    operatorId: row.operator_id,
-    domainId: row.domain_id,
-    address: row.address,
-    timestamp: row.timestamp,
-    blockHeight: row.block_height,
-    extrinsicIds: row.extrinsic_ids,
-    eventIds: row.event_ids,
-    type: 'withdrawal',
-    amount: row.total_withdrawal_amount ?? '0',
-    storageFeeRefund: row.total_storage_fee_withdrawal ?? '0',
-    unlockBlock: row.withdrawal_in_shares_unlock_block?.toString(),
-    status,
-  };
-};
+// legacy mappers replaced by rich mapping inside useMemo
 
 export const useOperatorTransactions = (
   operatorId: string,
@@ -87,6 +51,11 @@ export const useOperatorTransactions = (
   const [withdrawalsCount, setWithdrawalsCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentDomainEpoch, setCurrentDomainEpoch] = useState<number | null>(null);
+  const [withdrawalUnlockStatuses, setWithdrawalUnlockStatuses] = useState<
+    Array<WithdrawalUnlockStatus | null>
+  >([]);
+  const [epochToSharePrice, setEpochToSharePrice] = useState<Record<number, string>>({});
 
   const fetchData = useCallback(async () => {
     if (!isConnected || !selectedAccount || !operatorId) return;
@@ -108,6 +77,75 @@ export const useOperatorTransactions = (
           offset: page * pageSize,
         }),
       ]);
+
+      // Determine domain id (prefer deposits, fallback to withdrawals)
+      const domainIdStr = dep.rows[0]?.domain_id ?? wit.rows[0]?.domain_id;
+      const domainIdNum = domainIdStr ? Number(domainIdStr) : NaN;
+
+      // Resolve current domain epoch (RPC preferred, fallback to latest share price epoch)
+      let resolvedEpoch: number | null = null;
+      if (Number.isFinite(domainIdNum)) {
+        try {
+          resolvedEpoch = await getCurrentDomainEpochIndex(domainIdNum);
+        } catch {
+          // ignore, fallback below
+        }
+      }
+      if (resolvedEpoch === null) {
+        try {
+          const latest = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
+          resolvedEpoch = latest[0]?.epoch_index ?? null;
+        } catch {
+          resolvedEpoch = null;
+        }
+      }
+
+      // Fetch share prices for withdrawal epochs to derive amounts from shares
+      let epochPriceMap: Record<number, string> = {};
+      try {
+        const epochs = wit.rows
+          .map(r => Number(r.withdrawal_in_shares_domain_epoch || ''))
+          .filter(e => Number.isFinite(e));
+        const domainIdForPrices = domainIdStr;
+        if (epochs.length > 0 && domainIdForPrices) {
+          const priceRows = await indexerService.getOperatorSharePricesByEpochs(
+            operatorId,
+            domainIdForPrices,
+            epochs,
+          );
+          epochPriceMap = priceRows.reduce<Record<number, string>>((acc, row) => {
+            acc[row.epoch_index] = row.share_price;
+            return acc;
+          }, {});
+        }
+      } catch {
+        epochPriceMap = {};
+      }
+
+      // Compute unlock statuses for withdrawals (use current domain block if available)
+      let unlockStatuses: Array<WithdrawalUnlockStatus | null> = [];
+      try {
+        if (Number.isFinite(domainIdNum) && wit.rows.length > 0) {
+          const currentBlock = await getCurrentDomainBlockNumber(Number(domainIdNum));
+          unlockStatuses = await Promise.all(
+            wit.rows.map(async row => {
+              const unlockBlock = Number(row.withdrawal_in_shares_unlock_block || '0');
+              if (!Number.isFinite(unlockBlock) || unlockBlock <= 0) return null;
+              try {
+                return await checkWithdrawalUnlockStatus(unlockBlock, currentBlock);
+              } catch {
+                return null;
+              }
+            }),
+          );
+        }
+      } catch {
+        unlockStatuses = [];
+      }
+
+      setCurrentDomainEpoch(resolvedEpoch);
+      setEpochToSharePrice(epochPriceMap);
+      setWithdrawalUnlockStatuses(unlockStatuses);
 
       setDeposits(dep.rows);
       setWithdrawals(wit.rows);
@@ -138,10 +176,63 @@ export const useOperatorTransactions = (
   }, [fetchData, refreshInterval]);
 
   const transactions = useMemo<OperatorTransaction[]>(() => {
-    const depTxs = deposits.map(toDepositTx);
-    const witTxs = withdrawals.map(toWithdrawalTx);
+    const depTxs = deposits.map(row => {
+      const status = deriveDepositStatus(row, currentDomainEpoch ?? undefined);
+      const tx: DepositTransaction = {
+        id: row.id,
+        operatorId: row.operator_id,
+        domainId: row.domain_id,
+        address: row.address,
+        timestamp: row.timestamp,
+        blockHeight: row.block_height,
+        extrinsicIds: row.extrinsic_ids,
+        eventIds: row.event_ids,
+        type: 'deposit',
+        amount: row.pending_amount ?? '0',
+        storageFee: row.pending_storage_fee_deposit ?? row.known_storage_fee_deposit ?? '0',
+        effectiveEpoch: row.pending_effective_domain_epoch?.toString(),
+        status,
+      };
+      return tx;
+    });
+
+    const witTxs = withdrawals.map((row, idx) => {
+      const unlockStatus = withdrawalUnlockStatuses[idx] ?? undefined;
+      const status = deriveWithdrawalStatus(row, unlockStatus);
+
+      // Derive amount from shares when needed: amount = shares * share_price / 1e18
+      let amount = row.total_withdrawal_amount ?? '0';
+      const hasProvidedAmount = Number(amount || '0') > 0;
+      const sharesStr = row.withdrawal_in_shares_amount;
+      const epochStr = row.withdrawal_in_shares_domain_epoch;
+
+      if (!hasProvidedAmount && sharesStr && epochStr) {
+        const epochIndex = Number(epochStr);
+        const sharePrice = epochToSharePrice[epochIndex];
+        if (sharePrice) {
+          amount = multiplySharesBySharePrice(sharesStr, sharePrice);
+        }
+      }
+
+      const tx: WithdrawalTransaction = {
+        id: row.id,
+        operatorId: row.operator_id,
+        domainId: row.domain_id,
+        address: row.address,
+        timestamp: row.timestamp,
+        blockHeight: row.block_height,
+        extrinsicIds: row.extrinsic_ids,
+        eventIds: row.event_ids,
+        type: 'withdrawal',
+        amount: amount,
+        storageFeeRefund: row.total_storage_fee_withdrawal ?? '0',
+        unlockBlock: row.withdrawal_in_shares_unlock_block?.toString(),
+        status,
+      };
+      return tx;
+    });
     return [...depTxs, ...witTxs].sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
-  }, [deposits, withdrawals]);
+  }, [deposits, withdrawals, currentDomainEpoch, withdrawalUnlockStatuses]);
 
   return {
     deposits,

@@ -151,6 +151,29 @@ const GET_SHARE_PRICES_UNTIL = gql`
   }
 `;
 
+// GraphQL: share prices for a set of epoch indexes (exact matches)
+const GET_SHARE_PRICES_BY_EPOCHS = gql`
+  query GetSharePricesByEpochs($operatorId: String!, $domainId: String!, $epochIndexes: [Int!]!) {
+    operator_epoch_share_prices: staking_operator_epoch_share_prices(
+      where: {
+        operator_id: { _eq: $operatorId }
+        domain_id: { _eq: $domainId }
+        epoch_index: { _in: $epochIndexes }
+      }
+      order_by: { epoch_index: asc }
+    ) {
+      operator_id
+      domain_id
+      epoch_index
+      share_price
+      total_stake
+      total_shares
+      timestamp
+      block_height
+    }
+  }
+`;
+
 // GraphQL: aggregate nominator count for an operator (active only)
 const GET_NOMINATOR_COUNT = gql`
   query GetNominatorCount($operatorId: String!) {
@@ -437,6 +460,27 @@ export const indexerService = {
       return result.data.operator_epoch_share_prices;
     } catch (error) {
       console.error('❌ Failed to fetch share prices until timestamp:', error);
+      throw error;
+    }
+  },
+
+  // Fetch share prices by a list of epoch indexes for an operator/domain
+  async getOperatorSharePricesByEpochs(
+    operatorId: string,
+    domainId: string,
+    epochIndexes: number[],
+  ): Promise<OperatorEpochSharePriceRow[]> {
+    try {
+      const uniq = Array.from(new Set(epochIndexes)).filter(e => Number.isFinite(e));
+      if (uniq.length === 0) return [];
+      const result = await getClient().query<OperatorEpochSharePricesResponse>({
+        query: GET_SHARE_PRICES_BY_EPOCHS,
+        variables: { operatorId, domainId, epochIndexes: uniq },
+        fetchPolicy: 'network-only',
+      });
+      return result.data.operator_epoch_share_prices;
+    } catch (error) {
+      console.error('❌ Failed to fetch share prices by epochs:', error);
       throw error;
     }
   },
