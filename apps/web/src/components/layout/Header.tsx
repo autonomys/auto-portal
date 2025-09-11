@@ -26,9 +26,9 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   return (
     <header className={`bg-background border-b border-border ${className}`}>
       <div className={layout.container}>
-        <div className={layout.flexBetween + ' h-16'}>
+        <div className={layout.flexBetween + ' h-16 min-w-0'}>
           {/* Logo and Brand */}
-          <div className={layout.inline('sm')}>
+          <div className={layout.inline('sm') + ' flex-shrink-0'}>
             <img src="/autonomys-icon-dark.svg" alt="Autonomys" className="h-8 w-8" />
             <span className="text-h4 text-foreground hidden sm:inline">Autonomys Staking</span>
             <span className="text-h4 text-foreground sm:hidden">Autonomys</span>
@@ -59,12 +59,16 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
           </div>
 
           {/* Mobile Menu Button and Wallet */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1 sm:gap-2 flex-shrink-0">
+            {/* Network Badge - Always visible on mobile */}
             {(() => {
               const netId = config.network.defaultNetworkId;
               const { label, variant } = getNetworkBadge(netId);
               return (
-                <Badge variant={variant as BadgeVariant} className="uppercase tracking-wide text-xs px-2 py-1">
+                <Badge 
+                  variant={variant as BadgeVariant} 
+                  className="uppercase tracking-wide text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 flex-shrink-0 font-medium"
+                >
                   {label}
                 </Badge>
               );
@@ -74,9 +78,9 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2"
+              className="p-1.5 sm:p-2 flex-shrink-0 ml-1"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
             </Button>
           </div>
         </div>
