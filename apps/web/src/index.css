@@ -219,23 +219,23 @@
 @layer utilities {
   /* Typography utilities for semantic text styling */
   .text-display {
-    @apply text-5xl font-serif font-bold leading-tight;
+    @apply text-4xl sm:text-5xl md:text-6xl font-serif font-bold leading-tight;
   }
   
   .text-h1 {
-    @apply text-4xl font-serif font-bold leading-tight;
+    @apply text-3xl sm:text-4xl font-serif font-bold leading-tight;
   }
   
   .text-h2 {
-    @apply text-2xl font-serif font-semibold leading-tight;
+    @apply text-xl sm:text-2xl font-serif font-semibold leading-tight;
   }
   
   .text-h3 {
-    @apply text-xl font-serif font-semibold leading-snug;
+    @apply text-lg sm:text-xl font-serif font-semibold leading-snug;
   }
   
   .text-h4 {
-    @apply text-lg font-serif font-medium leading-snug;
+    @apply text-base sm:text-lg font-serif font-medium leading-snug;
   }
   
   .text-body {

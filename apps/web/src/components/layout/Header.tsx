@@ -12,6 +12,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <header className={`bg-background border-b border-border ${className}`}>
@@ -25,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </div>
           </div>
 
-          {/* Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <NavLink
               to="/dashboard"
@@ -53,19 +54,91 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </NavLink>
           </nav>
 
-          {/* Wallet Connection and Network Badge */}
+          {/* Right side controls */}
           <div className={layout.inline('md') + ' items-center gap-3'}>
-            {(() => {
-              const netId = config.network.defaultNetworkId;
-              const { label, variant } = getNetworkBadge(netId);
-              return (
-                <Badge variant={variant as BadgeVariant} className="uppercase tracking-wide">
-                  {label}
-                </Badge>
-              );
-            })()}
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(prev => !prev)}
+            >
+              <svg
+                className={`h-6 w-6 ${mobileOpen ? 'hidden' : 'block'}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <svg
+                className={`h-6 w-6 ${mobileOpen ? 'block' : 'hidden'}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Network badge hidden on very small screens to save space */}
+            <div className="hidden xs:flex">
+              {(() => {
+                const netId = config.network.defaultNetworkId;
+                const { label, variant } = getNetworkBadge(netId);
+                return (
+                  <Badge variant={variant as BadgeVariant} className="uppercase tracking-wide">
+                    {label}
+                  </Badge>
+                );
+              })()}
+            </div>
             <WalletButton onOpenModal={() => setWalletModalOpen(true)} />
           </div>
+        </div>
+
+        {/* Mobile Navigation Panel */}
+        <div
+          className={`${mobileOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'} md:hidden overflow-hidden transition-all duration-200 ease-out`}
+        >
+          <nav className="pt-2 pb-4 space-y-1">
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-md text-label ${
+                  isActive
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`
+              }
+              onClick={() => setMobileOpen(false)}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink
+              to="/operators"
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-md text-label ${
+                  isActive
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`
+              }
+              onClick={() => setMobileOpen(false)}
+            >
+              Operators
+            </NavLink>
+          </nav>
         </div>
       </div>
 

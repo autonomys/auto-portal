@@ -59,73 +59,75 @@ const PositionRow: React.FC<PositionRowProps> = ({
     position.positionValue + position.storageFeeDeposit + (position.pendingDeposit?.amount || 0);
 
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
-      <div className="flex-1 space-y-2">
-        <div className="flex items-center gap-3">
-          <h4 className="font-medium font-sans">{position.operatorName}</h4>
-          <Badge variant={getStatusVariant(position.status)} className="text-xs">
-            {position.status}
-          </Badge>
-        </div>
-
-        {/* Position Details */}
-        <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground font-sans">
-          <div>
-            <span className="block text-xs text-muted-foreground">Last Updated</span>
-            <span>{formatTimeAgo(position.lastUpdated.getTime())}</span>
+    <div className="p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 space-y-2 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <h4 className="font-medium font-sans">{position.operatorName}</h4>
+            <Badge variant={getStatusVariant(position.status)} className="text-xs">
+              {position.status}
+            </Badge>
           </div>
+
+          {/* Position Details */}
+          <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground font-sans">
+            <div>
+              <span className="block text-xs text-muted-foreground">Last Updated</span>
+              <span>{formatTimeAgo(position.lastUpdated.getTime())}</span>
+            </div>
+          </div>
+
+          {/* Pending Operations */}
+          {(position.pendingDeposit || position.pendingWithdrawals.length > 0) && (
+            <div className="flex flex-wrap gap-4 text-sm">
+              {position.pendingDeposit && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
+                  <span className={getStatusColor('pending')}>1 pending deposit</span>
+                </div>
+              )}
+              {position.pendingWithdrawals.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
+                  <span className={getStatusColor('withdrawing')}>
+                    {position.pendingWithdrawals.length} pending withdrawal
+                    {position.pendingWithdrawals.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Pending Operations */}
-        {(position.pendingDeposit || position.pendingWithdrawals.length > 0) && (
-          <div className="flex gap-4 text-sm">
-            {position.pendingDeposit && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-success-500 rounded-full animate-pulse"></div>
-                <span className={getStatusColor('pending')}>1 pending deposit</span>
-              </div>
+        <div className="flex sm:flex-col sm:items-end items-start gap-2 sm:gap-2 min-w-0">
+          <div className="text-xl font-mono font-bold text-foreground sm:text-right">
+            <Tooltip content={<PositionBreakdown position={position} />} side="left">
+              <span className="cursor-help break-words">{formatAI3(totalPositionValue, 2)}</span>
+            </Tooltip>
+          </div>
+          <div className="flex gap-2 sm:justify-end flex-wrap">
+            {position.positionValue > 0 && onAddStakeClick && (
+              <Button
+                size="sm"
+                onClick={() => onAddStakeClick(position)}
+                disabled={!isWalletConnected}
+                className="text-xs font-sans"
+              >
+                Add Stake
+              </Button>
             )}
-            {position.pendingWithdrawals.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-warning-500 rounded-full animate-pulse"></div>
-                <span className={getStatusColor('withdrawing')}>
-                  {position.pendingWithdrawals.length} pending withdrawal
-                  {position.pendingWithdrawals.length > 1 ? 's' : ''}
-                </span>
-              </div>
+            {position.positionValue > 0 && onWithdrawClick && (
+              <Button
+                variant="warningOutline"
+                size="sm"
+                onClick={() => onWithdrawClick(position)}
+                disabled={!isWalletConnected}
+                className="text-xs font-sans"
+              >
+                Withdraw
+              </Button>
             )}
           </div>
-        )}
-      </div>
-
-      <div className="flex flex-col items-end space-y-2 min-w-[200px]">
-        <div className="text-xl font-mono font-bold text-foreground text-right">
-          <Tooltip content={<PositionBreakdown position={position} />} side="left">
-            <span className="cursor-help">{formatAI3(totalPositionValue, 2)}</span>
-          </Tooltip>
-        </div>
-        <div className="flex gap-2 justify-end">
-          {position.positionValue > 0 && onAddStakeClick && (
-            <Button
-              size="sm"
-              onClick={() => onAddStakeClick(position)}
-              disabled={!isWalletConnected}
-              className="text-xs font-sans"
-            >
-              Add Stake
-            </Button>
-          )}
-          {position.positionValue > 0 && onWithdrawClick && (
-            <Button
-              variant="warningOutline"
-              size="sm"
-              onClick={() => onWithdrawClick(position)}
-              disabled={!isWalletConnected}
-              className="text-xs font-sans"
-            >
-              Withdraw
-            </Button>
-          )}
         </div>
       </div>
     </div>
