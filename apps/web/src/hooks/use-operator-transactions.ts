@@ -178,6 +178,7 @@ export const useOperatorTransactions = (
   const transactions = useMemo<OperatorTransaction[]>(() => {
     const depTxs = deposits.map(row => {
       const status = deriveDepositStatus(row, currentDomainEpoch ?? undefined);
+
       const tx: DepositTransaction = {
         id: row.id,
         operatorId: row.operator_id,
@@ -189,7 +190,7 @@ export const useOperatorTransactions = (
         eventIds: row.event_ids,
         type: 'deposit',
         amount: row.pending_amount ?? '0',
-        storageFee: row.pending_storage_fee_deposit ?? row.known_storage_fee_deposit ?? '0',
+        storageFeeDeposit: row.pending_storage_fee_deposit ?? '0',
         effectiveEpoch: row.pending_effective_domain_epoch?.toString(),
         status,
       };
@@ -232,7 +233,7 @@ export const useOperatorTransactions = (
       return tx;
     });
     return [...depTxs, ...witTxs].sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
-  }, [deposits, withdrawals, currentDomainEpoch, withdrawalUnlockStatuses]);
+  }, [deposits, withdrawals, currentDomainEpoch, withdrawalUnlockStatuses, epochToSharePrice]);
 
   return {
     deposits,

@@ -36,12 +36,12 @@ export const deriveWithdrawalStatus = (
   row: WithdrawalRow,
   unlockStatus?: WithdrawalUnlockStatus,
 ): WithdrawalTransaction['status'] => {
-  const pendingCount = Number(row.total_pending_withdrawals || '0');
-  if (pendingCount > 0) {
-    if (unlockStatus && unlockStatus.blocksRemaining === 0) {
-      return 'complete';
-    }
-    return 'pending';
+  // Prefer live RPC unlock signal when available
+  if (unlockStatus) {
+    return unlockStatus.blocksRemaining > 0 ? 'pending' : 'complete';
   }
-  return 'complete';
+
+  // Fallback to indexer aggregate if RPC unavailable
+  const pendingCount = Number(row.total_pending_withdrawals || '0');
+  return pendingCount > 0 ? 'pending' : 'complete';
 };

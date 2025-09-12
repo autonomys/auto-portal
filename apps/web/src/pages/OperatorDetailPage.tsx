@@ -2,17 +2,21 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useWallet } from '@/hooks/use-wallet';
 import { useOperatorTransactions } from '@/hooks/use-operator-transactions';
+import { useOperatorPosition } from '@/hooks/use-positions';
 import { Card } from '@/components/ui/card';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
 import { Badge } from '@/components/ui/badge';
 import { getSemanticColors, getTransactionStatusColors } from '@/lib/design-tokens';
-import { shannonsToAI3 } from '@/lib/unit-conversions';
+import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
+import type { OperatorTransaction } from '@/types/transactions';
+import { STORAGE_FUND_PERCENTAGE } from '@/constants/staking';
 
 export const OperatorDetailPage: React.FC = () => {
   const { operatorId = '' } = useParams();
   const { isConnected } = useWallet();
+  const { position, loading: positionLoading } = useOperatorPosition(operatorId);
 
   const {
     transactions,
@@ -25,6 +29,44 @@ export const OperatorDetailPage: React.FC = () => {
     depositsCount,
     withdrawalsCount,
   } = useOperatorTransactions(operatorId, { pageSize: 25 });
+
+  const transactionsToRender = React.useMemo<OperatorTransaction[]>(() => {
+    const hasPendingDepositRow = transactions.some(
+      t => t.type === 'deposit' && t.status === 'pending',
+    );
+
+    // If there is a pending deposit, but no pending deposit row, add a synthetic deposit row representing the pending deposit
+    if (!hasPendingDepositRow && position?.pendingDeposit) {
+      const domainIdCandidate: string =
+        (transactions[0] && (transactions[0] as OperatorTransaction).domainId) ||
+        (deposits[0] && deposits[0].domain_id) ||
+        (withdrawals[0] && withdrawals[0].domain_id) ||
+        '0';
+      const { amount } = position.pendingDeposit;
+      const storageAi3 = amount * (STORAGE_FUND_PERCENTAGE / (1 - STORAGE_FUND_PERCENTAGE));
+      const syntheticDeposit: OperatorTransaction = {
+        id: `synthetic-deposit-${operatorId}-${
+          position.pendingDeposit.effectiveEpoch ?? 'unknown'
+        }`,
+        operatorId: operatorId,
+        domainId: String(domainIdCandidate),
+        address: '',
+        timestamp: new Date().toISOString(),
+        blockHeight: '',
+        extrinsicIds: undefined,
+        eventIds: undefined,
+        type: 'deposit',
+        amount: ai3ToShannons(amount),
+        storageFeeDeposit: ai3ToShannons(storageAi3),
+        effectiveEpoch: position.pendingDeposit.effectiveEpoch,
+        status: 'pending',
+      } as OperatorTransaction;
+
+      return [syntheticDeposit, ...transactions];
+    }
+
+    return transactions;
+  }, [transactions, position, operatorId, deposits, withdrawals]);
 
   if (!operatorId) {
     return (
@@ -51,6 +93,27 @@ export const OperatorDetailPage: React.FC = () => {
         <Text as="p" variant="bodySmall" className="text-muted-foreground">
           View your deposits and withdrawals for this operator.
         </Text>
+        {isConnected && !positionLoading && position && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {position.pendingDeposit && (
+              <Badge
+                variant="outline"
+                className="bg-warning-100 text-warning-800 border-warning-200"
+              >
+                Pending deposit
+              </Badge>
+            )}
+            {position.pendingWithdrawals.length > 0 && (
+              <Badge
+                variant="outline"
+                className="bg-warning-100 text-warning-800 border-warning-200"
+              >
+                {position.pendingWithdrawals.length} pending withdrawal
+                {position.pendingWithdrawals.length > 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
 
       <Card className="p-4 space-y-3">
@@ -76,7 +139,7 @@ export const OperatorDetailPage: React.FC = () => {
 
         {loading ? (
           <Text variant="bodySmall">Loading...</Text>
-        ) : transactions.length === 0 ? (
+        ) : transactionsToRender.length === 0 ? (
           <Text variant="bodySmall" className="text-muted-foreground">
             No transactions found.
           </Text>
@@ -86,20 +149,19 @@ export const OperatorDetailPage: React.FC = () => {
               <thead>
                 <tr className="text-left">
                   <th className="py-2 pr-4">Type</th>
-                  <th className="py-2 pr-4">Amount</th>
-                  <th className="py-2 pr-4">Storage</th>
+                  <th className="py-2 pr-4">Staked Amount</th>
+                  <th className="py-2 pr-4">Storage Fee Deposit</th>
                   <th className="py-2 pr-4">Status</th>
                   <th className="py-2 pr-4">Timestamp</th>
                   <th className="py-2 pr-4">Block</th>
                 </tr>
               </thead>
               <tbody>
-                {transactions.map(tx => {
+                {transactionsToRender.map(tx => {
                   const normalizedStatus = (() => {
                     if (tx.type === 'deposit') {
                       return tx.status === 'complete' ? 'confirmed' : 'pending';
                     }
-                    // withdrawal
                     return tx.status === 'complete' ? 'confirmed' : 'pending';
                   })();
                   const statusClasses = getTransactionStatusColors(
@@ -113,8 +175,8 @@ export const OperatorDetailPage: React.FC = () => {
                         {'amount' in tx ? formatAI3(shannonsToAI3(tx.amount)) : ''}
                       </td>
                       <td className="py-2 pr-4">
-                        {'storageFee' in tx
-                          ? formatAI3(shannonsToAI3(tx.storageFee))
+                        {'storageFeeDeposit' in tx
+                          ? formatAI3(shannonsToAI3(tx.storageFeeDeposit))
                           : 'storageFeeRefund' in tx
                             ? formatAI3(shannonsToAI3(tx.storageFeeRefund))
                             : ''}

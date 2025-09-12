@@ -14,7 +14,7 @@ export interface OperatorTransactionBase {
 export interface DepositTransaction extends OperatorTransactionBase {
   type: 'deposit';
   amount: string; // pending_amount
-  storageFee: string;
+  storageFeeDeposit: string;
   effectiveEpoch?: string | number; // pending_effective_domain_epoch
   status: 'pending' | 'complete';
 }
