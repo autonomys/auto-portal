@@ -35,8 +35,6 @@ interface UseOperatorTransactionsReturn {
   setPage: (p: number) => void;
 }
 
-// legacy mappers replaced by rich mapping inside useMemo
-
 export const useOperatorTransactions = (
   operatorId: string,
   options: UseOperatorTransactionsOptions = {},
