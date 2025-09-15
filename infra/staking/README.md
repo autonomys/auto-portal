@@ -148,6 +148,8 @@ make start
 curl -I --resolve "$TRAEFIK_DOMAIN:443:127.0.0.1" https://$TRAEFIK_DOMAIN/v1/graphql
 ```
 
+Traefik stores ACME certificates in `/letsencrypt/acme.json`. The compose stack includes a small `traefik-init` service that ensures the file exists and is set to `0600` to protect private keys.
+
 #### Rate limits
 
 Default limits are configured via labels:

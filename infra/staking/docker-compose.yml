@@ -278,6 +278,14 @@ services:
       - traefik.http.middlewares.console-ratelimit.ratelimit.period=1m
       - traefik.http.middlewares.console-ratelimit.ratelimit.sourcecriterion.requestheadername=CF-Connecting-IP
 
+  # Init to enforce proper permissions for ACME storage file
+  traefik-init:
+    image: alpine:3.19
+    command: sh -c "mkdir -p /letsencrypt && touch /letsencrypt/acme.json && chmod 600 /letsencrypt/acme.json"
+    volumes:
+      - traefik_letsencrypt:/letsencrypt
+    restart: 'no'
+
   # Reverse proxy with TLS + rate limiting (Traefik)
   traefik:
     image: traefik:v3.1
@@ -285,6 +293,8 @@ services:
     depends_on:
       hasura:
         condition: service_healthy
+      traefik-init:
+        condition: service_completed_successfully
     ports:
       - '80:80'
       - '443:443'
