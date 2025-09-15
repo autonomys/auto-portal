@@ -157,6 +157,11 @@ Default limits are configured via labels:
 /console     → 30 req/min, burst 60, keyed by CF-Connecting-IP
 ```
 
+Note: These limits are keyed by the `CF-Connecting-IP` header, which is only present when requests pass through the Cloudflare proxy. If Cloudflare is disabled (gray cloud) or you are testing locally, either:
+
+- send a `CF-Connecting-IP` header from your client for testing, or
+- switch the middleware to key by source IP (Traefik `sourcecriterion.ipstrategy`) in a non‑CF profile.
+
 Adjust in `docker-compose.yml` under the `hasura` service labels.
 
 #### Cloudflare (recommended)
