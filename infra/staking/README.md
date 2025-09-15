@@ -9,6 +9,8 @@ This directory contains the Docker Compose setup for the Auto Portal staking ind
 - **PostgreSQL Storage**: Persistent database with connection pooling
 - **Redis Task Queue**: For background worker processing
 - **Hasura GraphQL**: Production-compatible GraphQL API layer
+- **TLS & Reverse Proxy**: Traefik terminates TLS automatically (Let’s Encrypt via Cloudflare DNS‑01)
+- **Rate Limiting at Origin**: Traefik applies per‑IP limits for `/v1/graphql` and `/console`
 
 ## Quick Start
 
@@ -90,6 +92,11 @@ graph TD
 - **Hasura GraphQL**: `http://localhost:8080/v1/graphql` (configurable via `HASURA_GRAPHQL_PORT`)
 - **Hasura Console**: `http://localhost:8080/console` (configurable, password via `HASURA_GRAPHQL_ADMIN_SECRET`)
 
+If you set a public domain (see below):
+
+- **Public GraphQL**: `https://$TRAEFIK_DOMAIN/v1/graphql`
+- **Public Console**: `https://$TRAEFIK_DOMAIN/console`
+
 ## Configuration
 
 ### **Hasura Settings**
@@ -111,6 +118,53 @@ HASURA_GRAPHQL_ENABLE_INTROSPECTION=true   # Consider disabling in production
 - **Production**: Set `NODE_ENV=production` to hide secrets in logs
 - **Generate secure secret**: `openssl rand -hex 32`
 - **Disable console and dev mode** in production environments
+
+### **Edge / Proxy Settings (Traefik + Cloudflare)**
+
+This stack now fronts Hasura directly with Traefik (TLS + rate limiting):
+
+```
+Internet → Cloudflare (Proxied) → Traefik :443 → Hasura :8080
+```
+
+1. Set your public hostname and ACME details in `.env` (do not commit real hostnames or tokens):
+
+```bash
+# .env
+TRAEFIK_DOMAIN=subql.blue.mainnet.subspace.network
+TRAEFIK_ACME_EMAIL=you@example.com
+CF_DNS_API_TOKEN=***
+```
+
+2. Start services:
+
+```bash
+make start
+```
+
+3. Verify routing and TLS (expect 200/401 depending on Hasura settings):
+
+```bash
+curl -I --resolve "$TRAEFIK_DOMAIN:443:127.0.0.1" https://$TRAEFIK_DOMAIN/v1/graphql
+```
+
+#### Rate limits
+
+Default limits are configured via labels:
+
+```text
+/v1/graphql  → 100 req/min, burst 200, keyed by CF-Connecting-IP
+/console     → 30 req/min, burst 60, keyed by CF-Connecting-IP
+```
+
+Adjust in `docker-compose.yml` under the `hasura` service labels.
+
+#### Cloudflare (recommended)
+
+- DNS: `A subql.blue.mainnet → <instance ip>` with Proxy enabled
+- SSL/TLS: set to “Full (strict)”
+- Caching: bypass for `/v1/graphql` and `/console`
+- Optional: Cloudflare Rate Limiting/WAF on the same paths
 
 ## Common Commands
 
@@ -196,6 +250,24 @@ docker compose exec postgres-staking psql -U postgres -d staking
 ```
 
 ### Network Issues
+
+#### Domain / Proxy
+
+```bash
+# Check Traefik logs
+docker compose logs -f traefik
+
+# Test origin routing with SNI + Host (expects 200/401)
+curl -I --resolve "$TRAEFIK_DOMAIN:443:127.0.0.1" https://$TRAEFIK_DOMAIN/v1/graphql
+```
+
+If Cloudflare shows 52x errors:
+
+- Ensure Traefik is listening on 443 and has a certificate (see `docker compose logs traefik`)
+- Keep Cloudflare SSL/TLS to Full (strict)
+- Temporarily set DNS record to “DNS only” (gray cloud) to verify origin, then re‑enable Proxy
+
+#### Local Node RPC Connection
 
 ```bash
 # Test local node RPC connection (if using local-node profile)

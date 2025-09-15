@@ -4,6 +4,7 @@ volumes:
     name: node_data
   postgres_staking_db: {}
   redis_db: {}
+  traefik_letsencrypt: {}
 
 services:
   # Autonomys Node
@@ -236,3 +237,73 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    labels:
+      - traefik.enable=true
+      # Base service definition pointing to this container
+      - traefik.http.services.hasura-svc.loadbalancer.server.port=8080
+      - traefik.http.services.hasura-svc.loadbalancer.server.scheme=http
+      # GraphQL route (rate limited)
+      - traefik.http.routers.hasura-graphql.rule=Host(`${TRAEFIK_DOMAIN}`) && Path(`/v1/graphql`)
+      - traefik.http.routers.hasura-graphql.entrypoints=websecure
+      - traefik.http.routers.hasura-graphql.tls.certresolver=cloudflare
+      - traefik.http.routers.hasura-graphql.service=hasura-svc
+      - traefik.http.routers.hasura-graphql.priority=100
+      - traefik.http.routers.hasura-graphql.middlewares=graphql-ratelimit
+      # Console route (rate limited)
+      - traefik.http.routers.hasura-console.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/console`)
+      - traefik.http.routers.hasura-console.entrypoints=websecure
+      - traefik.http.routers.hasura-console.tls.certresolver=cloudflare
+      - traefik.http.routers.hasura-console.service=hasura-svc
+      - traefik.http.routers.hasura-console.priority=100
+      - traefik.http.routers.hasura-console.middlewares=console-ratelimit
+      # Health route
+      - traefik.http.routers.hasura-health.rule=Host(`${TRAEFIK_DOMAIN}`) && Path(`/healthz`)
+      - traefik.http.routers.hasura-health.entrypoints=websecure
+      - traefik.http.routers.hasura-health.tls.certresolver=cloudflare
+      - traefik.http.routers.hasura-health.service=hasura-svc
+      - traefik.http.routers.hasura-health.priority=100
+      # Catch-all fallback (no rate limit)
+      - traefik.http.routers.hasura-catchall.rule=Host(`${TRAEFIK_DOMAIN}`) && PathPrefix(`/`)
+      - traefik.http.routers.hasura-catchall.entrypoints=websecure
+      - traefik.http.routers.hasura-catchall.tls.certresolver=cloudflare
+      - traefik.http.routers.hasura-catchall.service=hasura-svc
+      - traefik.http.routers.hasura-catchall.priority=1
+      # Rate limits (per CF-Connecting-IP)
+      - traefik.http.middlewares.graphql-ratelimit.ratelimit.average=100
+      - traefik.http.middlewares.graphql-ratelimit.ratelimit.burst=200
+      - traefik.http.middlewares.graphql-ratelimit.ratelimit.period=1m
+      - traefik.http.middlewares.graphql-ratelimit.ratelimit.sourcecriterion.requestheadername=CF-Connecting-IP
+      - traefik.http.middlewares.console-ratelimit.ratelimit.average=30
+      - traefik.http.middlewares.console-ratelimit.ratelimit.burst=60
+      - traefik.http.middlewares.console-ratelimit.ratelimit.period=1m
+      - traefik.http.middlewares.console-ratelimit.ratelimit.sourcecriterion.requestheadername=CF-Connecting-IP
+
+  # Reverse proxy with TLS + rate limiting (Traefik)
+  traefik:
+    image: traefik:v3.1
+    restart: unless-stopped
+    depends_on:
+      hasura:
+        condition: service_healthy
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    command:
+      - --api.dashboard=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --certificatesresolvers.cloudflare.acme.dnschallenge=true
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.cloudflare.acme.email=${TRAEFIK_ACME_EMAIL}
+      - --certificatesresolvers.cloudflare.acme.storage=/letsencrypt/acme.json
+      - --serversTransport.forwardingTimeouts.responseHeaderTimeout=3600s
+      - --serversTransport.forwardingTimeouts.idleConnTimeout=3600s
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
