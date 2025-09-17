@@ -73,6 +73,12 @@
 - table:
     schema: staking
     name: unlocked_events
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 50
 - table:
     schema: staking
     name: withdrawals
