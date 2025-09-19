@@ -10,9 +10,23 @@
 - table:
     schema: staking
     name: nominator_deposits
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 50
+        allow_aggregations: true
 - table:
     schema: staking
     name: nominator_withdrawals
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 50
+        allow_aggregations: true
 - table:
     schema: staking
     name: nominators
@@ -21,6 +35,7 @@
       permission:
         columns: '*'
         filter: {}
+        limit: 50
         allow_aggregations: true
 - table:
     schema: staking
@@ -36,7 +51,7 @@
       permission:
         columns: '*'
         filter: {}
-        allow_aggregations: true
+        limit: 50
 - table:
     schema: staking
     name: operator_registrations
