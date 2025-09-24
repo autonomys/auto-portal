@@ -130,8 +130,8 @@ __metadata:
   resolution: "@auto-portal/web@workspace:apps/web"
   dependencies:
     "@apollo/client": "npm:^3.8.10"
-    "@autonomys/auto-consensus": "npm:1.5.14"
-    "@autonomys/auto-utils": "npm:1.5.14"
+    "@autonomys/auto-consensus": "npm:1.5.17"
+    "@autonomys/auto-utils": "npm:1.5.17"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
@@ -168,22 +168,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@autonomys/auto-consensus@npm:1.5.14":
-  version: 1.5.14
-  resolution: "@autonomys/auto-consensus@npm:1.5.14"
+"@autonomys/auto-consensus@npm:1.5.17":
+  version: 1.5.17
+  resolution: "@autonomys/auto-consensus@npm:1.5.17"
   dependencies:
-    "@autonomys/auto-utils": "npm:^1.5.14"
-  checksum: 10c0/c3aad302e216f5eedc3c2d97818d4fb2f24051f8c68b85a2efdf5cecc805b94a4241264e977bc6819b2abc8bebdcc8bb08b57dcedac77f87a599a4f882881369
+    "@autonomys/auto-utils": "npm:^1.5.17"
+  checksum: 10c0/1bae40bf190d62b336a657f63affaabc08daba688583fe0f0914ab77308a9325c50ab8113138468c3e5fe30cfc15e88c480cd228fc0e1d1dae40ea0e41eb45f0
   languageName: node
   linkType: hard
 
-"@autonomys/auto-utils@npm:1.5.14":
-  version: 1.5.14
-  resolution: "@autonomys/auto-utils@npm:1.5.14"
+"@autonomys/auto-utils@npm:1.5.17":
+  version: 1.5.17
+  resolution: "@autonomys/auto-utils@npm:1.5.17"
   dependencies:
     "@polkadot/api": "npm:^15.8.1"
     "@polkadot/extension-dapp": "npm:^0.58.6"
-  checksum: 10c0/d1c4d6a38d6b9029191dcae5e777b48717025f30b60f963772ee1d1220f4426cbfa96a27541962024c0dec0ee0a7c4ab35850edb7abbf53a04d8fb3378806951
+  checksum: 10c0/5d2dc6447d219d85ac98949777c1f064b2d235343961ddb0944132eaa1be93aec4df0d47169c4867b25edacf3f31c5fef69a6d9845f26b619699b2c77369933e
   languageName: node
   linkType: hard
 
