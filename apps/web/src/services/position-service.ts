@@ -1,6 +1,6 @@
 import { nominatorPosition } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
-import { shannonsToAI3 } from '@/lib/unit-conversions';
+import { shannonsToAi3 } from '@autonomys/auto-utils';
 import type {
   UserPosition,
   PortfolioSummary,
@@ -78,17 +78,17 @@ export const positionService = async (networkId: string = config.network.default
       if (hasPosition) {
         const pendingDeposit: PendingDeposit | null = positionData.pendingDeposit
           ? {
-              amount: shannonsToAI3(positionData.pendingDeposit.amount.toString()),
+              amount: parseFloat(shannonsToAi3(positionData.pendingDeposit.amount)),
               effectiveEpoch: positionData.pendingDeposit.effectiveEpoch,
             }
           : null;
 
         const pendingWithdrawals: PendingWithdrawal[] = positionData.pendingWithdrawals.map(
           withdrawal => {
-            const stakeWithdrawalAmount = shannonsToAI3(
-              withdrawal.stakeWithdrawalAmount.toString(),
+            const stakeWithdrawalAmount = parseFloat(
+              shannonsToAi3(withdrawal.stakeWithdrawalAmount),
             );
-            const storageFeeRefund = shannonsToAI3(withdrawal.storageFeeRefund.toString());
+            const storageFeeRefund = parseFloat(shannonsToAi3(withdrawal.storageFeeRefund));
 
             // Total amount user will receive = net stake + storage fund refund
             const grossWithdrawalAmount = stakeWithdrawalAmount + storageFeeRefund;
@@ -105,9 +105,9 @@ export const positionService = async (networkId: string = config.network.default
         return {
           operatorId,
           operatorName: `Operator ${operatorId}`,
-          positionValue: shannonsToAI3(positionData.currentStakedValue.toString()),
-          storageFeeDeposit: shannonsToAI3(
-            positionData.storageFeeDeposit.totalDeposited.toString(),
+          positionValue: parseFloat(shannonsToAi3(positionData.currentStakedValue)),
+          storageFeeDeposit: parseFloat(
+            shannonsToAi3(positionData.storageFeeDeposit.totalDeposited),
           ),
           pendingDeposit,
           pendingWithdrawals,

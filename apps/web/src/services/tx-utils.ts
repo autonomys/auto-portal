@@ -1,4 +1,6 @@
 // Shared helpers for sending transactions via Polkadot.js-style signAndSend
+import type { SubmittableExtrinsic } from '@polkadot/api/types';
+import type { ISubmittableResult, Signer } from '@polkadot/types/types';
 
 export interface TxResult {
   success: boolean;
@@ -7,54 +9,22 @@ export interface TxResult {
   error?: string;
 }
 
-interface TxStatusLike {
-  isInBlock?: boolean;
-  asInBlock?: { toString(): string };
-  isFinalized?: boolean;
-  asFinalized?: { toString(): string };
-  isDropped?: boolean;
-  isInvalid?: boolean;
-}
-
-interface TxEventRecordLike {
-  event: { section: string; method: string };
-}
-
-interface TxCallbackResultLike {
-  status?: TxStatusLike;
-  txHash?: { toString(): string };
-  events?: TxEventRecordLike[];
-}
-
-type SignAndSendFn = (
-  address: string,
-  options: { signer: unknown },
-  cb: (result: TxCallbackResultLike) => void,
-) => Promise<unknown>;
-
-export type TxProgressCallback = (result: TxCallbackResultLike) => void;
+export type TxProgressCallback = (result: ISubmittableResult) => void;
 
 export const signAndSendTx = async (
-  tx: { signAndSend: SignAndSendFn },
+  tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
   accountAddress: string,
-  signer: unknown,
+  signer: Signer,
   onProgress?: TxProgressCallback,
 ): Promise<TxResult> =>
   new Promise<TxResult>((resolve, reject) => {
     const unsubPromise = tx
-      .signAndSend(accountAddress, { signer }, (result: TxCallbackResultLike) => {
+      .signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
         if (onProgress) onProgress(result);
 
-        const { status, txHash, events } = result;
+        const { status, txHash, dispatchError } = result;
         if (status?.isInBlock) {
-          const errorEvent = events?.find(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (eventRecord: any) =>
-              eventRecord.event.section === 'system' &&
-              eventRecord.event.method === 'ExtrinsicFailed',
-          );
-
-          if (errorEvent) {
+          if (dispatchError) {
             resolve({
               success: false,
               error: 'Transaction failed during execution',

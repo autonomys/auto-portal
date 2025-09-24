@@ -1,6 +1,6 @@
 import { balance } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
-import { shannonsToAI3 } from '@/lib/unit-conversions';
+import { shannonsToAi3 } from '@autonomys/auto-utils';
 
 export interface WalletBalance {
   free: string;
@@ -13,14 +13,16 @@ export const fetchWalletBalance = async (address: string): Promise<WalletBalance
 
   const balanceData = await balance(api, address);
 
-  // Convert from shannons to AI3 using our wrapper functions
-  const freeAI3 = shannonsToAI3(balanceData.free.toString());
-  const reservedAI3 = shannonsToAI3(balanceData.reserved.toString());
-  const totalAI3 = freeAI3 + reservedAI3;
+  // Convert from shannons to AI3 using precise SDK helpers
+  const freeAI3 = shannonsToAi3(balanceData.free);
+  const reservedAI3 = shannonsToAi3(balanceData.reserved);
+  // Sum in shannons using BigInt-safe arithmetic
+  const totalShannons = BigInt(balanceData.free) + BigInt(balanceData.reserved);
+  const totalAI3 = shannonsToAi3(totalShannons);
 
   return {
-    free: freeAI3.toString(),
-    reserved: reservedAI3.toString(),
-    total: totalAI3.toString(),
+    free: freeAI3,
+    reserved: reservedAI3,
+    total: totalAI3,
   };
 };
