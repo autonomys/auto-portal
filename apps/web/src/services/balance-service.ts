@@ -14,10 +14,10 @@ export const fetchWalletBalance = async (address: string): Promise<WalletBalance
   const balanceData = await balance(api, address);
 
   // Convert from shannons to AI3 using precise SDK helpers
-  const freeAI3 = shannonsToAi3(balanceData.free.toString());
-  const reservedAI3 = shannonsToAi3(balanceData.reserved.toString());
-  // Sum in shannons to avoid string concatenation and precision issues
-  const totalShannons = balanceData.free + balanceData.reserved;
+  const freeAI3 = shannonsToAi3(balanceData.free);
+  const reservedAI3 = shannonsToAi3(balanceData.reserved);
+  // Sum in shannons using BigInt-safe arithmetic
+  const totalShannons = BigInt(balanceData.free) + BigInt(balanceData.reserved);
   const totalAI3 = shannonsToAi3(totalShannons);
 
   return {

@@ -12,13 +12,11 @@ export const mapRpcToOperator = (operatorId: string, rpcData: OperatorDetails): 
   }
 
   const minimumStake =
-    rpcData.minimumNominatorStake != null
-      ? shannonsToAi3(String(rpcData.minimumNominatorStake))
-      : '0';
+    rpcData.minimumNominatorStake != null ? shannonsToAi3(rpcData.minimumNominatorStake) : '0';
 
   // Normalize to bigint once for stake-related values
-  const stakeShannons = BigInt(String(rpcData.currentTotalStake ?? 0));
-  const storageShannons = BigInt(String(rpcData.totalStorageFeeDeposit ?? 0));
+  const stakeShannons = BigInt(rpcData.currentTotalStake ?? 0);
+  const storageShannons = BigInt(rpcData.totalStorageFeeDeposit ?? 0);
   const totalStaked = shannonsToAi3(stakeShannons);
   const totalStorageFund = shannonsToAi3(storageShannons);
   const totalPoolValue = shannonsToAi3(stakeShannons + storageShannons);

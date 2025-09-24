@@ -78,7 +78,7 @@ export const positionService = async (networkId: string = config.network.default
       if (hasPosition) {
         const pendingDeposit: PendingDeposit | null = positionData.pendingDeposit
           ? {
-              amount: parseFloat(shannonsToAi3(positionData.pendingDeposit.amount.toString())),
+              amount: parseFloat(shannonsToAi3(positionData.pendingDeposit.amount)),
               effectiveEpoch: positionData.pendingDeposit.effectiveEpoch,
             }
           : null;
