@@ -1,7 +1,7 @@
 import { nominateOperator } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
 import { signAndSendTx, type TxResult, isUserCancellationError } from './tx-utils';
-import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
+import { shannonsToAi3, ai3ToShannons } from '@autonomys/auto-utils';
 
 export interface StakingParams {
   operatorId: string;
@@ -36,7 +36,7 @@ export const stakingService = {
       const paymentInfo = await tx.paymentInfo(senderAddress);
 
       // Convert fee from shannons to AI3
-      const feeInAI3 = shannonsToAI3(paymentInfo.partialFee.toString());
+      const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
 
       return feeInAI3;
     } catch (error) {
@@ -58,7 +58,7 @@ export const stakingService = {
     const api = await getSharedApiConnection();
 
     // Convert AI3 to shannons
-    const amountInShannons = ai3ToShannons(amount);
+    const amountInShannons = ai3ToShannons(amount.toString());
 
     // Create the nominateOperator extrinsic
     const tx = await nominateOperator({

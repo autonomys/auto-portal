@@ -1,7 +1,7 @@
 import { unlockFunds, withdrawStakeAll, withdrawStakeByValue } from '@autonomys/auto-consensus';
 import { getSharedApiConnection } from './api-service';
 import { signAndSendTx, type TxResult, isUserCancellationError } from './tx-utils';
-import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
+import { shannonsToAi3, ai3ToShannons } from '@autonomys/auto-utils';
 
 export interface WithdrawalParams {
   operatorId: string;
@@ -52,7 +52,7 @@ export const withdrawalService = {
     try {
       const tx = await withdrawalService.createWithdrawTransaction(params, senderAddress);
       const paymentInfo = await tx.paymentInfo(senderAddress);
-      const feeInAI3 = shannonsToAI3(paymentInfo.partialFee.toString());
+      const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
       return feeInAI3;
     } catch (error) {
       console.error('Withdrawal fee estimation failed:', error);
@@ -70,7 +70,7 @@ export const withdrawalService = {
     try {
       const tx = await withdrawalService.createUnlockTransaction(params);
       const paymentInfo = await tx.paymentInfo(senderAddress);
-      const feeInAI3 = shannonsToAI3(paymentInfo.partialFee.toString());
+      const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
       return feeInAI3;
     } catch (error) {
       console.error('Unlock fee estimation failed:', error);
@@ -95,7 +95,7 @@ export const withdrawalService = {
       throw new Error('Amount is required for partial withdrawal');
     }
 
-    const amountInShannons = BigInt(ai3ToShannons(amount));
+    const amountInShannons = ai3ToShannons(amount.toString());
     return withdrawStakeByValue({
       api,
       operatorId,

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
 import { Badge } from '@/components/ui/badge';
 import { getSemanticColors, getTransactionStatusColors } from '@/lib/design-tokens';
-import { shannonsToAI3, ai3ToShannons } from '@/lib/unit-conversions';
+import { shannonsToAi3, ai3ToShannons } from '@autonomys/auto-utils';
 import type { OperatorTransaction } from '@/types/transactions';
 import { STORAGE_FUND_PERCENTAGE } from '@/constants/staking';
 
@@ -56,8 +56,8 @@ export const OperatorDetailPage: React.FC = () => {
         extrinsicIds: undefined,
         eventIds: undefined,
         type: 'deposit',
-        amount: ai3ToShannons(amount),
-        storageFeeDeposit: ai3ToShannons(storageAi3),
+        amount: ai3ToShannons(amount.toString()).toString(),
+        storageFeeDeposit: ai3ToShannons(storageAi3.toString()).toString(),
         effectiveEpoch: position.pendingDeposit.effectiveEpoch,
         status: 'pending',
       } as OperatorTransaction;
@@ -172,13 +172,13 @@ export const OperatorDetailPage: React.FC = () => {
                     <tr key={`${tx.type}-${tx.id}`} className="border-t">
                       <td className="py-2 pr-4 capitalize">{tx.type}</td>
                       <td className="py-2 pr-4">
-                        {'amount' in tx ? formatAI3(shannonsToAI3(tx.amount)) : ''}
+                        {'amount' in tx ? formatAI3(shannonsToAi3(tx.amount)) : ''}
                       </td>
                       <td className="py-2 pr-4">
                         {'storageFeeDeposit' in tx
-                          ? formatAI3(shannonsToAI3(tx.storageFeeDeposit))
+                          ? formatAI3(shannonsToAi3(tx.storageFeeDeposit))
                           : 'storageFeeRefund' in tx
-                            ? formatAI3(shannonsToAI3(tx.storageFeeRefund))
+                            ? formatAI3(shannonsToAi3(tx.storageFeeRefund))
                             : ''}
                       </td>
                       <td className="py-2 pr-4">
