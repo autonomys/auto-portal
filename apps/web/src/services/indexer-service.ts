@@ -7,6 +7,7 @@ import type {
   DepositsResponse,
   WithdrawalsResponse,
   NominatorSummaryResponse,
+  UnlockedEventsResponse,
 } from '@/types/indexer';
 import { config } from '@/config';
 
@@ -264,6 +265,69 @@ export const indexerService = {
     return {
       rows: result.data.staking_nominator_deposits,
       totalCount: result.data.staking_nominator_deposits_aggregate.aggregate.count,
+    };
+  },
+
+  // Fetch unlocked events (staking.unlocked_events) for address+operator with optional sinceBlock
+  async getUnlockedEventsByOperator(params: {
+    address: string;
+    operatorId: string;
+    sinceBlock?: string | number;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ rows: UnlockedEventsResponse['staking_unlocked_events']; totalCount: number }> {
+    const { address, operatorId, sinceBlock, limit = 50, offset = 0 } = params;
+
+    const QUERY = gql`
+      query GetUnlockedEventsByOperator(
+        $where: staking_unlocked_events_bool_exp!
+        $limit: Int!
+        $offset: Int!
+      ) {
+        staking_unlocked_events(
+          where: $where
+          order_by: { block_height: desc }
+          limit: $limit
+          offset: $offset
+        ) {
+          id
+          domain_id
+          operator_id
+          address
+          nominator_id
+          amount
+          storage_fee
+          timestamp
+          block_height
+          extrinsic_id
+          event_id
+          processed
+        }
+        staking_unlocked_events_aggregate(where: $where) {
+          aggregate {
+            count
+          }
+        }
+      }
+    `;
+
+    const where: Record<string, unknown> = {
+      address: { _eq: address },
+      operator_id: { _eq: operatorId },
+    };
+    if (sinceBlock !== undefined && sinceBlock !== null) {
+      where.block_height = { _gte: Number(sinceBlock) };
+    }
+
+    const result = await getClient().query<UnlockedEventsResponse>({
+      query: QUERY,
+      variables: { where, limit, offset },
+      fetchPolicy: 'network-only',
+    });
+
+    return {
+      rows: result.data.staking_unlocked_events,
+      totalCount: result.data.staking_unlocked_events_aggregate.aggregate.count,
     };
   },
 

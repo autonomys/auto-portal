@@ -171,6 +171,29 @@ export interface WithdrawalsResponse {
   };
 }
 
+// Rows: staking.unlocked_events (anonymous-select table)
+export interface UnlockedEventRow {
+  id: string;
+  domain_id: string;
+  operator_id: string;
+  address: string;
+  nominator_id: string;
+  amount: string; // numeric
+  storage_fee: string; // numeric
+  timestamp: string; // timestamptz
+  block_height: string; // numeric
+  extrinsic_id: string;
+  event_id: string;
+  processed: boolean;
+}
+
+export interface UnlockedEventsResponse {
+  staking_unlocked_events: UnlockedEventRow[];
+  staking_unlocked_events_aggregate: {
+    aggregate: { count: number };
+  };
+}
+
 // Row: staking.nominators (optional header context)
 export interface NominatorSummaryRow {
   id: string;
