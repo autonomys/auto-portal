@@ -61,7 +61,7 @@ export const useOperatorTransactions = (
     setLoading(true);
     setError(null);
     try {
-      const [dep, wit] = await Promise.all([
+      const [deposit, withdrawal] = await Promise.all([
         indexerService.getDepositsByOperator({
           address: selectedAccount.address,
           operatorId,
@@ -77,7 +77,7 @@ export const useOperatorTransactions = (
       ]);
 
       // Determine domain id (prefer deposits, fallback to withdrawals)
-      const domainIdStr = dep.rows[0]?.domain_id ?? wit.rows[0]?.domain_id;
+      const domainIdStr = deposit.rows[0]?.domain_id ?? withdrawal.rows[0]?.domain_id;
       const domainIdNum = domainIdStr ? Number(domainIdStr) : NaN;
 
       // Resolve current domain epoch (RPC preferred, fallback to latest share price epoch)
@@ -101,7 +101,7 @@ export const useOperatorTransactions = (
       // Fetch share prices for withdrawal epochs to derive amounts from shares
       let epochPriceMap: Record<number, string> = {};
       try {
-        const epochs = wit.rows
+        const epochs = withdrawal.rows
           .map(r => Number(r.withdrawal_in_shares_domain_epoch || ''))
           .filter(e => Number.isFinite(e));
         const domainIdForPrices = domainIdStr;
@@ -123,10 +123,10 @@ export const useOperatorTransactions = (
       // Compute unlock statuses for withdrawals (use current domain block if available)
       let unlockStatuses: Array<WithdrawalUnlockStatus | null> = [];
       try {
-        if (Number.isFinite(domainIdNum) && wit.rows.length > 0) {
+        if (Number.isFinite(domainIdNum) && withdrawal.rows.length > 0) {
           const currentBlock = await getCurrentDomainBlockNumber(Number(domainIdNum));
           unlockStatuses = await Promise.all(
-            wit.rows.map(async row => {
+            withdrawal.rows.map(async row => {
               const unlockBlock = Number(row.withdrawal_in_shares_unlock_block || '0');
               if (!Number.isFinite(unlockBlock) || unlockBlock <= 0) return null;
               try {
@@ -145,10 +145,10 @@ export const useOperatorTransactions = (
       setEpochToSharePrice(epochPriceMap);
       setWithdrawalUnlockStatuses(unlockStatuses);
 
-      setDeposits(dep.rows);
-      setWithdrawals(wit.rows);
-      setDepositsCount(dep.totalCount);
-      setWithdrawalsCount(wit.totalCount);
+      setDeposits(deposit.rows);
+      setWithdrawals(withdrawal.rows);
+      setDepositsCount(deposit.totalCount);
+      setWithdrawalsCount(withdrawal.totalCount);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to load transactions';
       setError(msg);

@@ -201,18 +201,18 @@ export const PendingOperations: React.FC<PendingOperationsProps> = ({
 
   // Collect all pending withdrawals sorted by unlock block
   const allPendingWithdrawals = useMemo(() => {
-    const wds: Array<PendingWithdrawal & { operatorName: string; operatorId: string }> = [];
+    const withdrawals: Array<PendingWithdrawal & { operatorName: string; operatorId: string }> = [];
     positions.forEach(position => {
       position.pendingWithdrawals.forEach(withdrawal => {
-        wds.push({
+        withdrawals.push({
           ...withdrawal,
           operatorName: position.operatorName,
           operatorId: position.operatorId,
         });
       });
     });
-    wds.sort((a, b) => a.unlockAtBlock - b.unlockAtBlock);
-    return wds;
+    withdrawals.sort((a, b) => a.unlockAtBlock - b.unlockAtBlock);
+    return withdrawals;
   }, [positions]);
 
   // Calculate unlockable withdrawals and total amount
