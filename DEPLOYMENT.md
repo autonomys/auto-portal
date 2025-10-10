@@ -9,7 +9,7 @@ Auto Portal is organized as a TypeScript monorepo:
 ```
 auto-portal/
 ├── apps/
-│   └── web/                    # React web frontend
+│   └── portal/                 # React web frontend for portal
 ├── packages/
 │   ├── staking-indexer/       # SubQuery blockchain indexer
 │   └── staking-worker/        # Background processing worker
@@ -79,8 +79,8 @@ The web frontend is deployed automatically to Vercel:
 1. **Automatic Deployment**: Connected to GitHub, deploys on push to `main`
 2. **Custom Domain**: `auto-portal-web.vercel.app`
 3. **Environment Variables**: Configure in Vercel dashboard
-4. **Build Command**: `yarn workspace @auto-portal/web build` (web app only)
-5. **Output Directory**: `apps/web/dist`
+4. **Build Command**: `yarn workspace @auto-portal/portal build` (web app only)
+5. **Output Directory**: `apps/portal/dist`
 6. **Bundle Optimization**: Automatic code splitting for better performance
    - Main app bundle: ~741 kB
    - Polkadot dependencies: ~815 kB (separate chunk)
@@ -223,8 +223,8 @@ The project includes optimized Vercel deployment settings:
 ```json
 {
   "installCommand": "YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
-  "buildCommand": "cd apps/web && yarn install && yarn build",
-  "outputDirectory": "apps/web/dist"
+  "buildCommand": "cd apps/portal && yarn install && yarn build",
+  "outputDirectory": "apps/portal/dist"
 }
 ```
 

@@ -6,7 +6,7 @@ The web app fetches data from a public staking indexer by default to power addit
 
 Configuration:
 
-- Optionally set `VITE_INDEXER_ENDPOINT` in `apps/web/.env` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
+- Optionally set `VITE_INDEXER_ENDPOINT` in `apps/portal/.env` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
 
 Notes:
 
