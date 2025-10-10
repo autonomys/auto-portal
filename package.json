@@ -8,13 +8,13 @@
     "services/*"
   ],
   "scripts": {
-    "dev": "yarn workspace @auto-portal/web dev",
+    "dev": "yarn workspace @auto-portal/portal dev",
     "dev:worker": "yarn workspace @auto-portal/staking-worker dev",
     "build": "yarn workspaces foreach -Apt run build",
     "build:indexer": "yarn workspace staking build",
     "build:worker": "yarn workspace @auto-portal/staking-worker build",
     "test": "yarn workspaces foreach -Apt run test",
-    "lint": "yarn workspace @auto-portal/web lint",
+    "lint": "yarn workspace @auto-portal/portal lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "yarn workspaces foreach -Apt run type-check",

@@ -21,7 +21,7 @@ Auto Portal is a user-friendly web interface for staking on the Autonomys Networ
 
 This is a TypeScript monorepo with:
 
-- **Web App** (`apps/web/`) - React frontend with Tailwind CSS
+- **Web App** (`apps/portal/`) - React frontend with Tailwind CSS
 - **Indexer** (`apps/indexer/`) - Backend service for historical data
 - **Shared Packages** (`packages/`) - Common utilities and types
 

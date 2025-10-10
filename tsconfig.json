@@ -11,8 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./apps/web/src/*"]
+      "@/*": ["./apps/portal/src/*"]
     }
   },
-  "references": [{ "path": "./apps/web" }]
+  "references": [{ "path": "./apps/portal" }]
 }
