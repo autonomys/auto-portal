@@ -5,7 +5,8 @@
   "description": "Autonomys Network staking portal - monorepo with web frontend and indexer backend",
   "workspaces": [
     "apps/*",
-    "services/*"
+    "services/*",
+    "packages/*"
   ],
   "scripts": {
     "dev": "yarn workspace @auto-portal/portal dev",

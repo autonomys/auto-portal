@@ -1,18 +1,13 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "strict": true,
-    "jsx": "preserve",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./apps/portal/src/*"]
-    }
-  },
-  "references": [{ "path": "./apps/portal" }]
+  "extends": "./tsconfig.base.json",
+  "references": [
+    { "path": "./apps/portal" },
+    { "path": "./packages/shared-lib" },
+    { "path": "./packages/shared-state" },
+    { "path": "./packages/shared-ui" },
+    { "path": "./packages/clients-indexer" },
+    { "path": "./packages/clients-rpc" },
+    { "path": "./packages/feature-staking" },
+    { "path": "./packages/feature-xdm" }
+  ]
 }
