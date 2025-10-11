@@ -155,6 +155,8 @@ __metadata:
   resolution: "@auto-portal/portal@workspace:apps/portal"
   dependencies:
     "@apollo/client": "npm:^3.8.10"
+    "@auto-portal/shared-lib": "workspace:*"
+    "@auto-portal/shared-state": "workspace:*"
     "@autonomys/auto-consensus": "npm:1.5.17"
     "@autonomys/auto-utils": "npm:1.5.17"
     "@polkadot/api": "npm:^16.2.2"
@@ -193,7 +195,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@auto-portal/shared-lib@workspace:packages/shared-lib":
+"@auto-portal/shared-lib@workspace:*, @auto-portal/shared-lib@workspace:packages/shared-lib":
   version: 0.0.0-use.local
   resolution: "@auto-portal/shared-lib@workspace:packages/shared-lib"
   dependencies:
@@ -201,7 +203,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@auto-portal/shared-state@workspace:packages/shared-state":
+"@auto-portal/shared-state@workspace:*, @auto-portal/shared-state@workspace:packages/shared-state":
   version: 0.0.0-use.local
   resolution: "@auto-portal/shared-state@workspace:packages/shared-state"
   dependencies:
