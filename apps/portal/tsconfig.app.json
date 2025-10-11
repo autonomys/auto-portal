@@ -20,7 +20,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@auto-portal/shared-lib": ["../../packages/shared-lib/src/index.ts"]
     },
 
     /* Linting */
@@ -30,5 +31,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "../../packages/shared-lib/src/index.ts",
+    "../../packages/shared-lib/src/feature-registry.ts"
+  ]
 }

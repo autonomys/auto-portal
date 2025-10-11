@@ -1,1 +1,1 @@
-export const noop = () => undefined;
+export * from './feature-registry';
