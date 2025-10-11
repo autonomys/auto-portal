@@ -9,7 +9,7 @@ import { getNetworkBadge, type BadgeVariant } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { useThemeStore } from '@/stores/theme-store';
+import { useThemeStore } from '@auto-portal/shared-state';
 
 interface HeaderProps {
   className?: string;
