@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWalletStore } from '@/stores/wallet-store';
+import { useWalletStore } from '@auto-portal/shared-state';
 
 export const useWallet = () => {
   const store = useWalletStore();
