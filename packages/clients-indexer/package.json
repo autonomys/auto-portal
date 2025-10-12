@@ -17,7 +17,7 @@
     "typescript": "^5.7.3"
   },
   "peerDependencies": {
-    "@apollo/client": "4.0.7",
+    "@apollo/client": "3.14.0",
     "graphql": "^16.8.1"
   }
 }

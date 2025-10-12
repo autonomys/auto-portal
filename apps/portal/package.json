@@ -15,7 +15,7 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.10",
+    "@apollo/client": "^3.14.0",
     "@auto-portal/shared-lib": "workspace:*",
     "@auto-portal/shared-state": "workspace:*",
     "@autonomys/auto-consensus": "1.5.17",
