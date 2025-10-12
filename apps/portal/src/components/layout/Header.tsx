@@ -50,18 +50,6 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             >
               Dashboard
             </NavLink>
-            <NavLink
-              to="/operators"
-              className={({ isActive }) =>
-                `px-3 py-2 text-label transition-colors ${
-                  isActive
-                    ? 'text-foreground border-b-2 border-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`
-              }
-            >
-              Operators
-            </NavLink>
             {features.map(f => (
               <NavLink
                 key={f.id}
@@ -128,19 +116,6 @@ export const Header: React.FC<HeaderProps> = ({ className = '' }) => {
                 }
               >
                 Dashboard
-              </NavLink>
-              <NavLink
-                to="/operators"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `block px-3 py-2 rounded-md text-label ${
-                    isActive
-                      ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                  }`
-                }
-              >
-                Operators
               </NavLink>
               {features.map(f => (
                 <NavLink
