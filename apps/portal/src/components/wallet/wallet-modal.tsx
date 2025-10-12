@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { WalletOption } from './wallet-option';
 import { useWallet } from '@/hooks/use-wallet';
-import { WALLET_INSTALL_URLS } from '@/constants/wallets';
+import { WALLET_INSTALL_URLS } from '@auto-portal/shared-state';
 
 interface WalletModalProps {
   open: boolean;

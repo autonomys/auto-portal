@@ -2,7 +2,7 @@ import React from 'react';
 import { Moon, Sun, Laptop } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
-import { useThemeStore, type ThemePreference } from '@/stores/theme-store';
+import { useThemeStore, type ThemePreference } from '@auto-portal/shared-state';
 
 const labelMap: Record<ThemePreference, string> = {
   light: 'Light mode',

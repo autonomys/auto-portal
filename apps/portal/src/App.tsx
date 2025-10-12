@@ -3,7 +3,7 @@ import { ApolloProvider } from '@apollo/client';
 import { router } from './router';
 import indexerService from './services/indexer-service';
 import { useEffect } from 'react';
-import { useThemeStore } from '@/stores/theme-store';
+import { useThemeStore } from '@auto-portal/shared-state';
 
 export const App = () => {
   const initializeTheme = useThemeStore(s => s.initializeTheme);

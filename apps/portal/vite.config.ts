@@ -8,6 +8,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@auto-portal/shared-lib': path.resolve(__dirname, '../../packages/shared-lib/src/index.ts'),
+      '@auto-portal/shared-state': path.resolve(
+        __dirname,
+        '../../packages/shared-state/src/index.ts',
+      ),
     },
   },
   build: {

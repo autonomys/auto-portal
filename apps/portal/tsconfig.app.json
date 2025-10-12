@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
@@ -19,7 +20,9 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@auto-portal/shared-lib": ["../../packages/shared-lib/src/index.ts"],
+      "@auto-portal/shared-state": ["../../packages/shared-state/src/index.ts"]
     },
 
     /* Linting */
@@ -29,5 +32,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "../../packages/shared-lib/src/index.ts",
+    "../../packages/shared-lib/src/feature-registry.ts",
+    "../../packages/shared-state/src/**/*"
+  ]
 }
