@@ -72,9 +72,12 @@ export const useThemeStore = create<ThemeState>()(
             media.addEventListener('change', handler);
           } catch {
             // legacy API for older browsers
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            media.addListener(handler);
+            const legacy = media as unknown as {
+              addListener?: (
+                listener: (this: MediaQueryList, ev: MediaQueryListEvent) => void,
+              ) => void;
+            };
+            legacy.addListener?.(() => handler());
           }
         }
       },
