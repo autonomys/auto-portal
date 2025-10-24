@@ -20,7 +20,7 @@ export const config = {
   indexer: {
     endpoint:
       import.meta.env.VITE_INDEXER_ENDPOINT ||
-      'https://subql.blue.mainnet.subspace.network/v1/graphql',
+      'https://subql.staking.mainnet.autonomys.xyz/v1/graphql',
   },
 
   // Network configuration
