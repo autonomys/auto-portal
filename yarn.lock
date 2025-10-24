@@ -157,8 +157,8 @@ __metadata:
     "@apollo/client": "npm:^3.14.0"
     "@auto-portal/shared-lib": "workspace:*"
     "@auto-portal/shared-state": "workspace:*"
-    "@autonomys/auto-consensus": "npm:1.5.17"
-    "@autonomys/auto-utils": "npm:1.5.17"
+    "@autonomys/auto-consensus": "npm:1.5.19"
+    "@autonomys/auto-utils": "npm:1.5.19"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-dapp": "npm:^0.60.1"
     "@polkadot/extension-inject": "npm:^0.60.1"
@@ -228,8 +228,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@auto-portal/staking-worker@workspace:services/staking-worker"
   dependencies:
-    "@autonomys/auto-consensus": "npm:1.5.14"
-    "@autonomys/auto-utils": "npm:1.5.14"
+    "@autonomys/auto-consensus": "npm:1.5.19"
+    "@autonomys/auto-utils": "npm:1.5.19"
     "@types/ioredis": "npm:^5.0.0"
     "@types/node": "npm:^20.8.9"
     "@types/pg": "npm:^8.10.7"
@@ -242,22 +242,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@autonomys/auto-consensus@npm:1.5.17":
-  version: 1.5.17
-  resolution: "@autonomys/auto-consensus@npm:1.5.17"
+"@autonomys/auto-consensus@npm:1.5.19":
+  version: 1.5.19
+  resolution: "@autonomys/auto-consensus@npm:1.5.19"
   dependencies:
-    "@autonomys/auto-utils": "npm:^1.5.17"
-  checksum: 10c0/1bae40bf190d62b336a657f63affaabc08daba688583fe0f0914ab77308a9325c50ab8113138468c3e5fe30cfc15e88c480cd228fc0e1d1dae40ea0e41eb45f0
+    "@autonomys/auto-utils": "npm:^1.5.19"
+  checksum: 10c0/de015c2567e957bd04cb41aa47c349d328361f21c9f8b01b44419c256c5ef76509e1648b0521ac47d797a3e0e5f96809979dda43efcb5a204cd1f378a07979b8
   languageName: node
   linkType: hard
 
-"@autonomys/auto-utils@npm:1.5.17":
-  version: 1.5.17
-  resolution: "@autonomys/auto-utils@npm:1.5.17"
+"@autonomys/auto-utils@npm:1.5.19":
+  version: 1.5.19
+  resolution: "@autonomys/auto-utils@npm:1.5.19"
   dependencies:
     "@polkadot/api": "npm:^15.8.1"
     "@polkadot/extension-dapp": "npm:^0.58.6"
-  checksum: 10c0/5d2dc6447d219d85ac98949777c1f064b2d235343961ddb0944132eaa1be93aec4df0d47169c4867b25edacf3f31c5fef69a6d9845f26b619699b2c77369933e
+  checksum: 10c0/b8c37cfeea7ec5b2699fb3167c44095fc6979ecac2aa39edce6afa52a7b9741dad9563fe0c71856dc0981a64e8acb524066511a2be6229432cb594d1224cc1aa
   languageName: node
   linkType: hard
 
@@ -4031,6 +4031,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.0"
     prettier: "npm:^3.5.3"
     typescript: "npm:^5.3.3"
+    zod: "npm:^4.1.12"
   languageName: unknown
   linkType: soft
 
@@ -9096,8 +9097,8 @@ __metadata:
   resolution: "staking@workspace:services/staking-indexer"
   dependencies:
     "@apollo/client": "npm:^3.14.0"
-    "@autonomys/auto-consensus": "npm:1.5.14"
-    "@autonomys/auto-utils": "npm:1.5.14"
+    "@autonomys/auto-consensus": "npm:1.5.19"
+    "@autonomys/auto-utils": "npm:1.5.19"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/types": "npm:^16.3.1"
     "@polkadot/util": "npm:^13.4.3"
@@ -10591,6 +10592,13 @@ __metadata:
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: 10c0/71cc2f2bbb537300c3f569e25693d37b3bc91f225cefce251a71c30bc6bb3e7f8e9420ca0eb57f2ac9e492b085b8dfa075fd1e8195c40b83c951dd59c6e4fbf8
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.1.12":
+  version: 4.1.12
+  resolution: "zod@npm:4.1.12"
+  checksum: 10c0/b64c1feb19e99d77075261eaf613e0b2be4dfcd3551eff65ad8b4f2a079b61e379854d066f7d447491fcf193f45babd8095551a9d47973d30b46b6d8e2c46774
   languageName: node
   linkType: hard
 

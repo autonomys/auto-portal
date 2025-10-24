@@ -47,13 +47,16 @@
     "@polkadot/types-support": "^16.3.1",
     "@polkadot/util": "^13.0.0",
     "@polkadot/util-crypto": "^13.0.0",
-    "@autonomys/auto-consensus": "1.5.17",
-    "@autonomys/auto-utils": "1.5.17",
+    "@autonomys/auto-consensus": "1.5.19",
+    "@autonomys/auto-utils": "1.5.19",
     "ipfs-unixfs": "6.0.9"
   },
   "packageManager": "yarn@4.9.2",
   "engines": {
     "node": ">=18.0.0",
     "yarn": ">=4.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
   }
 }
