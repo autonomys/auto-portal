@@ -19,8 +19,8 @@
     "staking"
   ],
   "dependencies": {
-    "@autonomys/auto-consensus": "1.5.14",
-    "@autonomys/auto-utils": "1.5.14",
+    "@autonomys/auto-consensus": "1.5.19",
+    "@autonomys/auto-utils": "1.5.19",
     "dotenv": "^16.3.1",
     "ioredis": "^5.3.2",
     "pg": "^8.11.3"
