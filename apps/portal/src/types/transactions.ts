@@ -1,30 +1,23 @@
-// Normalized transaction types for Operator Detail view
-
-export interface OperatorTransactionBase {
-  id: string;
-  operatorId: string;
-  domainId: string;
-  address: string;
-  timestamp: string; // ISO string
-  blockHeight: string; // keep as string to avoid precision issues
-  extrinsicIds?: string;
-  eventIds?: string;
-}
-
-export interface DepositTransaction extends OperatorTransactionBase {
+export interface DepositTransaction {
   type: 'deposit';
-  amount: string; // pending_amount
-  storageFeeDeposit: string;
-  effectiveEpoch?: string | number; // pending_effective_domain_epoch
-  status: 'pending' | 'complete';
+  pending?: boolean;
+  operatorId: string;
+  amount: string; // AI3 (staking portion)
+  storageFee: string; // AI3 (storage fee portion)
+  totalAmount: string; // AI3 (amount + storageFee)
+  blockHeight: number;
+  timestamp: Date;
 }
 
-export interface WithdrawalTransaction extends OperatorTransactionBase {
+export interface WithdrawalTransaction {
   type: 'withdrawal';
-  amount: string; // total_withdrawal_amount
-  storageFeeRefund: string; // total_storage_fee_withdrawal
-  unlockBlock?: string | number; // withdrawal_in_shares_unlock_block
-  status: 'pending' | 'complete';
+  pending?: boolean;
+  operatorId: string;
+  shares: string; // raw shares being withdrawn (0 if epoch-converted)
+  amount: string; // AI3, converted balance (0 if shares still pending)
+  storageFeeRefund: string; // AI3
+  blockHeight: number;
+  timestamp: Date;
 }
 
 export type OperatorTransaction = DepositTransaction | WithdrawalTransaction;

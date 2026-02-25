@@ -16,7 +16,6 @@ export const useOperators = () => {
     setFilters,
     setUserPositions,
     resetFilters,
-    refreshOperatorData,
     clearError,
   } = useOperatorStore();
 
@@ -44,24 +43,7 @@ export const useOperators = () => {
     updateFilters: setFilters,
     setUserPositions,
     resetFilters,
-    refreshOperator: refreshOperatorData,
     clearError,
-  };
-};
-
-/**
- * Hook for accessing individual operator data
- */
-export const useOperator = (operatorId: string) => {
-  const { operators, loading, error, refreshOperatorData } = useOperatorStore();
-
-  const operator = operators.find(op => op.id === operatorId);
-
-  return {
-    operator,
-    loading,
-    error,
-    refresh: () => refreshOperatorData(operatorId),
   };
 };
 

@@ -16,11 +16,9 @@ const resolveNetworkId = () => {
 };
 
 export const config = {
-  // Indexer configuration
-  indexer: {
-    endpoint:
-      import.meta.env.VITE_INDEXER_ENDPOINT ||
-      'https://subql.staking.mainnet.autonomys.xyz/v1/graphql',
+  // Chain-pulse REST API
+  chainPulse: {
+    baseUrl: import.meta.env.VITE_CHAIN_PULSE_URL || 'http://localhost:8080',
   },
 
   // Network configuration

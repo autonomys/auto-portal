@@ -27,24 +27,3 @@ export interface WalletState {
   detectWallets: () => void;
   initializeConnection: () => Promise<void>;
 }
-
-export interface StoredPreferences {
-  preferredWallet: string | null;
-  preferredAccount: string | null;
-}
-
-export type WalletConnectionStatus =
-  | 'disconnected'
-  | 'connecting'
-  | 'initializing'
-  | 'connected'
-  | 'error';
-
-// Legacy interfaces for backward compatibility
-export interface LegacyWalletState {
-  isConnected: boolean;
-  account: WalletAccount | null;
-  connect: (source: string) => Promise<void>;
-  disconnect: () => void;
-  error?: string;
-}

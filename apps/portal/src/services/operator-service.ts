@@ -1,73 +1,74 @@
-import { operator } from '@autonomys/auto-consensus';
-import type { Operator, OperatorStats, ReturnDetailsWindows } from '@/types/operator';
-import { getSharedApiConnection } from './api-service';
-import { mapRpcToOperator } from '@/lib/operator-mapper';
-import { TARGET_OPERATORS } from '@/constants/target-operators';
-import { config } from '@/config';
-import indexerService from '@/services/indexer-service';
+import type { Operator, ReturnDetailsWindows } from '@/types/operator';
+import { chainPulseClient, type ChainPulseSharePrice } from './chain-pulse-client';
+import { shannonsToAi3 } from '@autonomys/auto-utils';
 import {
   calculateReturnDetails,
   adjustReturnDetailsForStakeRatio,
   adjustReturnDetailsWindowsForStakeRatio,
+  type PricePoint,
   type ReturnDetails,
 } from '@/lib/apy';
 
-export const operatorService = async (networkId: string = config.network.defaultNetworkId) => {
-  const api = await getSharedApiConnection(networkId);
+// Chain-pulse stores share_price as Perquintill (shares-per-stake), which
+// *decreases* over time.  APY calculations expect stake-per-share (increasing).
+// Derive it from total_stake / total_shares available on every row.
+// Use BigInt arithmetic with 10^18 scaling to avoid floating-point precision
+// loss on large shanon-denominated values.
+const SCALE = 10n ** 18n;
+const toPricePoint = (row: ChainPulseSharePrice): PricePoint | null => {
+  const shares = BigInt(row.total_shares);
+  if (shares <= 0n) return null;
+  return {
+    price: Number((BigInt(row.total_stake) * SCALE) / shares) / 1e18,
+    date: new Date(row.timestamp),
+  };
+};
 
-  const getAllOperators = async (): Promise<Operator[]> =>
-    // Pure RPC-based operator discovery
-    await getAllOperatorsFromRpc();
-  const getAllOperatorsFromRpc = async (): Promise<Operator[]> => {
-    console.log(`🔗 Fetching ${TARGET_OPERATORS.length} operators from RPC (${networkId})...`);
-    const operators: Operator[] = [];
+const mapStatus = (status: string): 'active' | 'inactive' | 'slashed' | 'degraded' => {
+  switch (status) {
+    case 'registered':
+      return 'active';
+    case 'slashed':
+    case 'pending_slash':
+      return 'slashed';
+    case 'deregistered':
+    case 'deactivated':
+      return 'inactive';
+    default:
+      return 'degraded';
+  }
+};
 
-    for (const operatorId of TARGET_OPERATORS) {
-      try {
-        const rpcData = await operator(api, operatorId);
-        const mapped = mapRpcToOperator(operatorId, rpcData);
-        if (mapped) operators.push(mapped);
-      } catch (error) {
-        console.warn(`Failed to fetch operator ${operatorId}:`, error);
-      }
-    }
+const mapChainPulseOperator = (
+  op: Awaited<ReturnType<typeof chainPulseClient.getOperators>>[number],
+): Operator => {
+  const stakeShannons = BigInt(op.total_stake);
+  const storageShannons = BigInt(op.total_storage_fee_deposit);
+  return {
+    id: op.id,
+    name: `Operator ${op.id}`,
+    domainId: op.domain_id,
+    domainName: 'Auto EVM',
+    ownerAccount: op.owner_account,
+    nominationTax: op.nomination_tax,
+    minimumNominatorStake: shannonsToAi3(BigInt(op.minimum_nominator_stake)),
+    status: mapStatus(op.status),
+    totalStaked: shannonsToAi3(stakeShannons),
+    totalStorageFund: shannonsToAi3(storageShannons),
+    totalPoolValue: shannonsToAi3(stakeShannons + storageShannons),
+    nominatorCount: op.nominator_count,
+  };
+};
 
-    console.log(`✅ Successfully fetched ${operators.length} operators from RPC`);
-    return operators;
+export const operatorService = async () => {
+  const getAllOperators = async (): Promise<Operator[]> => {
+    const raw = await chainPulseClient.getOperators();
+    return raw.map(mapChainPulseOperator);
   };
 
   const getOperatorById = async (operatorId: string): Promise<Operator | null> => {
-    // Pure RPC lookup
-    try {
-      const rpcData = await operator(api, operatorId);
-      return mapRpcToOperator(operatorId, rpcData);
-    } catch (error) {
-      console.warn(`Operator ${operatorId} not found:`, error);
-      return null;
-    }
-  };
-
-  const getOperatorStats = async (): Promise<OperatorStats> => {
-    try {
-      const operators = await getAllOperators();
-
-      const totalStaked = operators
-        .reduce((sum, op) => sum + parseFloat(op.totalStaked), 0)
-        .toString();
-
-      return {
-        sharePrice: '1.0000',
-        totalShares: totalStaked,
-        totalStaked,
-      };
-    } catch (error) {
-      console.error('Failed to fetch operator stats:', error);
-      return {
-        sharePrice: '1.0000',
-        totalShares: '0',
-        totalStaked: '0',
-      };
-    }
+    const raw = await chainPulseClient.getOperator(operatorId);
+    return raw ? mapChainPulseOperator(raw) : null;
   };
 
   const estimateOperatorReturnDetails = async (
@@ -75,24 +76,20 @@ export const operatorService = async (networkId: string = config.network.default
     lookbackDays: number,
   ): Promise<ReturnDetails | null> => {
     try {
-      // Latest price
-      const latestRows = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
-      if (!latestRows?.length) return null;
+      const latestRows = await chainPulseClient.getSharePrices(operatorId, { limit: 1 });
+      if (!latestRows.length) return null;
 
       const MS_PER_DAY = 24 * 60 * 60 * 1000;
-      // Earliest price in window
       const sinceISO = new Date(Date.now() - lookbackDays * MS_PER_DAY).toISOString();
-      const earliestRows = await indexerService.getOperatorSharePricesSince(operatorId, sinceISO);
-      if (!earliestRows?.length) return null;
+      const earliestRows = await chainPulseClient.getSharePrices(operatorId, {
+        since: sinceISO,
+        limit: 1,
+      });
+      if (!earliestRows.length) return null;
 
-      const startPrice = {
-        price: Number(earliestRows[0].share_price),
-        date: new Date(earliestRows[0].timestamp),
-      };
-      const endPrice = {
-        price: Number(latestRows[0].share_price),
-        date: new Date(latestRows[0].timestamp),
-      };
+      const startPrice = toPricePoint(earliestRows[0]);
+      const endPrice = toPricePoint(latestRows[0]);
+      if (!startPrice || !endPrice) return null;
 
       const returnDetails = calculateReturnDetails(startPrice, endPrice);
       return returnDetails ? adjustReturnDetailsForStakeRatio(returnDetails) : null;
@@ -106,16 +103,13 @@ export const operatorService = async (networkId: string = config.network.default
     operatorId: string,
   ): Promise<ReturnDetailsWindows> => {
     try {
-      const latestRows = await indexerService.getOperatorLatestSharePrices(operatorId, 1);
-      if (!latestRows?.length) return {};
+      const latestRows = await chainPulseClient.getSharePrices(operatorId, { limit: 1 });
+      if (!latestRows.length) return {};
 
-      const endPrice = {
-        price: Number(latestRows[0].share_price),
-        date: new Date(latestRows[0].timestamp),
-      };
+      const endPrice = toPricePoint(latestRows[0]);
+      if (!endPrice) return {};
 
       const MS_PER_DAY = 24 * 60 * 60 * 1000;
-      // Use the timestamp of the latest available sample as the reference "now"
       const endTs = endPrice.date.getTime();
       type WindowKey = keyof ReturnDetailsWindows;
       const windows: Array<{ key: WindowKey; days: number }> = [
@@ -126,9 +120,8 @@ export const operatorService = async (networkId: string = config.network.default
       ];
 
       const cutoffDates = windows.map(w => new Date(endTs - w.days * MS_PER_DAY));
-      // Strategy: fetch the last sample at or before each cutoff (to ensure full window)
       const untilPromises = cutoffDates.map(cutoff =>
-        indexerService.getOperatorSharePricesUntil(operatorId, cutoff, 1),
+        chainPulseClient.getSharePrices(operatorId, { until: cutoff.toISOString(), limit: 1 }),
       );
 
       const results = await Promise.allSettled(untilPromises);
@@ -136,21 +129,15 @@ export const operatorService = async (networkId: string = config.network.default
       const details: ReturnDetailsWindows = {};
       results.forEach((res, idx) => {
         if (res.status === 'fulfilled' && res.value?.length) {
-          const startRow = res.value[0];
-          const startPrice = {
-            price: Number(startRow.share_price),
-            date: new Date(startRow.timestamp),
-          };
-          // Ensure the start sample is at or before the cutoff (guaranteed by the query)
-          // Also ensure the actual span is at least the requested window length
+          const startPrice = toPricePoint(res.value[0]);
+          if (!startPrice) return;
           const requestedDays = windows[idx].days;
           const actualDays = (endTs - startPrice.date.getTime()) / MS_PER_DAY;
           if (actualDays + 1e-9 < requestedDays) return;
 
           const rd = calculateReturnDetails(startPrice, endPrice);
           if (rd) {
-            const key = windows[idx].key;
-            details[key] = rd;
+            details[windows[idx].key] = rd;
           }
         }
       });
@@ -165,32 +152,22 @@ export const operatorService = async (networkId: string = config.network.default
   return {
     getAllOperators,
     getOperatorById,
-    getOperatorStats,
     estimateOperatorReturnDetails,
     estimateOperatorReturnDetailsWindows,
-    // Convenience: fetch a single operator and enrich with APY when available
     getOperatorWithApy: async (
       operatorId: string,
       lookbackDays: number,
     ): Promise<Operator | null> => {
       const op = await getOperatorById(operatorId);
       if (!op) return null;
-
       const returnDetails = await estimateOperatorReturnDetails(operatorId, lookbackDays);
-      if (!returnDetails) return op;
-
-      return {
-        ...op,
-        estimatedReturnDetails: returnDetails,
-      };
+      return returnDetails ? { ...op, estimatedReturnDetails: returnDetails } : op;
     },
     getOperatorWithApyWindows: async (operatorId: string): Promise<Operator | null> => {
       const op = await getOperatorById(operatorId);
       if (!op) return null;
-
       const windows = await estimateOperatorReturnDetailsWindows(operatorId);
       const d1 = windows.d1 ?? null;
-
       return {
         ...op,
         ...(d1 ? { estimatedReturnDetails: d1 } : {}),

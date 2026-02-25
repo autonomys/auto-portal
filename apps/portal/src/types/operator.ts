@@ -24,12 +24,6 @@ export interface Operator {
   nominatorCount?: number; // Active nominators for this operator
 }
 
-export interface OperatorStats {
-  sharePrice: string;
-  totalShares: string;
-  totalStaked: string;
-}
-
 export type SortField =
   | 'name'
   | 'totalStaked'
@@ -74,6 +68,5 @@ export interface OperatorStore {
   setUserPositions: (positions: UserPosition[]) => void;
   resetFilters: () => void;
   applyFilters: () => void;
-  refreshOperatorData: (operatorId: string) => Promise<void>;
   clearError: () => void;
 }

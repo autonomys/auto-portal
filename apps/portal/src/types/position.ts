@@ -29,9 +29,3 @@ export interface PortfolioSummary {
   pendingWithdrawals: number; // Count of pending withdrawal operations
   totalStorageFee: number; // Total storage fund deposits in AI3 (raw numeric value)
 }
-
-export interface PositionServiceError {
-  operatorId: string;
-  error: string;
-  timestamp: Date;
-}
