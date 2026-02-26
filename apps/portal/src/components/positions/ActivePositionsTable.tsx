@@ -148,8 +148,8 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   const [sortBy, setSortBy] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
-  const sortedPositions = useMemo(() => {
-    return [...positions].sort((a, b) => {
+  const sortedPositions = useMemo(
+    () => [...positions].sort((a, b) => {
       let cmp: number;
       if (sortBy === 'name') {
         cmp = a.operatorName.localeCompare(b.operatorName);
@@ -159,8 +159,9 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
         cmp = aVal - bVal;
       }
       return sortOrder === 'asc' ? cmp : -cmp;
-    });
-  }, [positions, sortBy, sortOrder]);
+    }),
+    [positions, sortBy, sortOrder],
+  );
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
