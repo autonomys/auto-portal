@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -132,6 +132,9 @@ const PositionRow: React.FC<PositionRowProps> = ({
   );
 };
 
+type SortField = 'name' | 'value';
+type SortOrder = 'asc' | 'desc';
+
 export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   refreshInterval,
   networkId,
@@ -142,6 +145,31 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   });
   const { isConnected } = useWallet();
   const navigate = useNavigate();
+  const [sortBy, setSortBy] = useState<SortField>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  const sortedPositions = useMemo(() => {
+    return [...positions].sort((a, b) => {
+      let cmp: number;
+      if (sortBy === 'name') {
+        cmp = a.operatorName.localeCompare(b.operatorName);
+      } else {
+        const aVal = a.positionValue + a.storageFeeDeposit + (a.pendingDeposit?.amount || 0);
+        const bVal = b.positionValue + b.storageFeeDeposit + (b.pendingDeposit?.amount || 0);
+        cmp = aVal - bVal;
+      }
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+  }, [positions, sortBy, sortOrder]);
+
+  const handleSort = (field: SortField) => {
+    if (sortBy === field) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder(field === 'name' ? 'asc' : 'desc');
+    }
+  };
 
   const handleWithdrawClick = (position: UserPosition) => {
     // Navigate to the full-page withdrawal experience
@@ -216,8 +244,22 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
           </div>
         </CardHeader>
         <CardContent>
+          <div className="flex gap-4 mb-4 text-sm text-muted-foreground">
+            <button
+              onClick={() => handleSort('name')}
+              className={`flex items-center gap-1 hover:text-foreground transition-colors ${sortBy === 'name' ? 'text-foreground font-medium' : ''}`}
+            >
+              Operator {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button
+              onClick={() => handleSort('value')}
+              className={`flex items-center gap-1 hover:text-foreground transition-colors ${sortBy === 'value' ? 'text-foreground font-medium' : ''}`}
+            >
+              Total Value {sortBy === 'value' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+          </div>
           <div className="space-y-4">
-            {positions.map(position => (
+            {sortedPositions.map(position => (
               <PositionRow
                 key={position.operatorId}
                 position={position}
