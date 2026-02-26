@@ -149,17 +149,18 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   const sortedPositions = useMemo(
-    () => [...positions].sort((a, b) => {
-      let cmp: number;
-      if (sortBy === 'name') {
-        cmp = a.operatorName.localeCompare(b.operatorName);
-      } else {
-        const aVal = a.positionValue + a.storageFeeDeposit + (a.pendingDeposit?.amount || 0);
-        const bVal = b.positionValue + b.storageFeeDeposit + (b.pendingDeposit?.amount || 0);
-        cmp = aVal - bVal;
-      }
-      return sortOrder === 'asc' ? cmp : -cmp;
-    }),
+    () =>
+      [...positions].sort((a, b) => {
+        let cmp: number;
+        if (sortBy === 'name') {
+          cmp = a.operatorName.localeCompare(b.operatorName);
+        } else {
+          const aVal = a.positionValue + a.storageFeeDeposit + (a.pendingDeposit?.amount || 0);
+          const bVal = b.positionValue + b.storageFeeDeposit + (b.pendingDeposit?.amount || 0);
+          cmp = aVal - bVal;
+        }
+        return sortOrder === 'asc' ? cmp : -cmp;
+      }),
     [positions, sortBy, sortOrder],
   );
 
