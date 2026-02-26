@@ -1,16 +1,12 @@
 # React + TypeScript + Vite
 
-## Indexer-backed features
+## Chain Pulse API
 
-The web app fetches data from a public staking indexer by default to power additional UI features.
+The web app fetches staking data from a chain-pulse REST API.
 
 Configuration:
 
-- Optionally set `VITE_INDEXER_ENDPOINT` in `apps/portal/.env` (defaults to `https://subql.blue.mainnet.subspace.network/v1/graphql`).
-
-Notes:
-
-- Reads are public; no access key is required for the data we use.
+- Set `VITE_CHAIN_PULSE_URL` in `apps/portal/.env` (defaults to `http://localhost:8080`).
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
