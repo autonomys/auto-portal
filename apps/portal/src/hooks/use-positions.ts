@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWallet } from './use-wallet';
 import { positionService } from '@/services/position-service';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
@@ -42,6 +42,8 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  const fetchingRef = useRef(false);
+
   // Clear data when wallet disconnects
   useEffect(() => {
     if (!isConnected || !selectedAccount) {
@@ -54,10 +56,11 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
 
   // Fetch positions function
   const fetchPositions = useCallback(async () => {
-    if (!isConnected || !selectedAccount) {
+    if (!isConnected || !selectedAccount || fetchingRef.current) {
       return;
     }
 
+    fetchingRef.current = true;
     setLoading(true);
     setError(null);
 
@@ -74,6 +77,7 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
       setError(errorMessage);
       console.error('Position fetch error:', err);
     } finally {
+      fetchingRef.current = false;
       setLoading(false);
     }
   }, [isConnected, selectedAccount, networkId]);

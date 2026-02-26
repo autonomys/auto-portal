@@ -44,23 +44,35 @@ export interface ChainPulseWithdrawal {
   timestamp: string; // ISO datetime
 }
 
-const fetchJson = async <T>(path: string): Promise<T> => {
+const inflightRequests = new Map<string, Promise<unknown>>();
+
+const fetchJson = async <T>(path: string, signal?: AbortSignal): Promise<T> => {
   const url = `${config.chainPulse.baseUrl}${path}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`chain-pulse ${res.status}: ${path}`);
-  }
-  return res.json() as Promise<T>;
+
+  const existing = inflightRequests.get(url);
+  if (existing) return existing as Promise<T>;
+
+  const promise = fetch(url, { signal })
+    .then(res => {
+      if (!res.ok) throw new Error(`chain-pulse ${res.status}: ${path}`);
+      return res.json() as Promise<T>;
+    })
+    .finally(() => {
+      inflightRequests.delete(url);
+    });
+
+  inflightRequests.set(url, promise);
+  return promise;
 };
 
 export const chainPulseClient = {
-  async getOperators(): Promise<ChainPulseOperator[]> {
-    return fetchJson<ChainPulseOperator[]>('/v1/staking/operators');
+  async getOperators(signal?: AbortSignal): Promise<ChainPulseOperator[]> {
+    return fetchJson<ChainPulseOperator[]>('/v1/staking/operators', signal);
   },
 
-  async getOperator(id: string): Promise<ChainPulseOperator | null> {
+  async getOperator(id: string, signal?: AbortSignal): Promise<ChainPulseOperator | null> {
     try {
-      return await fetchJson<ChainPulseOperator>(`/v1/staking/operators/${id}`);
+      return await fetchJson<ChainPulseOperator>(`/v1/staking/operators/${id}`, signal);
     } catch {
       return null;
     }
@@ -69,6 +81,7 @@ export const chainPulseClient = {
   async getSharePrices(
     operatorId: string,
     params?: { since?: string; until?: string; limit?: number },
+    signal?: AbortSignal,
   ): Promise<ChainPulseSharePrice[]> {
     const qs = new URLSearchParams();
     if (params?.since) qs.set('since', params.since);
@@ -77,6 +90,7 @@ export const chainPulseClient = {
     const query = qs.toString() ? `?${qs}` : '';
     return fetchJson<ChainPulseSharePrice[]>(
       `/v1/staking/operators/${operatorId}/share-prices${query}`,
+      signal,
     );
   },
 
@@ -84,29 +98,36 @@ export const chainPulseClient = {
     operatorId: string,
     address: string,
     params?: { limit?: number; offset?: number },
+    signal?: AbortSignal,
   ): Promise<ChainPulseDeposit[]> {
     const qs = new URLSearchParams({ address });
     if (params?.limit) qs.set('limit', String(params.limit));
     if (params?.offset) qs.set('offset', String(params.offset));
-    return fetchJson<ChainPulseDeposit[]>(`/v1/staking/operators/${operatorId}/deposits?${qs}`);
+    return fetchJson<ChainPulseDeposit[]>(
+      `/v1/staking/operators/${operatorId}/deposits?${qs}`,
+      signal,
+    );
   },
 
   async getWithdrawals(
     operatorId: string,
     address: string,
     params?: { limit?: number; offset?: number },
+    signal?: AbortSignal,
   ): Promise<ChainPulseWithdrawal[]> {
     const qs = new URLSearchParams({ address });
     if (params?.limit) qs.set('limit', String(params.limit));
     if (params?.offset) qs.set('offset', String(params.offset));
     return fetchJson<ChainPulseWithdrawal[]>(
       `/v1/staking/operators/${operatorId}/withdrawals?${qs}`,
+      signal,
     );
   },
 
-  async getNominatorOperatorIds(address: string): Promise<string[]> {
+  async getNominatorOperatorIds(address: string, signal?: AbortSignal): Promise<string[]> {
     return fetchJson<string[]>(
       `/v1/staking/nominators/operators?address=${encodeURIComponent(address)}`,
+      signal,
     );
   },
 };

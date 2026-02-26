@@ -11,6 +11,8 @@ const DEFAULT_FILTERS: FilterState = {
   myStakesOnly: false,
 };
 
+let enrichmentAbortController: AbortController | null = null;
+
 export const useOperatorStore = create<OperatorStore>((set, get) => ({
   // State
   operators: [],
@@ -29,6 +31,11 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     // Prevent concurrent fetches
     if (loading) return;
 
+    // Cancel any in-flight enrichment
+    enrichmentAbortController?.abort();
+    const abortController = new AbortController();
+    enrichmentAbortController = abortController;
+
     set({ loading: true, error: null, isInitialized: true });
 
     try {
@@ -43,6 +50,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
       // Enrich with estimated APY windows (1/3/7/30d) in the background
       const enrichmentPromises = operators.map(async op => {
+        if (abortController.signal.aborted) return { id: op.id, windows: {}, d1: null } as const;
         try {
           const windows = await opService.estimateOperatorReturnDetailsWindows(op.id);
           const d1 = windows?.d1 ?? null;
@@ -53,6 +61,10 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       });
 
       const results = await Promise.allSettled(enrichmentPromises);
+
+      // Don't apply results if this enrichment was cancelled
+      if (abortController.signal.aborted) return;
+
       const idToWindows = new Map<
         string,
         OperatorStore['operators'][number]['estimatedReturnDetailsWindows']
