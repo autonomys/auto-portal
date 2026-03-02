@@ -1,24 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useOperatorStore } from '@/stores/operator-store';
 import type { FilterState } from '@/types/operator';
 
 /** Hook for operator data access and management. */
 export const useOperators = () => {
-  const {
-    operators,
-    filteredOperators,
-    stakedOperators,
-    loading,
-    error,
-    filters,
-    isInitialized,
-    fetchOperators,
-    setFilters,
-    setUserPositions,
-    resetFilters,
-    refreshOperatorData,
-    clearError,
-  } = useOperatorStore();
+  const operators = useOperatorStore(s => s.operators);
+  const filteredOperators = useOperatorStore(s => s.filteredOperators);
+  const stakedOperators = useOperatorStore(s => s.stakedOperators);
+  const loading = useOperatorStore(s => s.loading);
+  const error = useOperatorStore(s => s.error);
+  const filters = useOperatorStore(s => s.filters);
+  const isInitialized = useOperatorStore(s => s.isInitialized);
+  const fetchOperators = useOperatorStore(s => s.fetchOperators);
+  const setFilters = useOperatorStore(s => s.setFilters);
+  const setUserPositions = useOperatorStore(s => s.setUserPositions);
+  const resetFilters = useOperatorStore(s => s.resetFilters);
+  const clearError = useOperatorStore(s => s.clearError);
 
   // Auto-fetch operators on first mount if not already initialized
   useEffect(() => {
@@ -44,24 +41,7 @@ export const useOperators = () => {
     updateFilters: setFilters,
     setUserPositions,
     resetFilters,
-    refreshOperator: refreshOperatorData,
     clearError,
-  };
-};
-
-/**
- * Hook for accessing individual operator data
- */
-export const useOperator = (operatorId: string) => {
-  const { operators, loading, error, refreshOperatorData } = useOperatorStore();
-
-  const operator = operators.find(op => op.id === operatorId);
-
-  return {
-    operator,
-    loading,
-    error,
-    refresh: () => refreshOperatorData(operatorId),
   };
 };
 
@@ -69,30 +49,44 @@ export const useOperator = (operatorId: string) => {
  * Hook for search and filtering functionality
  */
 export const useOperatorFilters = () => {
-  const { filters, setFilters, resetFilters: storeResetFilters } = useOperatorStore();
+  const filters = useOperatorStore(s => s.filters);
+  const setFilters = useOperatorStore(s => s.setFilters);
+  const storeResetFilters = useOperatorStore(s => s.resetFilters);
 
-  const updateSearch = (query: string) => {
-    setFilters({ searchQuery: query });
-  };
+  const updateSearch = useCallback(
+    (query: string) => {
+      setFilters({ searchQuery: query });
+    },
+    [setFilters],
+  );
 
-  const updateDomain = (domain: string) => {
-    setFilters({ domainFilter: domain });
-  };
+  const updateDomain = useCallback(
+    (domain: string) => {
+      setFilters({ domainFilter: domain });
+    },
+    [setFilters],
+  );
 
-  const updateSort = (sortBy: FilterState['sortBy'], sortOrder?: FilterState['sortOrder']) => {
-    setFilters({
-      sortBy,
-      ...(sortOrder && { sortOrder }),
-    });
-  };
+  const updateSort = useCallback(
+    (sortBy: FilterState['sortBy'], sortOrder?: FilterState['sortOrder']) => {
+      setFilters({
+        sortBy,
+        ...(sortOrder && { sortOrder }),
+      });
+    },
+    [setFilters],
+  );
 
-  const toggleMyStakesOnly = () => {
+  const toggleMyStakesOnly = useCallback(() => {
     setFilters({ myStakesOnly: !filters.myStakesOnly });
-  };
+  }, [setFilters, filters.myStakesOnly]);
 
-  const setMyStakesOnly = (value: boolean) => {
-    setFilters({ myStakesOnly: value });
-  };
+  const setMyStakesOnly = useCallback(
+    (value: boolean) => {
+      setFilters({ myStakesOnly: value });
+    },
+    [setFilters],
+  );
 
   return {
     filters,

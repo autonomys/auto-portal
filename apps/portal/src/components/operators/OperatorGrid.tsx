@@ -1,6 +1,8 @@
 import React from 'react';
 import { OperatorCard } from './OperatorCard';
+import { useStoredPositions } from '@/hooks/use-operators';
 import type { Operator } from '@/types/operator';
+import type { UserPosition } from '@/types/position';
 
 interface OperatorGridProps {
   operators: Operator[];
@@ -17,6 +19,16 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
   onStake,
   onWithdraw,
 }) => {
+  const { positions } = useStoredPositions();
+
+  const positionByOperatorId = React.useMemo(() => {
+    const map = new Map<string, UserPosition>();
+    for (const p of positions) {
+      map.set(p.operatorId, p);
+    }
+    return map;
+  }, [positions]);
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -90,6 +102,7 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
               <OperatorCard
                 key={operator.id}
                 operator={operator}
+                userPosition={positionByOperatorId.get(operator.id)}
                 onStake={onStake}
                 onWithdraw={onWithdraw}
               />
@@ -116,6 +129,7 @@ export const OperatorGrid: React.FC<OperatorGridProps> = ({
             <OperatorCard
               key={operator.id}
               operator={operator}
+              userPosition={positionByOperatorId.get(operator.id)}
               onStake={onStake}
               onWithdraw={onWithdraw}
             />
