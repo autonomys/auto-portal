@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import type { OperatorStore, FilterState, Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 import { operatorService } from '@/services/operator-service';
-import indexerService from '@/services/indexer-service';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
@@ -11,6 +10,8 @@ const DEFAULT_FILTERS: FilterState = {
   sortOrder: 'desc',
   myStakesOnly: false,
 };
+
+let enrichmentAbortController: AbortController | null = null;
 
 export const useOperatorStore = create<OperatorStore>((set, get) => ({
   // State
@@ -30,6 +31,11 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     // Prevent concurrent fetches
     if (loading) return;
 
+    // Cancel any in-flight enrichment
+    enrichmentAbortController?.abort();
+    const abortController = new AbortController();
+    enrichmentAbortController = abortController;
+
     set({ loading: true, error: null, isInitialized: true });
 
     try {
@@ -44,6 +50,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
       // Enrich with estimated APY windows (1/3/7/30d) in the background
       const enrichmentPromises = operators.map(async op => {
+        if (abortController.signal.aborted) return { id: op.id, windows: {}, d1: null } as const;
         try {
           const windows = await opService.estimateOperatorReturnDetailsWindows(op.id);
           const d1 = windows?.d1 ?? null;
@@ -54,6 +61,10 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       });
 
       const results = await Promise.allSettled(enrichmentPromises);
+
+      // Don't apply results if this enrichment was cancelled
+      if (abortController.signal.aborted) return;
+
       const idToWindows = new Map<
         string,
         OperatorStore['operators'][number]['estimatedReturnDetailsWindows']
@@ -82,36 +93,6 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
 
       set({ operators: enriched });
       get().applyFilters();
-
-      // Enrich with active nominator counts in the background
-      try {
-        const countPromises = operators.map(async op => {
-          try {
-            const count = await indexerService.getNominatorCount(op.id);
-            return { id: op.id, count } as const;
-          } catch {
-            return { id: op.id, count: null } as const;
-          }
-        });
-
-        const countResults = await Promise.allSettled(countPromises);
-        const idToCount = new Map<string, number>();
-        for (const r of countResults) {
-          if (r.status === 'fulfilled' && r.value.count !== null) {
-            idToCount.set(r.value.id, r.value.count);
-          }
-        }
-
-        if (idToCount.size > 0) {
-          const withCounts = get().operators.map(op =>
-            idToCount.has(op.id) ? { ...op, nominatorCount: idToCount.get(op.id)! } : op,
-          );
-          set({ operators: withCounts });
-          get().applyFilters();
-        }
-      } catch {
-        // Swallow errors; UI will render placeholders
-      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch operators';
       set({ loading: false, error: errorMessage });
@@ -250,17 +231,6 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       stakedOperators: sortedStaked,
       filteredOperators: sortedNonStaked,
     });
-  },
-
-  refreshOperatorData: async (operatorId: string) => {
-    try {
-      void operatorId;
-      await get().fetchOperators();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to refresh operator data';
-      set({ error: errorMessage });
-    }
   },
 
   clearError: () => {

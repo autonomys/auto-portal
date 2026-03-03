@@ -104,9 +104,8 @@ For production indexer deployment, see the [detailed guide](./infra/indexer/DEPL
 #### Frontend (.env)
 
 ```bash
-VITE_APP_TITLE="Auto Portal"
-VITE_RPC_URL="wss://rpc.taurus.autonomys.xyz/ws"
-VITE_INDEXER_URL="https://your-indexer-domain.com"
+VITE_CHAIN_PULSE_URL="https://your-chain-pulse-api.com"
+VITE_NETWORK_ID="mainnet"
 ```
 
 #### Indexer (infra/indexer/.env)

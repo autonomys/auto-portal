@@ -15,7 +15,6 @@
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
-    "@apollo/client": "^3.14.0",
     "@auto-portal/shared-lib": "workspace:*",
     "@auto-portal/shared-state": "workspace:*",
     "@autonomys/auto-consensus": "1.5.19",
@@ -28,7 +27,6 @@
     "@talismn/connect-wallets": "^1.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "graphql": "^16.8.1",
     "lucide-react": "0.523.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

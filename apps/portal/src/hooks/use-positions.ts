@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWallet } from './use-wallet';
 import { positionService } from '@/services/position-service';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
-import { TARGET_OPERATORS } from '@/constants/target-operators';
 import { config } from '@/config';
 
 interface UsePositionsOptions {
@@ -43,6 +42,8 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
+  const fetchingRef = useRef(false);
+
   // Clear data when wallet disconnects
   useEffect(() => {
     if (!isConnected || !selectedAccount) {
@@ -55,25 +56,17 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
 
   // Fetch positions function
   const fetchPositions = useCallback(async () => {
-    if (!isConnected || !selectedAccount) {
+    if (!isConnected || !selectedAccount || fetchingRef.current) {
       return;
     }
 
+    fetchingRef.current = true;
     setLoading(true);
     setError(null);
 
     try {
       const service = await positionService(networkId);
-
-      // TODO: This is a temporary solution to fetch positions for target operators until we have indexer in place
-      const positions = (
-        await Promise.all(
-          TARGET_OPERATORS.map(async operatorId =>
-            service.getPositionByOperator(selectedAccount.address, operatorId),
-          ),
-        )
-      ).filter(position => position !== null);
-
+      const positions = await service.getAllPositions(selectedAccount.address);
       const summary = service.calculatePortfolioSummary(positions);
 
       setPositions(positions);
@@ -84,6 +77,7 @@ export const usePositions = (options: UsePositionsOptions = {}): UsePositionsRet
       setError(errorMessage);
       console.error('Position fetch error:', err);
     } finally {
+      fetchingRef.current = false;
       setLoading(false);
     }
   }, [isConnected, selectedAccount, networkId]);
@@ -147,7 +141,7 @@ export const useOperatorPosition = (operatorId: string, options: UsePositionsOpt
   const [error, setError] = useState<string | null>(null);
 
   const fetchPosition = useCallback(async () => {
-    if (!isConnected || !selectedAccount) {
+    if (!operatorId || !isConnected || !selectedAccount) {
       setPosition(null);
       return;
     }
