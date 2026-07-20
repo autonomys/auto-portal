@@ -60,6 +60,11 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
     updateSort(filters.sortBy, filters.sortOrder === 'asc' ? 'desc' : 'asc');
   }, [filters.sortBy, filters.sortOrder, updateSort]);
 
+  const handleResetFilters = useCallback(() => {
+    setLocalSearch('');
+    resetFilters();
+  }, [resetFilters]);
+
   const isFilterActive =
     filters.searchQuery !== '' ||
     filters.myStakesOnly !== false ||
@@ -137,7 +142,13 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
             {Object.entries(sortFieldLabels).map(([field, label]) => (
               <DropdownMenuItem
                 key={field}
-                onClick={() => updateSort(field as SortField)}
+                onClick={() => {
+                  if (filters.sortBy === field) {
+                    updateSort(field as SortField, filters.sortOrder === 'asc' ? 'desc' : 'asc');
+                  } else {
+                    updateSort(field as SortField, 'desc');
+                  }
+                }}
                 className={filters.sortBy === field ? 'bg-accent text-accent-foreground font-semibold' : ''}
               >
                 {label}
@@ -167,7 +178,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
         <Button
           variant="ghost"
           size="sm"
-          onClick={resetFilters}
+          onClick={handleResetFilters}
           disabled={loading}
           className="h-9 px-3 text-muted-foreground hover:text-foreground text-sm flex items-center gap-1.5"
         >
