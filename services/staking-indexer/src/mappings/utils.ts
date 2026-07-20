@@ -5,6 +5,8 @@ import * as db from './db';
 import { Cache } from './db';
 import { EpochTransition } from './types';
 
+declare const logger: any;
+
 // -----------------------------
 // Deep find utility
 // -----------------------------

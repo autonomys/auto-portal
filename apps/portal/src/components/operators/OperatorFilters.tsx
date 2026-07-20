@@ -1,16 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronDown, ArrowUp, ArrowDown, RotateCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useOperatorFilters } from '@/hooks/use-operators';
+import type { SortField } from '@/types/operator';
 
 const SEARCH_DEBOUNCE_MS = 300;
+
+const sortFieldLabels: Record<SortField, string> = {
+  totalStaked: 'Total Value',
+  name: 'Name',
+  nominatorCount: 'Nominators',
+  tax: 'Tax',
+  apy: 'Est. APY',
+  status: 'Status',
+  yourPosition: 'Your Position',
+};
 
 interface OperatorFiltersProps {
   loading?: boolean;
 }
 
 export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = false }) => {
-  const { filters, updateSearch, toggleMyStakesOnly } = useOperatorFilters();
+  const { filters, updateSearch, toggleMyStakesOnly, updateSort, resetFilters } = useOperatorFilters();
   const [localSearch, setLocalSearch] = useState(filters.searchQuery);
 
   // Sync local state when filters are reset externally
@@ -37,6 +55,16 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
     setLocalSearch('');
     updateSearch('');
   }, [updateSearch]);
+
+  const handleToggleSortOrder = useCallback(() => {
+    updateSort(filters.sortBy, filters.sortOrder === 'asc' ? 'desc' : 'asc');
+  }, [filters.sortBy, filters.sortOrder, updateSort]);
+
+  const isFilterActive =
+    filters.searchQuery !== '' ||
+    filters.myStakesOnly !== false ||
+    filters.sortBy !== 'totalStaked' ||
+    filters.sortOrder !== 'desc';
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -91,6 +119,63 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
         <span className="text-sm text-foreground whitespace-nowrap">My Stakes</span>
       </label>
 
+      {/* Sort Controls */}
+      <div className="flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              className="h-9 px-3 flex items-center gap-2 text-sm text-foreground"
+            >
+              <span>Sort by: {sortFieldLabels[filters.sortBy]}</span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            {Object.entries(sortFieldLabels).map(([field, label]) => (
+              <DropdownMenuItem
+                key={field}
+                onClick={() => updateSort(field as SortField)}
+                className={filters.sortBy === field ? 'bg-accent text-accent-foreground font-semibold' : ''}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loading}
+          onClick={handleToggleSortOrder}
+          className="h-9 w-9 p-0 flex items-center justify-center"
+          aria-label={`Sort ${filters.sortOrder === 'asc' ? 'ascending' : 'descending'}`}
+        >
+          {filters.sortOrder === 'asc' ? (
+            <ArrowUp className="h-4 w-4" />
+          ) : (
+            <ArrowDown className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      {/* Reset Filters Button */}
+      {isFilterActive && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={resetFilters}
+          disabled={loading}
+          className="h-9 px-3 text-muted-foreground hover:text-foreground text-sm flex items-center gap-1.5"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </Button>
+      )}
+
       {/* Loading indicator */}
       {loading && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -101,3 +186,4 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
     </div>
   );
 };
+
