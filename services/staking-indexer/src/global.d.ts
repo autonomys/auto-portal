@@ -40,6 +40,7 @@ interface SafeRedisClient {
 
 declare global {
   const redis: SafeRedisClient | undefined;
+  const logger: any;
 }
 
 export {};

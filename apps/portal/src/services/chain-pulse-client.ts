@@ -70,9 +70,12 @@ export const chainPulseClient = {
     try {
       return await fetchJson<ChainPulseOperator[]>('/v1/staking/operators', signal);
     } catch (error) {
-      if (import.meta.env.DEV) {
+      const isNetworkError = error instanceof TypeError;
+      const isAbort = error instanceof DOMException && error.name === 'AbortError';
+
+      if (import.meta.env.DEV && isNetworkError && !isAbort) {
         console.warn(
-          '[chainPulseClient] Failed to fetch operators from local backend. Using dev mock fallback.',
+          '[chainPulseClient] Failed to connect to local backend. Using dev mock fallback.',
           error
         );
         return [
