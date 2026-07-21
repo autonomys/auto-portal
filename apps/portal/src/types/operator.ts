@@ -33,6 +33,16 @@ export type SortField =
   | 'status'
   | 'yourPosition';
 
+export const SORT_FIELD_LABELS: Record<SortField, string> = {
+  totalStaked: 'Total Value',
+  name: 'Name',
+  nominatorCount: 'Nominators',
+  tax: 'Tax',
+  apy: 'Est. APY',
+  status: 'Status',
+  yourPosition: 'Your Position',
+};
+
 export type FilterState = {
   searchQuery: string;
   domainFilter: string;

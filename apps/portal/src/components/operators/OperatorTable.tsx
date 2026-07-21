@@ -258,7 +258,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   onWithdraw,
 }) => {
   const { positions } = useStoredPositions();
-  const { filters, updateSort } = useOperatorFilters();
+  const { filters, cycleSort } = useOperatorFilters();
 
   const positionByOperatorId = React.useMemo(() => {
     const map = new Map<string, UserPosition>();
@@ -283,16 +283,6 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
     return ids;
   }, [positions]);
 
-  const handleSort = (field: SortField) => {
-    if (filters.sortBy === field) {
-      // Toggle sort order if clicking the same field
-      updateSort(field, filters.sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      // Default to descending for new field
-      updateSort(field, 'desc');
-    }
-  };
-
   const renderTableHeader = () => (
     <thead className="bg-muted/50">
       <tr>
@@ -301,7 +291,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="name"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="left"
           className="w-[18%]"
         />
@@ -310,7 +300,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="totalStaked"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="right"
           className="w-[17%]"
         />
@@ -319,7 +309,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="nominatorCount"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="right"
           className="w-[11%]"
         />
@@ -328,7 +318,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="tax"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="right"
           className="w-[7%]"
         />
@@ -337,7 +327,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="apy"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="right"
           className="w-[10%]"
         />
@@ -346,7 +336,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="status"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="center"
           className="w-[8%]"
         />
@@ -355,7 +345,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
           sortField="yourPosition"
           currentSortBy={filters.sortBy}
           currentSortOrder={filters.sortOrder}
-          onSort={handleSort}
+          onSort={cycleSort}
           align="right"
           className="w-[17%]"
         />

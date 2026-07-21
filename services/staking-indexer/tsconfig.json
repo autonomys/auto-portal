@@ -10,7 +10,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "target": "es2017",
-    "lib": ["ES2023"],
+    "lib": ["ES2023", "DOM"],
     "strict": true,
     "noImplicitAny": false
   },

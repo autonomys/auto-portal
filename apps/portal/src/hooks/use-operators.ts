@@ -77,6 +77,21 @@ export const useOperatorFilters = () => {
     [setFilters],
   );
 
+  const cycleSort = useCallback(
+    (field: FilterState['sortBy']) => {
+      if (filters.sortBy === field) {
+        setFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+      } else {
+        setFilters({ sortBy: field, sortOrder: 'desc' });
+      }
+    },
+    [filters.sortBy, filters.sortOrder, setFilters],
+  );
+
+  const toggleSortOrder = useCallback(() => {
+    setFilters({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+  }, [filters.sortOrder, setFilters]);
+
   const toggleMyStakesOnly = useCallback(() => {
     setFilters({ myStakesOnly: !filters.myStakesOnly });
   }, [setFilters, filters.myStakesOnly]);
@@ -88,11 +103,20 @@ export const useOperatorFilters = () => {
     [setFilters],
   );
 
+  const hasActiveFilters =
+    filters.searchQuery !== '' ||
+    filters.myStakesOnly !== false ||
+    filters.sortBy !== 'totalStaked' ||
+    filters.sortOrder !== 'desc';
+
   return {
     filters,
     updateSearch,
     updateDomain,
     updateSort,
+    cycleSort,
+    toggleSortOrder,
+    hasActiveFilters,
     toggleMyStakesOnly,
     setMyStakesOnly,
     resetFilters: storeResetFilters,

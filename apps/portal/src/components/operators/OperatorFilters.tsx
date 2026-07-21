@@ -9,26 +9,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useOperatorFilters } from '@/hooks/use-operators';
-import type { SortField } from '@/types/operator';
+import { SortField, SORT_FIELD_LABELS } from '@/types/operator';
 
 const SEARCH_DEBOUNCE_MS = 300;
-
-const sortFieldLabels: Record<SortField, string> = {
-  totalStaked: 'Total Value',
-  name: 'Name',
-  nominatorCount: 'Nominators',
-  tax: 'Tax',
-  apy: 'Est. APY',
-  status: 'Status',
-  yourPosition: 'Your Position',
-};
 
 interface OperatorFiltersProps {
   loading?: boolean;
 }
 
 export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = false }) => {
-  const { filters, updateSearch, toggleMyStakesOnly, updateSort, resetFilters } = useOperatorFilters();
+  const {
+    filters,
+    updateSearch,
+    toggleMyStakesOnly,
+    cycleSort,
+    toggleSortOrder,
+    hasActiveFilters,
+    resetFilters,
+  } = useOperatorFilters();
   const [localSearch, setLocalSearch] = useState(filters.searchQuery);
 
   // Sync local state when filters are reset externally
@@ -56,20 +54,10 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
     updateSearch('');
   }, [updateSearch]);
 
-  const handleToggleSortOrder = useCallback(() => {
-    updateSort(filters.sortBy, filters.sortOrder === 'asc' ? 'desc' : 'asc');
-  }, [filters.sortBy, filters.sortOrder, updateSort]);
-
   const handleResetFilters = useCallback(() => {
     setLocalSearch('');
     resetFilters();
   }, [resetFilters]);
-
-  const isFilterActive =
-    filters.searchQuery !== '' ||
-    filters.myStakesOnly !== false ||
-    filters.sortBy !== 'totalStaked' ||
-    filters.sortOrder !== 'desc';
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -134,21 +122,15 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
               disabled={loading}
               className="h-9 px-3 flex items-center gap-2 text-sm text-foreground"
             >
-              <span>Sort by: {sortFieldLabels[filters.sortBy]}</span>
+              <span>Sort by: {SORT_FIELD_LABELS[filters.sortBy]}</span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-48">
-            {Object.entries(sortFieldLabels).map(([field, label]) => (
+            {Object.entries(SORT_FIELD_LABELS).map(([field, label]) => (
               <DropdownMenuItem
                 key={field}
-                onClick={() => {
-                  if (filters.sortBy === field) {
-                    updateSort(field as SortField, filters.sortOrder === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    updateSort(field as SortField, 'desc');
-                  }
-                }}
+                onClick={() => cycleSort(field as SortField)}
                 className={filters.sortBy === field ? 'bg-accent text-accent-foreground font-semibold' : ''}
               >
                 {label}
@@ -161,7 +143,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
           variant="outline"
           size="sm"
           disabled={loading}
-          onClick={handleToggleSortOrder}
+          onClick={toggleSortOrder}
           className="h-9 w-9 p-0 flex items-center justify-center"
           aria-label={`Sort ${filters.sortOrder === 'asc' ? 'ascending' : 'descending'}`}
         >
@@ -174,7 +156,7 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
       </div>
 
       {/* Reset Filters Button */}
-      {isFilterActive && (
+      {hasActiveFilters && (
         <Button
           variant="ghost"
           size="sm"

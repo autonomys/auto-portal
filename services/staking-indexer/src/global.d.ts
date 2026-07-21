@@ -1,3 +1,6 @@
+/// <reference path="../../../node_modules/@subql/types-core/dist/global.d.ts" />
+/// <reference path="../../../node_modules/@subql/types/dist/global.d.ts" />
+
 // Global type declarations for the staking indexer
 
 interface SafeRedisClient {
@@ -40,7 +43,6 @@ interface SafeRedisClient {
 
 declare global {
   const redis: SafeRedisClient | undefined;
-  const logger: any;
 }
 
 export {};
