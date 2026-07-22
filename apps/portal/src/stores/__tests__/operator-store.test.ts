@@ -17,7 +17,12 @@ const mockOperators: Operator[] = [
     totalStaked: '1000',
     totalPoolValue: '1000',
     nominatorCount: 5,
-    estimatedReturnDetails: { annualizedReturn: 0.12, periodReturn: 0.01, startDate: new Date(), endDate: new Date() },
+    estimatedReturnDetails: {
+      annualizedReturn: 0.12,
+      periodReturn: 0.01,
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   },
   {
     id: 'op2',
@@ -31,7 +36,12 @@ const mockOperators: Operator[] = [
     totalStaked: '2500',
     totalPoolValue: '2500',
     nominatorCount: 15,
-    estimatedReturnDetails: { annualizedReturn: 0.08, periodReturn: 0.015, startDate: new Date(), endDate: new Date() },
+    estimatedReturnDetails: {
+      annualizedReturn: 0.08,
+      periodReturn: 0.015,
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   },
   {
     id: 'op3',
@@ -45,7 +55,12 @@ const mockOperators: Operator[] = [
     totalStaked: '500',
     totalPoolValue: '500',
     nominatorCount: 2,
-    estimatedReturnDetails: { annualizedReturn: 0.15, periodReturn: 0.02, startDate: new Date(), endDate: new Date() },
+    estimatedReturnDetails: {
+      annualizedReturn: 0.15,
+      periodReturn: 0.02,
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   },
 ];
 
