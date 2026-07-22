@@ -131,7 +131,9 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
               <DropdownMenuItem
                 key={field}
                 onClick={() => cycleSort(field as SortField)}
-                className={filters.sortBy === field ? 'bg-accent text-accent-foreground font-semibold' : ''}
+                className={
+                  filters.sortBy === field ? 'bg-accent text-accent-foreground font-semibold' : ''
+                }
               >
                 {label}
               </DropdownMenuItem>
@@ -179,4 +181,3 @@ export const OperatorFilters: React.FC<OperatorFiltersProps> = ({ loading = fals
     </div>
   );
 };
-
