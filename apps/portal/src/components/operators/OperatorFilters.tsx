@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useOperatorFilters } from '@/hooks/use-operators';
-import { SortField, SORT_FIELD_LABELS } from '@/types/operator';
+import { type SortField, SORT_FIELD_LABELS } from '@/types/operator';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
