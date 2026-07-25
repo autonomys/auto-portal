@@ -6,6 +6,7 @@ import { ExtrinsicPrimitive } from './types';
 import {
   createOperatorDomainMap,
   deriveOperatorEpochSharePrices,
+  deriveStorageFundAccountId,
   detectEpochTransitions,
   groupEventsFromBatchAll,
   groupNominatorEvents,
@@ -198,6 +199,27 @@ export async function handleBlock(_block: SubstrateBlock): Promise<void> {
       }
     }
   }
+
+  // -------------------------------------------------------------------
+  // Store StorageFundAccount live balance for each operator (processed every block)
+  // -------------------------------------------------------------------
+  operators.forEach(op => {
+    const operatorId = op.operatorId.toString();
+    const storageFundAddress = deriveStorageFundAccountId(operatorId);
+    const totalStorageFeeDeposit = BigInt(
+      op.operatorDetails?.totalStorageFeeDeposit?.toString() ?? '0',
+    );
+
+    cache.storageFundAccount.push(
+      db.createStorageFundAccount(
+        operatorId,
+        storageFundAddress,
+        totalStorageFeeDeposit,
+        blockTimestamp,
+        height,
+      ),
+    );
+  });
 
   if (blockHasUnlockNominator)
     queriesResults[parentBlockOperatorsIndex!].forEach(o =>

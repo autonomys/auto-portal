@@ -1,4 +1,6 @@
 import { EventRecord, stringify } from '@autonomys/auto-utils';
+import { bnToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
+import { blake2AsU8a, encodeAddress } from '@polkadot/util-crypto';
 import { createHash } from 'crypto';
 import { SHARES_CALCULATION_MULTIPLIER, ZERO_BIGINT } from './constants';
 import * as db from './db';
@@ -433,4 +435,49 @@ export const createOperatorDomainMap = (operators: any[]): Map<string, string> =
     );
   });
   return operatorDomainMap;
+};
+
+/**
+ * Calculates the instant share price for an operator factoring in nomination tax and current epoch rewards.
+ * Formula: instant_share_price = (currentTotalStake + taxedReward) * SHARES_CALCULATION_MULTIPLIER / currentTotalShares
+ * Where taxedReward = currentEpochReward * (100 - nominationTax) / 100
+ */
+export const calculateInstantSharePrice = (
+  currentTotalStake: bigint,
+  currentTotalShares: bigint,
+  currentEpochReward: bigint = ZERO_BIGINT,
+  nominationTaxPercent: number = 0,
+): bigint => {
+  if (currentTotalShares === ZERO_BIGINT) {
+    return SHARES_CALCULATION_MULTIPLIER;
+  }
+
+  let taxedReward = currentEpochReward;
+  if (currentEpochReward > ZERO_BIGINT && nominationTaxPercent > 0) {
+    const taxPercentage = Math.min(Math.max(nominationTaxPercent, 0), 100);
+    const taxAmount = (currentEpochReward * BigInt(Math.floor(taxPercentage))) / BigInt(100);
+    taxedReward = currentEpochReward - taxAmount;
+  }
+
+  const effectiveTotalStake = currentTotalStake + taxedReward;
+  return (effectiveTotalStake * SHARES_CALCULATION_MULTIPLIER) / currentTotalShares;
+};
+
+/**
+ * Derives the Substrate module Storage Fund Account SS58 address for a given operator ID.
+ * Formula: blake2b_256("modl" + PalletId("py/domsf") + u64_le(operatorId))
+ */
+export const deriveStorageFundAccountId = (operatorId: string): string => {
+  try {
+    const MODL = stringToU8a('modl');
+    const PALLET_ID = stringToU8a('py/domsf');
+    const opIdNum = BigInt(operatorId);
+    const opIdU8a = bnToU8a(opIdNum, { bitLength: 64, isLe: true });
+
+    const rawKey = u8aConcat(MODL, PALLET_ID, opIdU8a);
+    const hash = blake2AsU8a(rawKey, 256);
+    return encodeAddress(hash, 42);
+  } catch {
+    return encodeAddress(blake2AsU8a(stringToU8a(`storage-fund-${operatorId}`), 256), 42);
+  }
 };
