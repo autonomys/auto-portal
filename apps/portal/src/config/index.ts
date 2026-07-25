@@ -33,5 +33,8 @@ export const config = {
       import.meta.env.VITE_EXPLORER_EXTRINSIC_BASE_URL || 'https://autonomys.subscan.io/extrinsic/',
   },
 
-  // Add other configuration as needed
+  // Dev configurations
+  dev: {
+    useMockOperators: import.meta.env.VITE_USE_MOCK_OPERATORS === 'true',
+  },
 } as const;

@@ -1,4 +1,5 @@
 import { config } from '@/config';
+import { mockChainPulseClient } from './chain-pulse-client.mock';
 
 export interface ChainPulseOperator {
   id: string;
@@ -44,6 +45,29 @@ export interface ChainPulseWithdrawal {
   timestamp: string; // ISO datetime
 }
 
+export interface ChainPulseClient {
+  getOperators(signal?: AbortSignal): Promise<ChainPulseOperator[]>;
+  getOperator(id: string, signal?: AbortSignal): Promise<ChainPulseOperator | null>;
+  getSharePrices(
+    operatorId: string,
+    params?: { since?: string; until?: string; limit?: number },
+    signal?: AbortSignal,
+  ): Promise<ChainPulseSharePrice[]>;
+  getDeposits(
+    operatorId: string,
+    address: string,
+    params?: { limit?: number; offset?: number },
+    signal?: AbortSignal,
+  ): Promise<ChainPulseDeposit[]>;
+  getWithdrawals(
+    operatorId: string,
+    address: string,
+    params?: { limit?: number; offset?: number },
+    signal?: AbortSignal,
+  ): Promise<ChainPulseWithdrawal[]>;
+  getNominatorOperatorIds(address: string, signal?: AbortSignal): Promise<string[]>;
+}
+
 const inflightRequests = new Map<string, Promise<unknown>>();
 
 const fetchJson = async <T>(path: string, signal?: AbortSignal): Promise<T> => {
@@ -65,7 +89,7 @@ const fetchJson = async <T>(path: string, signal?: AbortSignal): Promise<T> => {
   return promise;
 };
 
-export const chainPulseClient = {
+export const realChainPulseClient: ChainPulseClient = {
   async getOperators(signal?: AbortSignal): Promise<ChainPulseOperator[]> {
     return fetchJson<ChainPulseOperator[]>('/v1/staking/operators', signal);
   },
@@ -131,3 +155,6 @@ export const chainPulseClient = {
     );
   },
 };
+
+export const chainPulseClient: ChainPulseClient =
+  import.meta.env.DEV && config.dev.useMockOperators ? mockChainPulseClient : realChainPulseClient;
