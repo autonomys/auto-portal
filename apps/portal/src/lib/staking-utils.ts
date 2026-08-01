@@ -27,8 +27,13 @@ export const getValidationRules = (
   availableBalance: number,
   currentPosition?: UserPosition | null,
 ): StakingValidation => {
-  // Only enforce minimum on first nomination (when user has no current position)
-  const hasExistingPosition = currentPosition && currentPosition.positionValue > 0;
+  // Only enforce minimum on first nomination (when user has no current active stake or pending deposit)
+  const hasExistingPosition = Boolean(
+    currentPosition &&
+      (currentPosition.positionValue > 0 ||
+        currentPosition.storageFeeDeposit > 0 ||
+        currentPosition.pendingDeposit !== null),
+  );
   const effectiveMinimum = hasExistingPosition ? 0 : parseFloat(operator.minimumNominatorStake);
 
   return {
