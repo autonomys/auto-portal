@@ -7,6 +7,7 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { ApyTooltip } from '@/components/operators/ApyTooltip';
 import { OperatorPoolBreakdown } from '@/components/operators/OperatorPoolBreakdown';
 import { PositionBreakdown } from '@/components/positions';
+import { hasUserPosition, calculateTotalPositionValue } from '@/lib/position-utils';
 import type { Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 
@@ -36,17 +37,13 @@ interface OperatorCardProps {
 
 export const OperatorCard: React.FC<OperatorCardProps> = React.memo(
   ({ operator, userPosition, onStake, onWithdraw }) => {
-    const hasUserPosition =
-      !!userPosition &&
-      (userPosition.positionValue > 0 ||
-        userPosition.storageFeeDeposit > 0 ||
-        (userPosition.pendingDeposit?.amount || 0) > 0);
+    const isUserPositionActive = hasUserPosition(userPosition);
 
     return (
       <Card
         className={`
         hover:shadow-lg transition-all duration-200
-        ${hasUserPosition ? 'border-primary/50 bg-primary/5 hover:border-primary' : 'hover:border-primary-200'}
+        ${isUserPositionActive ? 'border-primary/50 bg-primary/5 hover:border-primary' : 'hover:border-primary-200'}
       `}
       >
         <CardContent className="p-6">
@@ -104,17 +101,19 @@ export const OperatorCard: React.FC<OperatorCardProps> = React.memo(
                     />
                   }
                 >
-                  <div className="text-2xl font-bold font-mono cursor-help">
-                    {formatNumber(operator.totalPoolValue)} AI3
-                  </div>
+                  <span className="text-lg font-bold text-foreground font-mono cursor-help whitespace-nowrap">
+                    {formatAI3(operator.totalPoolValue)}
+                  </span>
                 </Tooltip>
               ) : (
-                <div className="text-2xl font-bold font-mono text-muted-foreground">--</div>
+                <span className="text-lg font-bold text-foreground font-mono whitespace-nowrap">
+                  {formatAI3(operator.totalStaked)}
+                </span>
               )}
               <div className="text-xs text-muted-foreground">Operator Total Value</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold font-mono">
+              <div className="text-lg font-bold text-foreground font-mono">
                 {typeof operator.nominatorCount === 'number'
                   ? formatNumber(operator.nominatorCount)
                   : '--'}
@@ -124,17 +123,12 @@ export const OperatorCard: React.FC<OperatorCardProps> = React.memo(
           </div>
 
           {/* Your Position (only shown if user has a position) */}
-          {hasUserPosition && userPosition && (
+          {isUserPositionActive && userPosition && (
             <div className="mb-4 p-3 bg-muted rounded-lg">
               <div className="text-center">
                 <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
                   <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
-                    {formatAI3(
-                      userPosition.positionValue +
-                        userPosition.storageFeeDeposit +
-                        (userPosition.pendingDeposit?.amount || 0),
-                      2,
-                    )}
+                    {formatAI3(calculateTotalPositionValue(userPosition), 2)}
                   </span>
                 </Tooltip>
                 <div className="text-xs text-muted-foreground">Your Total Position</div>
@@ -143,7 +137,7 @@ export const OperatorCard: React.FC<OperatorCardProps> = React.memo(
           )}
 
           {/* Actions */}
-          {hasUserPosition ? (
+          {isUserPositionActive ? (
             <div className="flex gap-3">
               <Button className="flex-1" onClick={() => onStake(operator.id)}>
                 Stake

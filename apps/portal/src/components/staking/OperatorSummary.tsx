@@ -8,6 +8,7 @@ import { PositionBreakdown } from '@/components/positions/PositionBreakdown';
 import type { Operator } from '@/types/operator';
 import { useOperatorPosition } from '@/hooks/use-positions';
 import { formatAI3, formatNumber, formatPercentage, getAPYColor } from '@/lib/formatting';
+import { calculateTotalPositionValue } from '@/lib/position-utils';
 
 interface OperatorSummaryProps {
   operator: Operator;
@@ -115,12 +116,7 @@ export const OperatorSummary: React.FC<OperatorSummaryProps> = ({ operator }) =>
             {userPosition ? (
               <Tooltip content={<PositionBreakdown position={userPosition} />} side="top">
                 <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
-                  {formatAI3(
-                    userPosition.positionValue +
-                      userPosition.storageFeeDeposit +
-                      (userPosition.pendingDeposit?.amount || 0),
-                    2,
-                  )}
+                  {formatAI3(calculateTotalPositionValue(userPosition), 2)}
                 </span>
               </Tooltip>
             ) : (
