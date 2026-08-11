@@ -84,7 +84,6 @@ export const useThemeStore = create<ThemeState>()(
             media.addEventListener('change', handler);
           } catch {
             // Fallback for Safari
-            // @ts-expect-error legacy API
             media.addListener(handler);
           }
         }
