@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatPercentage, getAPYColor, formatNumber } from '@/lib/formatting';
+import { hasUserPosition, calculateTotalPositionValue } from '@/lib/position-utils';
 import type { Operator, SortField } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 import { useOperatorFilters, useStoredPositions } from '@/hooks/use-operators';
@@ -160,10 +161,7 @@ const OperatorRow: React.FC<OperatorRowProps> = React.memo(
             return null;
           }
 
-          const totalValue =
-            userPosition.positionValue +
-            userPosition.storageFeeDeposit +
-            (userPosition.pendingDeposit?.amount || 0);
+          const totalValue = calculateTotalPositionValue(userPosition);
 
           if (totalValue <= 0) {
             return null;
@@ -271,12 +269,7 @@ export const OperatorTable: React.FC<OperatorTableProps> = ({
   const operatorIdsWithUserPosition = React.useMemo(() => {
     const ids = new Set<string>();
     for (const position of positions) {
-      const hasUserPosition =
-        !!position &&
-        (position.positionValue > 0 ||
-          position.storageFeeDeposit > 0 ||
-          (position.pendingDeposit?.amount || 0) > 0);
-      if (hasUserPosition) {
+      if (hasUserPosition(position)) {
         ids.add(position.operatorId);
       }
     }
