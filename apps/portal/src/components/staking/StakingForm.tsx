@@ -367,7 +367,7 @@ export const StakingForm: React.FC<StakingFormProps> = ({ operator, onCancel, on
               )
             }
             notes={[
-              'Part of your stake is reserved for storage and refunded when you withdraw',
+              'Part of your stake is reserved for storage fees and refunded when you withdraw (note: external wallets only display the active staking pool balance)',
               'Rewards are automatically compounded to your position',
               'Stake will be active after next epoch transition (~10 minutes)',
               'Your stake will appear as "Pending" until the epoch transition occurs',

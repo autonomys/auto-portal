@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { hasUserPosition, calculateTotalPositionValue } from '../position-utils';
+import {
+  hasUserPosition,
+  calculateTotalPositionValue,
+  STORAGE_FEE_FUNDS_PRIMER_URL,
+} from '../position-utils';
 import type { UserPosition } from '@/types/position';
 
 describe('hasUserPosition', () => {
@@ -102,5 +106,13 @@ describe('calculateTotalPositionValue', () => {
       lastUpdated: new Date(),
     };
     expect(calculateTotalPositionValue(pos)).toBe(175);
+  });
+});
+
+describe('STORAGE_FEE_FUNDS_PRIMER_URL', () => {
+  it('points to the official Autonomys forum storage fee funds primer', () => {
+    expect(STORAGE_FEE_FUNDS_PRIMER_URL).toBe(
+      'https://forum.autonomys.xyz/t/storage-fee-funds-primer/4320',
+    );
   });
 });

@@ -1,6 +1,12 @@
 import type { UserPosition } from '@/types/position';
 
 /**
+ * Link to official Autonomys forum primer explaining storage fee funds and wallet balance display.
+ */
+export const STORAGE_FEE_FUNDS_PRIMER_URL =
+  'https://forum.autonomys.xyz/t/storage-fee-funds-primer/4320';
+
+/**
  * Check if a user has an active or pending stake position with an operator.
  * Note: Intentionally omits pending withdrawals as those represent exited positions awaiting unlock.
  */
