@@ -57,6 +57,7 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
               <div className="text-2xl font-mono font-bold relative">
                 {card.showTooltip && portfolioSummary && positions ? (
                   <Tooltip
+                    interactive
                     content={
                       <PositionBreakdown
                         portfolioSummary={portfolioSummary}

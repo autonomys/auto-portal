@@ -7,9 +7,16 @@ interface TooltipProps {
   content: React.ReactNode;
   side?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
+  interactive?: boolean;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top', className }) => {
+export const Tooltip: React.FC<TooltipProps> = ({
+  children,
+  content,
+  side = 'top',
+  className,
+  interactive = false,
+}) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [actualSide, setActualSide] = React.useState<typeof side>(side);
   const [coords, setCoords] = React.useState<{
@@ -19,6 +26,36 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
   } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleMouseEnter = () => {
+    clearCloseTimeout();
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (interactive) {
+      clearCloseTimeout();
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 150);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      clearCloseTimeout();
+    };
+  }, []);
 
   const calculatePosition = React.useCallback(() => {
     const container = containerRef.current;
@@ -89,8 +126,8 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
     <div
       ref={containerRef}
       className="relative inline-block"
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="relative z-10">{children}</div>
       {isVisible &&
@@ -101,11 +138,13 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
               'fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
               className,
             )}
+            onMouseEnter={interactive ? handleMouseEnter : undefined}
+            onMouseLeave={interactive ? handleMouseLeave : undefined}
             style={{
               top: coords?.top ?? -9999,
               left: coords?.left ?? -9999,
               transform: coords?.transform,
-              pointerEvents: 'none',
+              pointerEvents: interactive ? 'auto' : 'none',
               visibility: coords ? 'visible' : 'hidden',
             }}
           >

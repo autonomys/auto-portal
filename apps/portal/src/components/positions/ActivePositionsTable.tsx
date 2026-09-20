@@ -100,7 +100,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
 
       <div className="flex flex-col items-end space-y-2 min-w-[200px]">
         <div className="text-xl font-mono font-bold text-foreground text-right">
-          <Tooltip content={<PositionBreakdown position={position} />} side="left">
+          <Tooltip interactive content={<PositionBreakdown position={position} />} side="left">
             <span className="cursor-help">{formatAI3(totalPositionValue, 2)}</span>
           </Tooltip>
         </div>
