@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { formatAI3 } from '@/lib/formatting';
-import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/lib/position-utils';
+import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/constants/staking';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
 
 interface PositionBreakdownProps {

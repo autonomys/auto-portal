@@ -40,8 +40,15 @@ export const Tooltip: React.FC<TooltipProps> = ({
     setIsVisible(true);
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e: React.MouseEvent) => {
     if (interactive) {
+      const nextTarget = e.relatedTarget;
+      if (
+        nextTarget instanceof Node &&
+        (containerRef.current?.contains(nextTarget) || tooltipRef.current?.contains(nextTarget))
+      ) {
+        return;
+      }
       clearCloseTimeout();
       closeTimeoutRef.current = setTimeout(() => {
         setIsVisible(false);
@@ -51,11 +58,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  React.useEffect(() => {
-    return () => {
-      clearCloseTimeout();
-    };
-  }, []);
+  React.useEffect(() => () => clearCloseTimeout(), []);
 
   const calculatePosition = React.useCallback(() => {
     const container = containerRef.current;

@@ -79,4 +79,41 @@ describe('Tooltip', () => {
 
     vi.useRealTimers();
   });
+
+  it('does not start close timer when moving pointer from tooltip back to trigger container', () => {
+    vi.useFakeTimers();
+
+    render(
+      <Tooltip interactive content={<a href="https://example.com">Interactive Link</a>}>
+        <button>Trigger</button>
+      </Tooltip>,
+    );
+
+    const trigger = screen.getByText('Trigger');
+    fireEvent.mouseEnter(trigger);
+
+    const link = screen.getByText('Interactive Link');
+    const portalContainer = link.closest('div[style*="pointer-events"]');
+    expect(portalContainer).not.toBeNull();
+
+    // Mouse leaves tooltip directly to the trigger container
+    if (portalContainer) {
+      fireEvent.mouseLeave(portalContainer, { relatedTarget: trigger });
+    }
+
+    // Advancing timers should not close tooltip because pointer moved to trigger
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(screen.getByText('Interactive Link')).toBeDefined();
+
+    // Moving off trigger entirely closes after grace period
+    fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(screen.queryByText('Interactive Link')).toBeNull();
+
+    vi.useRealTimers();
+  });
 });

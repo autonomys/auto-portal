@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PositionBreakdown } from '../PositionBreakdown';
-import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/lib/position-utils';
+import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/constants/staking';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
 
 describe('PositionBreakdown', () => {
@@ -54,9 +54,7 @@ describe('PositionBreakdown', () => {
       },
     ];
 
-    render(
-      <PositionBreakdown portfolioSummary={portfolioSummary} positions={positions} />,
-    );
+    render(<PositionBreakdown portfolioSummary={portfolioSummary} positions={positions} />);
 
     expect(screen.getByText('Portfolio Breakdown')).toBeDefined();
     expect(screen.getByText('Total Staked:')).toBeDefined();

@@ -8,8 +8,10 @@ import { WalletModal } from '@/components/wallet';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
 import { useWallet } from '@/hooks/use-wallet';
+import { ExternalLink } from 'lucide-react';
 import { formatAI3 } from '@/lib/formatting';
 import { layout } from '@/lib/layout';
+import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/constants/staking';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -65,6 +67,19 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
         </div>
+        {portfolioSummary && portfolioSummary.totalStorageFee > 0 && (
+          <div className="border-t border-gray-700/60 pt-1.5 mt-2">
+            <a
+              href={STORAGE_FEE_FUNDS_PRIMER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-primary-300 hover:text-primary-200 inline-flex items-center gap-1 group transition-colors"
+            >
+              <span>See a different staked balance in your wallet?</span>
+              <ExternalLink className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -148,7 +163,7 @@ export const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-mono font-bold leading-tight relative">
-                <Tooltip content={<TotalBalanceBreakdown />} side="top">
+                <Tooltip content={<TotalBalanceBreakdown />} side="top" interactive>
                   <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
                     {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
                   </span>

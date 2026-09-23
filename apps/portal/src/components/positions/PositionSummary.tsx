@@ -4,7 +4,7 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { ExternalLink, InfoIcon } from 'lucide-react';
 import { usePositions } from '@/hooks/use-positions';
 import { formatAI3, formatNumber } from '@/lib/formatting';
-import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/lib/position-utils';
+import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/constants/staking';
 import { PositionBreakdown } from './PositionBreakdown';
 
 interface PositionSummaryProps {
@@ -94,7 +94,10 @@ export const PositionSummary: React.FC<PositionSummaryProps> = ({ refreshInterva
           <div className="flex items-start sm:items-center gap-2">
             <InfoIcon className="w-4 h-4 text-primary shrink-0 mt-0.5 sm:mt-0" />
             <span>
-              <strong>Seeing a different staked balance in your wallet?</strong> Wallets display only your active staking pool shares, excluding the Storage Fund deposit ({formatAI3(portfolioSummary.totalStorageFee, 2)}). Your storage funds remain part of your total position and are returned upon withdrawal.
+              <strong>Seeing a different staked balance in your wallet?</strong> Wallets display
+              only your active staking pool shares, excluding the Storage Fund deposit (
+              {formatAI3(portfolioSummary.totalStorageFee, 2)}). Your storage funds remain part of
+              your total position and are returned upon withdrawal.
             </span>
           </div>
           <a
