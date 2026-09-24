@@ -126,7 +126,11 @@ export const OperatorCard: React.FC<OperatorCardProps> = React.memo(
           {isUserPositionActive && userPosition && (
             <div className="mb-4 p-3 bg-muted rounded-lg">
               <div className="text-center">
-                <Tooltip interactive content={<PositionBreakdown position={userPosition} />} side="top">
+                <Tooltip
+                  interactive
+                  content={<PositionBreakdown position={userPosition} />}
+                  side="top"
+                >
                   <span className="text-sm font-medium text-foreground font-mono cursor-help whitespace-nowrap">
                     {formatAI3(calculateTotalPositionValue(userPosition), 2)}
                   </span>

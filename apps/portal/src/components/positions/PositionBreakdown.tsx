@@ -1,7 +1,6 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
 import { formatAI3 } from '@/lib/formatting';
-import { STORAGE_FEE_FUNDS_PRIMER_URL } from '@/constants/staking';
+import { StorageFeePrimerLink } from './StorageFeePrimerLink';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
 
 interface PositionBreakdownProps {
@@ -59,17 +58,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
               </span>
             </div>
           </div>
-          <div className="border-t border-gray-700/60 pt-1.5 mt-2">
-            <a
-              href={STORAGE_FEE_FUNDS_PRIMER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] text-primary-300 hover:text-primary-200 inline-flex items-center gap-1 group transition-colors"
-            >
-              <span>See a different staked balance in your wallet?</span>
-              <ExternalLink className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
-            </a>
-          </div>
+          <StorageFeePrimerLink />
         </div>
       </div>
     );
@@ -129,17 +118,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
               </span>
             </div>
           </div>
-          <div className="border-t border-gray-700/60 pt-1.5 mt-2">
-            <a
-              href={STORAGE_FEE_FUNDS_PRIMER_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] text-primary-300 hover:text-primary-200 inline-flex items-center gap-1 group transition-colors"
-            >
-              <span>See a different staked balance in your wallet?</span>
-              <ExternalLink className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
-            </a>
-          </div>
+          <StorageFeePrimerLink />
         </div>
       </div>
     );

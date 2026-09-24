@@ -168,7 +168,11 @@ const OperatorRow: React.FC<OperatorRowProps> = React.memo(
           }
 
           return (
-            <Tooltip interactive side="left" content={<PositionBreakdown position={userPosition} />}>
+            <Tooltip
+              interactive
+              side="left"
+              content={<PositionBreakdown position={userPosition} />}
+            >
               <span className="font-mono font-medium cursor-help">{formatAI3(totalValue, 2)}</span>
             </Tooltip>
           );

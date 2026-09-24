@@ -26,7 +26,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
-  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current) {
@@ -54,6 +54,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
         setIsVisible(false);
       }, 150);
     } else {
+      setIsVisible(false);
+    }
+  };
+
+  const handleFocus = () => {
+    clearCloseTimeout();
+    setIsVisible(true);
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    const nextTarget = e.relatedTarget;
+    if (
+      nextTarget instanceof Node &&
+      (containerRef.current?.contains(nextTarget) || tooltipRef.current?.contains(nextTarget))
+    ) {
+      return;
+    }
+    if (interactive) {
+      clearCloseTimeout();
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 150);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      clearCloseTimeout();
       setIsVisible(false);
     }
   };
@@ -128,9 +158,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative inline-block"
+      className="relative inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
+      tabIndex={0}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
     >
       <div className="relative z-10">{children}</div>
       {isVisible &&
@@ -143,6 +177,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
             )}
             onMouseEnter={interactive ? handleMouseEnter : undefined}
             onMouseLeave={interactive ? handleMouseLeave : undefined}
+            onFocus={interactive ? handleFocus : undefined}
+            onBlur={interactive ? handleBlur : undefined}
+            onKeyDown={interactive ? handleKeyDown : undefined}
             style={{
               top: coords?.top ?? -9999,
               left: coords?.left ?? -9999,
