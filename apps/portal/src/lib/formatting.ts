@@ -6,9 +6,13 @@ export const formatNumber = (value: string | number, decimals: number = 0): stri
 
   if (isNaN(num)) return '0';
 
+  const safeDecimals = Number.isFinite(decimals)
+    ? Math.max(0, Math.min(20, Math.floor(decimals)))
+    : 0;
+
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: safeDecimals,
+    maximumFractionDigits: safeDecimals,
   }).format(num);
 };
 
@@ -24,8 +28,13 @@ export const formatAI3 = (value: string | number, decimals: number = 2): string 
 /**
  * Format percentage values
  */
-export const formatPercentage = (value: number, decimals: number = 1): string =>
-  `${value.toFixed(decimals)}%`;
+export const formatPercentage = (value: number, decimals: number = 1): string => {
+  if (value == null || isNaN(value)) return '0%';
+  const safeDecimals = Number.isFinite(decimals)
+    ? Math.max(0, Math.min(20, Math.floor(decimals)))
+    : 1;
+  return `${value.toFixed(safeDecimals)}%`;
+};
 
 /**
  * Format large numbers with suffixes (K, M, B)
@@ -35,14 +44,17 @@ export const formatCompactNumber = (value: string | number): string => {
 
   if (isNaN(num)) return '0';
 
-  if (num >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toFixed(1)}B`;
+  const sign = num < 0 ? '-' : '';
+  const abs = Math.abs(num);
+
+  if (abs >= 1_000_000_000) {
+    return `${sign}${(abs / 1_000_000_000).toFixed(1)}B`;
   }
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000_000) {
+    return `${sign}${(abs / 1_000_000).toFixed(1)}M`;
   }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`;
+  if (abs >= 1_000) {
+    return `${sign}${(abs / 1_000).toFixed(1)}K`;
   }
 
   return formatNumber(num);
@@ -93,14 +105,30 @@ export const truncateAddress = (
  * Format time ago from timestamp
  */
 export const formatTimeAgo = (timestamp: number): string => {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) {
+    return 'Just now';
+  }
+
   const now = Date.now();
   const diff = now - timestamp;
+
+  if (diff <= 0) {
+    return 'Just now';
+  }
 
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    return `${years}y ago`;
+  }
+  if (days >= 30) {
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
+  }
   if (days > 0) {
     return `${days}d ago`;
   }
