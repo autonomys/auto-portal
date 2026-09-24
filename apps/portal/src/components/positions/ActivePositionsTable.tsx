@@ -7,6 +7,7 @@ import { Tooltip } from '@/components/ui/tooltip';
 import { usePositions } from '@/hooks/use-positions';
 import { useWallet } from '@/hooks/use-wallet';
 import { formatAI3, formatTimeAgo } from '@/lib/formatting';
+import { hasUserPosition, calculateTotalPositionValue } from '@/lib/position-utils';
 import { PositionBreakdown } from './PositionBreakdown';
 import type { UserPosition } from '@/types/position';
 
@@ -55,8 +56,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
   };
 
   // Calculate total position value including storage fund deposit and pending stake
-  const totalPositionValue =
-    position.positionValue + position.storageFeeDeposit + (position.pendingDeposit?.amount || 0);
+  const totalPositionValue = calculateTotalPositionValue(position);
 
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors">
@@ -105,7 +105,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
           </Tooltip>
         </div>
         <div className="flex gap-2 justify-end">
-          {position.positionValue > 0 && onAddStakeClick && (
+          {hasUserPosition(position) && onAddStakeClick && (
             <Button
               size="sm"
               onClick={() => onAddStakeClick(position)}
@@ -115,7 +115,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               Add Stake
             </Button>
           )}
-          {position.positionValue > 0 && onWithdrawClick && (
+          {hasUserPosition(position) && onWithdrawClick && (
             <Button
               variant="warningOutline"
               size="sm"
@@ -155,8 +155,8 @@ export const ActivePositionsTable: React.FC<ActivePositionsTableProps> = ({
         if (sortBy === 'name') {
           cmp = a.operatorName.localeCompare(b.operatorName);
         } else {
-          const aVal = a.positionValue + a.storageFeeDeposit + (a.pendingDeposit?.amount || 0);
-          const bVal = b.positionValue + b.storageFeeDeposit + (b.pendingDeposit?.amount || 0);
+          const aVal = calculateTotalPositionValue(a);
+          const bVal = calculateTotalPositionValue(b);
           cmp = aVal - bVal;
         }
         return sortOrder === 'asc' ? cmp : -cmp;
