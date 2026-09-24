@@ -6,6 +6,7 @@ import type {
   PendingDeposit,
   PendingWithdrawal,
 } from '@/types/position';
+import { calculateTotalPositionValue } from '@/lib/position-utils';
 import { getSharedApiConnection } from './api-service';
 import { chainPulseClient } from './chain-pulse-client';
 
@@ -20,10 +21,10 @@ export const positionService = async (networkId?: string) => {
   };
 
   const calculatePortfolioSummary = (positions: UserPosition[]): PortfolioSummary => {
-    const totalValue = positions.reduce((sum, pos) => {
-      const pendingAmount = pos.pendingDeposit ? pos.pendingDeposit.amount : 0;
-      return sum + pos.positionValue + pos.storageFeeDeposit + pendingAmount;
-    }, 0);
+    const totalValue = positions.reduce(
+      (sum, pos) => sum + calculateTotalPositionValue(pos),
+      0,
+    );
 
     const totalStorageFee = positions.reduce((sum, pos) => sum + pos.storageFeeDeposit, 0);
 

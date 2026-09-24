@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { OperatorStore, FilterState, Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 import { operatorService } from '@/services/operator-service';
+import { hasUserPosition, calculateTotalPositionValue } from '@/lib/position-utils';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
@@ -122,10 +123,9 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     const positionMap = new Map<string, number>();
     const stakedOperatorIds = new Set<string>();
     for (const pos of userPositions) {
-      const totalValue =
-        pos.positionValue + pos.storageFeeDeposit + (pos.pendingDeposit?.amount || 0);
-      positionMap.set(pos.operatorId, totalValue);
-      if (totalValue > 0) {
+      const totalValue = calculateTotalPositionValue(pos);
+      positionMap.set(pos.operatorId, (positionMap.get(pos.operatorId) || 0) + totalValue);
+      if (hasUserPosition(pos)) {
         stakedOperatorIds.add(pos.operatorId);
       }
     }
@@ -193,7 +193,9 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         comparison = aVal.localeCompare(bVal);
       } else {
-        comparison = (aVal as number) - (bVal as number);
+        const aNum = Number.isFinite(Number(aVal)) ? Number(aVal) : 0;
+        const bNum = Number.isFinite(Number(bVal)) ? Number(bVal) : 0;
+        comparison = aNum - bNum;
       }
 
       // Apply sort order
@@ -206,7 +208,9 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         // Secondary: totalStaked (desc)
         const aStaked = parseFloat(a.totalPoolValue || a.totalStaked || '0');
         const bStaked = parseFloat(b.totalPoolValue || b.totalStaked || '0');
-        comparison = bStaked - aStaked;
+        const aStakedNum = Number.isFinite(aStaked) ? aStaked : 0;
+        const bStakedNum = Number.isFinite(bStaked) ? bStaked : 0;
+        comparison = bStakedNum - aStakedNum;
       }
 
       if (comparison === 0 && filters.sortBy !== 'name') {

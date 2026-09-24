@@ -163,4 +163,50 @@ describe('Operator Store Sorting and Filtering', () => {
     expect(filters.sortBy).toBe('totalStaked');
     expect(filters.sortOrder).toBe('desc');
   });
+
+  it('accumulates multiple positions for the same operator and recognizes pending positions', () => {
+    const store = useOperatorStore.getState();
+
+    const multiplePositions: UserPosition[] = [
+      {
+        operatorId: 'op1',
+        operatorName: 'Alpha Operator',
+        positionValue: 50,
+        storageFeeDeposit: 10,
+        pendingDeposit: null,
+        pendingWithdrawals: [],
+        status: 'active',
+        lastUpdated: new Date(),
+      },
+      {
+        operatorId: 'op1',
+        operatorName: 'Alpha Operator',
+        positionValue: 0,
+        storageFeeDeposit: 0,
+        pendingDeposit: { amount: 40, effectiveEpoch: 2 },
+        pendingWithdrawals: [],
+        status: 'pending',
+        lastUpdated: new Date(),
+      },
+      {
+        operatorId: 'op2',
+        operatorName: 'Beta Operator',
+        positionValue: 0,
+        storageFeeDeposit: 25,
+        pendingDeposit: null,
+        pendingWithdrawals: [],
+        status: 'active',
+        lastUpdated: new Date(),
+      },
+    ];
+
+    store.setUserPositions(multiplePositions);
+    store.setFilters({ sortBy: 'yourPosition', sortOrder: 'desc' });
+
+    const { stakedOperators } = useOperatorStore.getState();
+    // op1 total: (50 + 10) + 40 = 100, op2 total: 25
+    expect(stakedOperators).toHaveLength(2);
+    expect(stakedOperators[0].id).toBe('op1');
+    expect(stakedOperators[1].id).toBe('op2');
+  });
 });
