@@ -16,17 +16,24 @@ import {
 // loss on large shanon-denominated values.
 const SCALE = 10n ** 18n;
 const toPricePoint = (row: ChainPulseSharePrice): PricePoint | null => {
-  const shares = BigInt(row.total_shares);
-  if (shares <= 0n) return null;
-  return {
-    price: Number((BigInt(row.total_stake) * SCALE) / shares) / 1e18,
-    date: new Date(row.timestamp),
-  };
+  try {
+    const shares = BigInt(row.total_shares ?? 0);
+    if (shares <= 0n) return null;
+    const date = new Date(row.timestamp);
+    if (isNaN(date.getTime())) return null;
+    return {
+      price: Number((BigInt(row.total_stake ?? 0) * SCALE) / shares) / 1e18,
+      date,
+    };
+  } catch {
+    return null;
+  }
 };
 
 const mapStatus = (status: string): 'active' | 'inactive' | 'slashed' | 'degraded' => {
-  switch (status) {
+  switch ((status || '').toLowerCase()) {
     case 'registered':
+    case 'active':
       return 'active';
     case 'slashed':
     case 'pending_slash':
@@ -42,8 +49,8 @@ const mapStatus = (status: string): 'active' | 'inactive' | 'slashed' | 'degrade
 const mapChainPulseOperator = (
   op: Awaited<ReturnType<typeof chainPulseClient.getOperators>>[number],
 ): Operator => {
-  const stakeShannons = BigInt(op.total_stake);
-  const storageShannons = BigInt(op.total_storage_fee_deposit);
+  const stakeShannons = BigInt(op.total_stake ?? 0);
+  const storageShannons = BigInt(op.total_storage_fee_deposit ?? 0);
   return {
     id: op.id,
     name: `Operator ${op.id}`,
@@ -51,12 +58,12 @@ const mapChainPulseOperator = (
     domainName: 'Auto EVM',
     ownerAccount: op.owner_account,
     nominationTax: op.nomination_tax,
-    minimumNominatorStake: shannonsToAi3(BigInt(op.minimum_nominator_stake)),
+    minimumNominatorStake: shannonsToAi3(BigInt(op.minimum_nominator_stake ?? 0)),
     status: mapStatus(op.status),
     totalStaked: shannonsToAi3(stakeShannons),
     totalStorageFund: shannonsToAi3(storageShannons),
     totalPoolValue: shannonsToAi3(stakeShannons + storageShannons),
-    nominatorCount: op.nominator_count,
+    nominatorCount: op.nominator_count ?? 0,
   };
 };
 
