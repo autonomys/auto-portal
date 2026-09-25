@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 
 interface TooltipProps {
@@ -7,9 +6,19 @@ interface TooltipProps {
   content: React.ReactNode;
   side?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
+  interactive?: boolean;
+  /** Use -1 when the trigger child is already keyboard focusable. */
+  tabIndex?: 0 | -1;
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top', className }) => {
+export const Tooltip: React.FC<TooltipProps> = ({
+  children,
+  content,
+  side = 'top',
+  className,
+  interactive = false,
+  tabIndex = 0,
+}) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [actualSide, setActualSide] = React.useState<typeof side>(side);
   const [coords, setCoords] = React.useState<{
@@ -19,6 +28,83 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
   } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const focusedTriggerRef = React.useRef<HTMLElement | null>(null);
+  const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleMouseEnter = () => {
+    clearCloseTimeout();
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    if (interactive) {
+      const nextTarget = e.relatedTarget;
+      if (
+        nextTarget instanceof Node &&
+        (containerRef.current?.contains(nextTarget) || tooltipRef.current?.contains(nextTarget))
+      ) {
+        return;
+      }
+      clearCloseTimeout();
+      closeTimeoutRef.current = setTimeout(() => {
+        // Pointer movement must not dismiss content still being used by keyboard.
+        // :focus-visible excludes the focus a mouse click leaves on the wrapper.
+        const active = document.activeElement;
+        const keyboardFocusInside =
+          containerRef.current?.contains(active) && active?.matches(':focus-visible');
+        if (!keyboardFocusInside) {
+          setIsVisible(false);
+        }
+      }, 150);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  const handleFocus = (e: React.FocusEvent) => {
+    if (e.target instanceof HTMLElement && !tooltipRef.current?.contains(e.target)) {
+      focusedTriggerRef.current = e.target;
+    }
+    clearCloseTimeout();
+    setIsVisible(true);
+  };
+
+  const handleBlur = (e: React.FocusEvent) => {
+    const nextTarget = e.relatedTarget;
+    if (
+      nextTarget instanceof Node &&
+      (containerRef.current?.contains(nextTarget) || tooltipRef.current?.contains(nextTarget))
+    ) {
+      return;
+    }
+    if (interactive) {
+      clearCloseTimeout();
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsVisible(false);
+      }, 150);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      if (tooltipRef.current?.contains(document.activeElement)) {
+        (focusedTriggerRef.current ?? containerRef.current)?.focus();
+      }
+      clearCloseTimeout();
+      setIsVisible(false);
+    }
+  };
+
+  React.useEffect(() => () => clearCloseTimeout(), []);
 
   const calculatePosition = React.useCallback(() => {
     const container = containerRef.current;
@@ -88,41 +174,45 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, content, side = 'top
   return (
     <div
       ref={containerRef}
-      className="relative inline-block"
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
+      className="relative inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
+      tabIndex={tabIndex}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
     >
       <div className="relative z-10">{children}</div>
-      {isVisible &&
-        createPortal(
+      {isVisible && (
+        <div
+          ref={tooltipRef}
+          className={cn(
+            'fixed z-50 px-3 py-2 font-sans font-normal text-left text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
+            className,
+          )}
+          onMouseEnter={interactive ? handleMouseEnter : undefined}
+          onMouseLeave={interactive ? handleMouseLeave : undefined}
+          style={{
+            top: coords?.top ?? -9999,
+            left: coords?.left ?? -9999,
+            transform: coords?.transform,
+            pointerEvents: interactive ? 'auto' : 'none',
+            visibility: coords ? 'visible' : 'hidden',
+          }}
+        >
+          {content}
+          {/* Arrow */}
           <div
-            ref={tooltipRef}
             className={cn(
-              'fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
-              className,
+              'absolute w-2 h-2 bg-gray-900 rotate-45',
+              actualSide === 'top' && 'top-full left-1/2 -translate-x-1/2 -mt-1',
+              actualSide === 'right' && 'right-full top-1/2 -translate-y-1/2 -mr-1',
+              actualSide === 'bottom' && 'bottom-full left-1/2 -translate-x-1/2 -mb-1',
+              actualSide === 'left' && 'left-full top-1/2 -translate-y-1/2 -ml-1',
             )}
-            style={{
-              top: coords?.top ?? -9999,
-              left: coords?.left ?? -9999,
-              transform: coords?.transform,
-              pointerEvents: 'none',
-              visibility: coords ? 'visible' : 'hidden',
-            }}
-          >
-            {content}
-            {/* Arrow */}
-            <div
-              className={cn(
-                'absolute w-2 h-2 bg-gray-900 rotate-45',
-                actualSide === 'top' && 'top-full left-1/2 -translate-x-1/2 -mt-1',
-                actualSide === 'right' && 'right-full top-1/2 -translate-y-1/2 -mr-1',
-                actualSide === 'bottom' && 'bottom-full left-1/2 -translate-x-1/2 -mb-1',
-                actualSide === 'left' && 'left-full top-1/2 -translate-y-1/2 -ml-1',
-              )}
-            />
-          </div>,
-          document.body,
-        )}
+          />
+        </div>
+      )}
     </div>
   );
 };

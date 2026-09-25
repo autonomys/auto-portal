@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatAI3 } from '@/lib/formatting';
+import { StorageFeePrimerLink } from './StorageFeePrimerLink';
 import type { UserPosition, PortfolioSummary } from '@/types/position';
 
 interface PositionBreakdownProps {
@@ -57,6 +58,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
               </span>
             </div>
           </div>
+          <StorageFeePrimerLink />
         </div>
       </div>
     );
@@ -116,6 +118,7 @@ export const PositionBreakdown: React.FC<PositionBreakdownProps> = ({
               </span>
             </div>
           </div>
+          <StorageFeePrimerLink />
         </div>
       </div>
     );

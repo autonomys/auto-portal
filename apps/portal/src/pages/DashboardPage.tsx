@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
-import { PositionSummary, ActivePositionsTable, PendingOperations } from '@/components/positions';
+import {
+  PositionSummary,
+  ActivePositionsTable,
+  PendingOperations,
+  StorageFeePrimerLink,
+} from '@/components/positions';
 import { WalletModal } from '@/components/wallet';
 import { useBalance } from '@/hooks/use-balance';
 import { usePositions } from '@/hooks/use-positions';
@@ -65,6 +70,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
         </div>
+        {portfolioSummary && portfolioSummary.totalStorageFee > 0 && <StorageFeePrimerLink />}
       </div>
     </div>
   );
@@ -148,7 +154,7 @@ export const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-mono font-bold leading-tight relative">
-                <Tooltip content={<TotalBalanceBreakdown />} side="top">
+                <Tooltip content={<TotalBalanceBreakdown />} side="top" interactive>
                   <span className={`cursor-help ${balanceLoading ? 'opacity-60' : ''}`}>
                     {totalBalanceWithPositions ? formatAI3(totalBalanceWithPositions) : '0.00 AI3'}
                   </span>
