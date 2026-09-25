@@ -2,6 +2,7 @@ export { cn } from './cn';
 
 export const shortenAddress = (addr?: string, length = 4) => {
   if (!addr) return '';
+  if (addr.length <= length * 2 + 2) return addr;
   return `${addr.slice(0, length + 2)}…${addr.slice(-length)}`;
 };
 
