@@ -55,7 +55,11 @@ export const Tooltip: React.FC<TooltipProps> = ({
       clearCloseTimeout();
       closeTimeoutRef.current = setTimeout(() => {
         // Pointer movement must not dismiss content still being used by keyboard.
-        if (!containerRef.current?.contains(document.activeElement)) {
+        // :focus-visible excludes the focus a mouse click leaves on the wrapper.
+        const active = document.activeElement;
+        const keyboardFocusInside =
+          containerRef.current?.contains(active) && active?.matches(':focus-visible');
+        if (!keyboardFocusInside) {
           setIsVisible(false);
         }
       }, 150);
@@ -183,7 +187,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         <div
           ref={tooltipRef}
           className={cn(
-            'fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
+            'fixed z-50 px-3 py-2 font-sans font-normal text-left text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
             className,
           )}
           onMouseEnter={interactive ? handleMouseEnter : undefined}

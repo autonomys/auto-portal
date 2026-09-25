@@ -5,6 +5,7 @@ import { Tooltip } from '../tooltip';
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.restoreAllMocks();
 });
 
 const renderTooltip = () => {
@@ -71,6 +72,19 @@ it('does not remove a focused primer when the pointer leaves', () => {
   act(() => vi.advanceTimersByTime(200));
   expect(document.activeElement).toBe(link);
   expect(screen.getByRole('link', { name: 'Primer' })).toBe(link);
+});
+
+it('closes when the pointer leaves after a mouse click focused the trigger', () => {
+  const trigger = renderTooltip();
+  // jsdom treats every focused element as :focus-visible; browsers do not after a click.
+  vi.spyOn(trigger, 'matches').mockImplementation(selector =>
+    selector === ':focus-visible' ? false : Element.prototype.matches.call(trigger, selector),
+  );
+  fireEvent.mouseEnter(trigger);
+  fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+  act(() => vi.advanceTimersByTime(200));
+  expect(document.activeElement).toBe(trigger);
+  expect(screen.queryByRole('link', { name: 'Primer' })).toBeNull();
 });
 
 it('returns focus to a native trigger after dismissing its interactive tooltip', () => {
