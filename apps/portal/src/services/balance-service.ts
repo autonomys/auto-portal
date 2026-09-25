@@ -9,10 +9,15 @@ export interface WalletBalance {
 }
 
 export const fetchWalletBalance = async (address: string): Promise<WalletBalance> => {
+  if (!address || !address.trim()) {
+    return { free: '0', reserved: '0', total: '0' };
+  }
   const api = await getSharedApiConnection();
   const data = await balance(api, address);
-  const freeAI3 = shannonsToAi3(data.free);
-  const reservedAI3 = shannonsToAi3(data.reserved);
-  const totalAI3 = shannonsToAi3(BigInt(data.free) + BigInt(data.reserved));
+  const freeShannons = BigInt(data?.free ?? 0);
+  const reservedShannons = BigInt(data?.reserved ?? 0);
+  const freeAI3 = shannonsToAi3(freeShannons);
+  const reservedAI3 = shannonsToAi3(reservedShannons);
+  const totalAI3 = shannonsToAi3(freeShannons + reservedShannons);
   return { free: freeAI3, reserved: reservedAI3, total: totalAI3 };
 };
