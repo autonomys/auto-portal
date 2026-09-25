@@ -18,47 +18,106 @@ export const signAndSendTx = async (
   onProgress?: TxProgressCallback,
 ): Promise<TxResult> =>
   new Promise<TxResult>((resolve, reject) => {
-    const unsubPromise = tx
-      .signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
-        if (onProgress) onProgress(result);
+    let unsubFn: (() => void) | null = null;
+    let settled = false;
 
-        const { status, txHash, dispatchError } = result;
-        if (status?.isInBlock) {
+    const cleanup = () => {
+      if (unsubFn) {
+        try {
+          unsubFn();
+        } catch {
+          // ignore cleanup errors
+        }
+        unsubFn = null;
+      }
+    };
+
+    const settleResolve = (result: TxResult) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+
+    const settleReject = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+
+    tx.signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
+      if (onProgress) {
+        try {
+          onProgress(result);
+        } catch {
+          // prevent callback exceptions from interfering with transaction lifecycle
+        }
+      }
+
+      const { status, txHash, dispatchError, isError } = result;
+      if (status?.isInBlock) {
+        if (dispatchError) {
+          settleResolve({
+            success: false,
+            error: 'Transaction failed during execution',
+            txHash: txHash?.toString(),
+          });
+        } else {
+          settleResolve({
+            success: true,
+            txHash: txHash?.toString(),
+            blockHash: status.asInBlock?.toString(),
+          });
+        }
+      } else if (status?.isFinalized) {
+        if (!settled) {
           if (dispatchError) {
-            resolve({
+            settleResolve({
               success: false,
               error: 'Transaction failed during execution',
               txHash: txHash?.toString(),
             });
           } else {
-            resolve({
+            settleResolve({
               success: true,
               txHash: txHash?.toString(),
-              blockHash: status.asInBlock?.toString(),
+              blockHash: status.asFinalized?.toString(),
             });
           }
-        } else if (status?.isFinalized) {
-          // no-op; we already resolved at isInBlock
-        } else if (status?.isDropped || status?.isInvalid) {
-          resolve({
-            success: false,
-            error: 'Transaction was dropped or invalid',
-            txHash: txHash?.toString(),
-          });
+        }
+      } else if (status?.isDropped || status?.isInvalid || status?.isUsurped) {
+        settleResolve({
+          success: false,
+          error: status.isUsurped
+            ? 'Transaction was usurped'
+            : 'Transaction was dropped or invalid',
+          txHash: txHash?.toString(),
+        });
+      } else if (isError) {
+        settleResolve({
+          success: false,
+          error: 'Transaction encountered an error',
+          txHash: txHash?.toString(),
+        });
+      }
+    })
+      .then((fn) => {
+        unsubFn = fn;
+        if (settled) {
+          cleanup();
         }
       })
       .catch((error: unknown) => {
-        // Propagate wallet cancellation/rejection
-        reject(error);
+        settleReject(error);
       });
-
-    // Synchronous safety net
-    if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
-      (unsubPromise as Promise<unknown>).catch((err: unknown) => reject(err));
-    }
   });
 
 export const isUserCancellationError = (error: unknown): boolean => {
+  if (!error) return false;
+  if (typeof error === 'object' && 'code' in error && (error as { code: unknown }).code === 4001) {
+    return true;
+  }
   const message = error instanceof Error ? error.message : String(error ?? '');
   return /cancelled|canceled|rejected|denied|abort/i.test(message);
 };
