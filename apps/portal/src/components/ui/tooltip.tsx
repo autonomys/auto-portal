@@ -7,6 +7,8 @@ interface TooltipProps {
   side?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
   interactive?: boolean;
+  /** Use -1 when the trigger child is already keyboard focusable. */
+  tabIndex?: 0 | -1;
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({
@@ -15,6 +17,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   side = 'top',
   className,
   interactive = false,
+  tabIndex = 0,
 }) => {
   const [isVisible, setIsVisible] = React.useState(false);
   const [actualSide, setActualSide] = React.useState<typeof side>(side);
@@ -25,6 +28,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   } | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const focusedTriggerRef = React.useRef<HTMLElement | null>(null);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearCloseTimeout = () => {
@@ -60,7 +64,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }
   };
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent) => {
+    if (e.target instanceof HTMLElement && !tooltipRef.current?.contains(e.target)) {
+      focusedTriggerRef.current = e.target;
+    }
     clearCloseTimeout();
     setIsVisible(true);
   };
@@ -86,7 +93,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       if (tooltipRef.current?.contains(document.activeElement)) {
-        containerRef.current?.focus();
+        (focusedTriggerRef.current ?? containerRef.current)?.focus();
       }
       clearCloseTimeout();
       setIsVisible(false);
@@ -164,7 +171,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     <div
       ref={containerRef}
       className="relative inline-block focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded"
-      tabIndex={0}
+      tabIndex={tabIndex}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onFocus={handleFocus}

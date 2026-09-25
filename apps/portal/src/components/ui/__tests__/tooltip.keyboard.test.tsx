@@ -72,3 +72,23 @@ it('does not remove a focused primer when the pointer leaves', () => {
   expect(document.activeElement).toBe(link);
   expect(screen.getByRole('link', { name: 'Primer' })).toBe(link);
 });
+
+it('returns focus to a native trigger after dismissing its interactive tooltip', () => {
+  vi.useFakeTimers();
+  render(
+    <>
+      <Tooltip tabIndex={-1} interactive content={<a href="https://example.com">Primer</a>}>
+        <button>Balance</button>
+      </Tooltip>
+      <button>Stake</button>
+    </>,
+  );
+  const button = screen.getByRole('button', { name: 'Balance' });
+  act(() => button.focus());
+  act(() => vi.advanceTimersByTime(20));
+  moveSequentialFocus();
+  expect(document.activeElement).toBe(screen.getByRole('link', { name: 'Primer' }));
+  fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+  expect(document.activeElement).toBe(button);
+  expect(screen.queryByRole('link', { name: 'Primer' })).toBeNull();
+});
