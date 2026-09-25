@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 
 interface TooltipProps {
@@ -51,7 +50,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
       }
       clearCloseTimeout();
       closeTimeoutRef.current = setTimeout(() => {
-        setIsVisible(false);
+        // Pointer movement must not dismiss content still being used by keyboard.
+        if (!containerRef.current?.contains(document.activeElement)) {
+          setIsVisible(false);
+        }
       }, 150);
     } else {
       setIsVisible(false);
@@ -83,6 +85,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
+      if (tooltipRef.current?.contains(document.activeElement)) {
+        containerRef.current?.focus();
+      }
       clearCloseTimeout();
       setIsVisible(false);
     }
@@ -167,41 +172,36 @@ export const Tooltip: React.FC<TooltipProps> = ({
       onKeyDown={handleKeyDown}
     >
       <div className="relative z-10">{children}</div>
-      {isVisible &&
-        createPortal(
+      {isVisible && (
+        <div
+          ref={tooltipRef}
+          className={cn(
+            'fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
+            className,
+          )}
+          onMouseEnter={interactive ? handleMouseEnter : undefined}
+          onMouseLeave={interactive ? handleMouseLeave : undefined}
+          style={{
+            top: coords?.top ?? -9999,
+            left: coords?.left ?? -9999,
+            transform: coords?.transform,
+            pointerEvents: interactive ? 'auto' : 'none',
+            visibility: coords ? 'visible' : 'hidden',
+          }}
+        >
+          {content}
+          {/* Arrow */}
           <div
-            ref={tooltipRef}
             className={cn(
-              'fixed z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-lg w-max max-w-[280px]',
-              className,
+              'absolute w-2 h-2 bg-gray-900 rotate-45',
+              actualSide === 'top' && 'top-full left-1/2 -translate-x-1/2 -mt-1',
+              actualSide === 'right' && 'right-full top-1/2 -translate-y-1/2 -mr-1',
+              actualSide === 'bottom' && 'bottom-full left-1/2 -translate-x-1/2 -mb-1',
+              actualSide === 'left' && 'left-full top-1/2 -translate-y-1/2 -ml-1',
             )}
-            onMouseEnter={interactive ? handleMouseEnter : undefined}
-            onMouseLeave={interactive ? handleMouseLeave : undefined}
-            onFocus={interactive ? handleFocus : undefined}
-            onBlur={interactive ? handleBlur : undefined}
-            onKeyDown={interactive ? handleKeyDown : undefined}
-            style={{
-              top: coords?.top ?? -9999,
-              left: coords?.left ?? -9999,
-              transform: coords?.transform,
-              pointerEvents: interactive ? 'auto' : 'none',
-              visibility: coords ? 'visible' : 'hidden',
-            }}
-          >
-            {content}
-            {/* Arrow */}
-            <div
-              className={cn(
-                'absolute w-2 h-2 bg-gray-900 rotate-45',
-                actualSide === 'top' && 'top-full left-1/2 -translate-x-1/2 -mt-1',
-                actualSide === 'right' && 'right-full top-1/2 -translate-y-1/2 -mr-1',
-                actualSide === 'bottom' && 'bottom-full left-1/2 -translate-x-1/2 -mb-1',
-                actualSide === 'left' && 'left-full top-1/2 -translate-y-1/2 -ml-1',
-              )}
-            />
-          </div>,
-          document.body,
-        )}
+          />
+        </div>
+      )}
     </div>
   );
 };
