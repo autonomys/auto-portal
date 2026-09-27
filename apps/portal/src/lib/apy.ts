@@ -26,11 +26,13 @@ export const calculateReturnDetails = (
   if (startValue <= 0 || endValue <= 0) return null;
 
   const daysDiff = (endDate.getTime() - startDate.getTime()) / MS_PER_DAY;
-  if (daysDiff <= 0) return null;
+  if (isNaN(daysDiff) || daysDiff <= 0) return null;
 
   const growth = endValue / startValue;
   const periodReturn = growth - 1;
   const annualizedReturn = Math.pow(growth, 365 / daysDiff) - 1;
+
+  if (!Number.isFinite(periodReturn) || !Number.isFinite(annualizedReturn)) return null;
 
   return {
     periodReturn,
