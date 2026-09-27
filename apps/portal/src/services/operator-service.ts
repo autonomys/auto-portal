@@ -15,16 +15,27 @@ import {
 // Use BigInt arithmetic with 10^18 scaling to avoid floating-point precision
 // loss on large shanon-denominated values.
 const SCALE = 10n ** 18n;
-const toPricePoint = (row: ChainPulseSharePrice): PricePoint | null => {
-  const shares = BigInt(row.total_shares);
-  if (shares <= 0n) return null;
-  return {
-    price: Number((BigInt(row.total_stake) * SCALE) / shares) / 1e18,
-    date: new Date(row.timestamp),
-  };
+export const toPricePoint = (row: ChainPulseSharePrice): PricePoint | null => {
+  if (!row) return null;
+  try {
+    const shares = BigInt(row.total_shares);
+    if (shares <= 0n) return null;
+    const stake = BigInt(row.total_stake);
+    if (stake < 0n) return null;
+    const date = new Date(row.timestamp);
+    if (isNaN(date.getTime())) return null;
+    const price = Number((stake * SCALE) / shares) / 1e18;
+    if (!Number.isFinite(price) || price <= 0) return null;
+    return {
+      price,
+      date,
+    };
+  } catch {
+    return null;
+  }
 };
 
-const mapStatus = (status: string): 'active' | 'inactive' | 'slashed' | 'degraded' => {
+export const mapStatus = (status: string): 'active' | 'inactive' | 'slashed' | 'degraded' => {
   switch (status) {
     case 'registered':
       return 'active';
