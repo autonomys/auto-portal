@@ -2,6 +2,15 @@ import type { Operator } from '@/types/operator';
 import { shannonsToAi3 } from '@autonomys/auto-utils';
 import type { OperatorDetails } from '@autonomys/auto-consensus';
 
+const safeBigInt = (val: unknown): bigint => {
+  if (val == null) return 0n;
+  try {
+    return BigInt(val as string | number | bigint | boolean);
+  } catch {
+    return 0n;
+  }
+};
+
 /**
  * Maps RPC operator data to UI format (fallback when indexer unavailable)
  */
@@ -12,11 +21,13 @@ export const mapRpcToOperator = (operatorId: string, rpcData: OperatorDetails): 
   }
 
   const minimumStake =
-    rpcData.minimumNominatorStake != null ? shannonsToAi3(rpcData.minimumNominatorStake) : '0';
+    rpcData.minimumNominatorStake != null
+      ? shannonsToAi3(safeBigInt(rpcData.minimumNominatorStake))
+      : '0';
 
   // Normalize to bigint once for stake-related values
-  const stakeShannons = BigInt(rpcData.currentTotalStake ?? 0);
-  const storageShannons = BigInt(rpcData.totalStorageFeeDeposit ?? 0);
+  const stakeShannons = safeBigInt(rpcData.currentTotalStake);
+  const storageShannons = safeBigInt(rpcData.totalStorageFeeDeposit);
   const totalStaked = shannonsToAi3(stakeShannons);
   const totalStorageFund = shannonsToAi3(storageShannons);
   const totalPoolValue = shannonsToAi3(stakeShannons + storageShannons);
