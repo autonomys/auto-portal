@@ -24,8 +24,10 @@ export const formatAI3 = (value: string | number, decimals: number = 2): string 
 /**
  * Format percentage values
  */
-export const formatPercentage = (value: number, decimals: number = 1): string =>
-  `${value.toFixed(decimals)}%`;
+export const formatPercentage = (value: number, decimals: number = 1): string => {
+  if (!Number.isFinite(value)) return '0%';
+  return `${value.toFixed(decimals)}%`;
+};
 
 /**
  * Format large numbers with suffixes (K, M, B)
@@ -33,16 +35,19 @@ export const formatPercentage = (value: number, decimals: number = 1): string =>
 export const formatCompactNumber = (value: string | number): string => {
   const num = typeof value === 'string' ? parseFloat(value) : value;
 
-  if (isNaN(num)) return '0';
+  if (!Number.isFinite(num)) return '0';
 
-  if (num >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toFixed(1)}B`;
+  const absNum = Math.abs(num);
+  const sign = num < 0 ? '-' : '';
+
+  if (absNum >= 1_000_000_000) {
+    return `${sign}${(absNum / 1_000_000_000).toFixed(1)}B`;
   }
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`;
+  if (absNum >= 1_000_000) {
+    return `${sign}${(absNum / 1_000_000).toFixed(1)}M`;
   }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}K`;
+  if (absNum >= 1_000) {
+    return `${sign}${(absNum / 1_000).toFixed(1)}K`;
   }
 
   return formatNumber(num);
@@ -82,6 +87,7 @@ export const truncateAddress = (
   startLength: number = 6,
   endLength: number = 4,
 ): string => {
+  if (!address) return '';
   if (address.length <= startLength + endLength) {
     return address;
   }
@@ -93,8 +99,10 @@ export const truncateAddress = (
  * Format time ago from timestamp
  */
 export const formatTimeAgo = (timestamp: number): string => {
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return 'Just now';
   const now = Date.now();
   const diff = now - timestamp;
+  if (diff < 0) return 'Just now';
 
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
