@@ -56,11 +56,11 @@ describe('formatPercentage', () => {
   });
 
   it('safely handles null, undefined, and NaN inputs', () => {
-    expect(formatPercentage(NaN)).toBe('0%');
+    expect(formatPercentage(NaN)).toBe('--');
     // @ts-expect-error test runtime boundary
-    expect(formatPercentage(undefined)).toBe('0%');
+    expect(formatPercentage(undefined)).toBe('--');
     // @ts-expect-error test runtime boundary
-    expect(formatPercentage(null)).toBe('0%');
+    expect(formatPercentage(null)).toBe('--');
   });
 });
 
@@ -138,10 +138,10 @@ describe('formatTimeAgo', () => {
     expect(formatTimeAgo(Date.now() + 5000)).toBe('Just now');
   });
 
-  it('returns "Just now" for invalid or zero timestamps', () => {
-    expect(formatTimeAgo(0)).toBe('Just now');
-    expect(formatTimeAgo(-100)).toBe('Just now');
-    expect(formatTimeAgo(NaN)).toBe('Just now');
+  it('returns "-" for invalid or zero timestamps', () => {
+    expect(formatTimeAgo(0)).toBe('-');
+    expect(formatTimeAgo(-100)).toBe('-');
+    expect(formatTimeAgo(NaN)).toBe('-');
   });
 
   it('formats minutes ago', () => {
@@ -159,11 +159,11 @@ describe('formatTimeAgo', () => {
     expect(formatTimeAgo(threeDaysAgo)).toBe('3d ago');
   });
 
-  it('formats months and years ago for long periods', () => {
+  it('formats days ago for long periods preserving day precision', () => {
     const twoMonthsAgo = Date.now() - 65 * 24 * 60 * 60 * 1000;
-    expect(formatTimeAgo(twoMonthsAgo)).toBe('2mo ago');
+    expect(formatTimeAgo(twoMonthsAgo)).toBe('65d ago');
 
     const twoYearsAgo = Date.now() - 750 * 24 * 60 * 60 * 1000;
-    expect(formatTimeAgo(twoYearsAgo)).toBe('2y ago');
+    expect(formatTimeAgo(twoYearsAgo)).toBe('750d ago');
   });
 });

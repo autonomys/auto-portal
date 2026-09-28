@@ -29,7 +29,7 @@ export const formatAI3 = (value: string | number, decimals: number = 2): string 
  * Format percentage values
  */
 export const formatPercentage = (value: number, decimals: number = 1): string => {
-  if (value == null || isNaN(value)) return '0%';
+  if (value == null || isNaN(value)) return '--';
   const safeDecimals = Number.isFinite(decimals)
     ? Math.max(0, Math.min(20, Math.floor(decimals)))
     : 1;
@@ -106,7 +106,7 @@ export const truncateAddress = (
  */
 export const formatTimeAgo = (timestamp: number): string => {
   if (!Number.isFinite(timestamp) || timestamp <= 0) {
-    return 'Just now';
+    return '-';
   }
 
   const now = Date.now();
@@ -121,14 +121,6 @@ export const formatTimeAgo = (timestamp: number): string => {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days >= 365) {
-    const years = Math.floor(days / 365);
-    return `${years}y ago`;
-  }
-  if (days >= 30) {
-    const months = Math.floor(days / 30);
-    return `${months}mo ago`;
-  }
   if (days > 0) {
     return `${days}d ago`;
   }
