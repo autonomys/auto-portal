@@ -21,10 +21,7 @@ export const positionService = async (networkId?: string) => {
   };
 
   const calculatePortfolioSummary = (positions: UserPosition[]): PortfolioSummary => {
-    const totalValue = positions.reduce(
-      (sum, pos) => sum + calculateTotalPositionValue(pos),
-      0,
-    );
+    const totalValue = positions.reduce((sum, pos) => sum + calculateTotalPositionValue(pos), 0);
 
     const totalStorageFee = positions.reduce((sum, pos) => sum + pos.storageFeeDeposit, 0);
 

@@ -115,7 +115,7 @@ const PositionRow: React.FC<PositionRowProps> = ({
               Add Stake
             </Button>
           )}
-          {hasUserPosition(position) && onWithdrawClick && (
+          {position.positionValue > 0 && onWithdrawClick && (
             <Button
               variant="warningOutline"
               size="sm"

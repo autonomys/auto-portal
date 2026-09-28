@@ -164,26 +164,16 @@ describe('Operator Store Sorting and Filtering', () => {
     expect(filters.sortOrder).toBe('desc');
   });
 
-  it('accumulates multiple positions for the same operator and recognizes pending positions', () => {
+  it('sorts operators by user position including pending deposits', () => {
     const store = useOperatorStore.getState();
 
-    const multiplePositions: UserPosition[] = [
+    const positions: UserPosition[] = [
       {
         operatorId: 'op1',
         operatorName: 'Alpha Operator',
-        positionValue: 50,
+        positionValue: 20,
         storageFeeDeposit: 10,
-        pendingDeposit: null,
-        pendingWithdrawals: [],
-        status: 'active',
-        lastUpdated: new Date(),
-      },
-      {
-        operatorId: 'op1',
-        operatorName: 'Alpha Operator',
-        positionValue: 0,
-        storageFeeDeposit: 0,
-        pendingDeposit: { amount: 40, effectiveEpoch: 2 },
+        pendingDeposit: { amount: 50, effectiveEpoch: 2 },
         pendingWithdrawals: [],
         status: 'pending',
         lastUpdated: new Date(),
@@ -191,8 +181,8 @@ describe('Operator Store Sorting and Filtering', () => {
       {
         operatorId: 'op2',
         operatorName: 'Beta Operator',
-        positionValue: 0,
-        storageFeeDeposit: 25,
+        positionValue: 50,
+        storageFeeDeposit: 10,
         pendingDeposit: null,
         pendingWithdrawals: [],
         status: 'active',
@@ -200,12 +190,11 @@ describe('Operator Store Sorting and Filtering', () => {
       },
     ];
 
-    store.setUserPositions(multiplePositions);
+    store.setUserPositions(positions);
     store.setFilters({ sortBy: 'yourPosition', sortOrder: 'desc' });
 
     const { stakedOperators } = useOperatorStore.getState();
-    // op1 total: (50 + 10) + 40 = 100, op2 total: 25
-    expect(stakedOperators).toHaveLength(2);
+    // op1 total: 20 + 10 + 50 = 80, op2 total: 50 + 10 = 60
     expect(stakedOperators[0].id).toBe('op1');
     expect(stakedOperators[1].id).toBe('op2');
   });

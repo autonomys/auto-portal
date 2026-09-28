@@ -124,7 +124,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     const stakedOperatorIds = new Set<string>();
     for (const pos of userPositions) {
       const totalValue = calculateTotalPositionValue(pos);
-      positionMap.set(pos.operatorId, (positionMap.get(pos.operatorId) || 0) + totalValue);
+      positionMap.set(pos.operatorId, totalValue);
       if (hasUserPosition(pos)) {
         stakedOperatorIds.add(pos.operatorId);
       }
@@ -193,9 +193,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         comparison = aVal.localeCompare(bVal);
       } else {
-        const aNum = Number.isFinite(Number(aVal)) ? Number(aVal) : 0;
-        const bNum = Number.isFinite(Number(bVal)) ? Number(bVal) : 0;
-        comparison = aNum - bNum;
+        comparison = (aVal as number) - (bVal as number);
       }
 
       // Apply sort order
@@ -208,9 +206,7 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
         // Secondary: totalStaked (desc)
         const aStaked = parseFloat(a.totalPoolValue || a.totalStaked || '0');
         const bStaked = parseFloat(b.totalPoolValue || b.totalStaked || '0');
-        const aStakedNum = Number.isFinite(aStaked) ? aStaked : 0;
-        const bStakedNum = Number.isFinite(bStaked) ? bStaked : 0;
-        comparison = bStakedNum - aStakedNum;
+        comparison = bStaked - aStaked;
       }
 
       if (comparison === 0 && filters.sortBy !== 'name') {
