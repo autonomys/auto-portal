@@ -47,7 +47,6 @@ export interface ChainPulseWithdrawal {
 
 export interface ChainPulseClient {
   getOperators(signal?: AbortSignal): Promise<ChainPulseOperator[]>;
-  getOperator(id: string, signal?: AbortSignal): Promise<ChainPulseOperator | null>;
   getSharePrices(
     operatorId: string,
     params?: { since?: string; until?: string; limit?: number },
@@ -92,14 +91,6 @@ const fetchJson = async <T>(path: string, signal?: AbortSignal): Promise<T> => {
 export const realChainPulseClient: ChainPulseClient = {
   async getOperators(signal?: AbortSignal): Promise<ChainPulseOperator[]> {
     return fetchJson<ChainPulseOperator[]>('/v1/staking/operators', signal);
-  },
-
-  async getOperator(id: string, signal?: AbortSignal): Promise<ChainPulseOperator | null> {
-    try {
-      return await fetchJson<ChainPulseOperator>(`/v1/staking/operators/${id}`, signal);
-    } catch {
-      return null;
-    }
   },
 
   async getSharePrices(
