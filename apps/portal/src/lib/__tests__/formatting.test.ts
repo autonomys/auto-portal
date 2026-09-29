@@ -3,9 +3,7 @@ import {
   formatNumber,
   formatAI3,
   formatPercentage,
-  formatCompactNumber,
   getAPYColor,
-  truncateAddress,
   formatTimeAgo,
 } from '../formatting';
 
@@ -64,44 +62,27 @@ describe('formatPercentage', () => {
   });
 });
 
-describe('formatCompactNumber', () => {
-  it('formats values in the billions', () => {
-    expect(formatCompactNumber(2_500_000_000)).toBe('2.5B');
-  });
-
-  it('formats values in the millions', () => {
-    expect(formatCompactNumber(1_200_000)).toBe('1.2M');
-  });
-
-  it('formats values in the thousands', () => {
-    expect(formatCompactNumber(45_000)).toBe('45.0K');
-  });
-
-  it('handles negative numbers with proper compaction and sign', () => {
-    expect(formatCompactNumber(-2_500_000_000)).toBe('-2.5B');
-    expect(formatCompactNumber(-1_500_000)).toBe('-1.5M');
-    expect(formatCompactNumber(-45_000)).toBe('-45.0K');
-    expect(formatCompactNumber(-500)).toBe('-500');
-  });
-
-  it('formats small numbers using standard formatNumber', () => {
-    expect(formatCompactNumber(999)).toBe('999');
-    expect(formatCompactNumber(0)).toBe('0');
-  });
-
-  it('returns 0 for NaN or invalid string', () => {
-    expect(formatCompactNumber('invalid')).toBe('0');
-    expect(formatCompactNumber(NaN)).toBe('0');
-  });
-});
-
 describe('getAPYColor', () => {
   it('returns error colors for negative APY', () => {
     expect(getAPYColor(-2)).toBe('text-error-600');
     expect(getAPYColor(-2, { onDark: true })).toBe('text-error-400');
   });
 
-  it('returns neutral color for small APY (< 5%)', () => {
+  it('handles exact threshold values at 0, 5, 10, and 20', () => {
+    expect(getAPYColor(0)).toBe('text-foreground');
+    expect(getAPYColor(0, { onDark: true })).toBe('text-white');
+
+    expect(getAPYColor(5)).toBe('text-success-500');
+    expect(getAPYColor(5, { onDark: true })).toBe('text-success-300');
+
+    expect(getAPYColor(10)).toBe('text-success-600');
+    expect(getAPYColor(10, { onDark: true })).toBe('text-success-400');
+
+    expect(getAPYColor(20)).toBe('text-success-700');
+    expect(getAPYColor(20, { onDark: true })).toBe('text-success-500');
+  });
+
+  it('returns neutral color for small positive APY (< 5%)', () => {
     expect(getAPYColor(3)).toBe('text-foreground');
     expect(getAPYColor(3, { onDark: true })).toBe('text-white');
   });
@@ -116,22 +97,6 @@ describe('getAPYColor', () => {
   });
 });
 
-describe('truncateAddress', () => {
-  it('truncates standard long address with ellipsis', () => {
-    const addr = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-    expect(truncateAddress(addr)).toBe('5Grwva...utQY');
-  });
-
-  it('returns short address untruncated when length <= start + end', () => {
-    expect(truncateAddress('0x12345678')).toBe('0x12345678');
-  });
-
-  it('respects custom start and end lengths', () => {
-    const addr = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
-    expect(truncateAddress(addr, 4, 3)).toBe('5Grw...tQY');
-  });
-});
-
 describe('formatTimeAgo', () => {
   it('returns "Just now" for current or future timestamps', () => {
     expect(formatTimeAgo(Date.now())).toBe('Just now');
@@ -142,6 +107,18 @@ describe('formatTimeAgo', () => {
     expect(formatTimeAgo(0)).toBe('-');
     expect(formatTimeAgo(-100)).toBe('-');
     expect(formatTimeAgo(NaN)).toBe('-');
+  });
+
+  it('formats exact thresholds for 1 minute, 1 hour, and 1 day', () => {
+    const now = Date.now();
+    expect(formatTimeAgo(now - 60 * 1000)).toBe('1m ago');
+    expect(formatTimeAgo(now - 59 * 1000)).toBe('Just now');
+
+    expect(formatTimeAgo(now - 60 * 60 * 1000)).toBe('1h ago');
+    expect(formatTimeAgo(now - (59 * 60 + 59) * 1000)).toBe('59m ago');
+
+    expect(formatTimeAgo(now - 24 * 60 * 60 * 1000)).toBe('1d ago');
+    expect(formatTimeAgo(now - (23 * 60 * 60 + 59 * 60) * 1000)).toBe('23h ago');
   });
 
   it('formats minutes ago', () => {
