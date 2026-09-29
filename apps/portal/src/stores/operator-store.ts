@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { OperatorStore, FilterState, Operator } from '@/types/operator';
 import type { UserPosition } from '@/types/position';
 import { operatorService } from '@/services/operator-service';
+import { hasUserPosition, calculateTotalPositionValue } from '@/lib/position-utils';
 
 const DEFAULT_FILTERS: FilterState = {
   searchQuery: '',
@@ -122,10 +123,9 @@ export const useOperatorStore = create<OperatorStore>((set, get) => ({
     const positionMap = new Map<string, number>();
     const stakedOperatorIds = new Set<string>();
     for (const pos of userPositions) {
-      const totalValue =
-        pos.positionValue + pos.storageFeeDeposit + (pos.pendingDeposit?.amount || 0);
+      const totalValue = calculateTotalPositionValue(pos);
       positionMap.set(pos.operatorId, totalValue);
-      if (totalValue > 0) {
+      if (hasUserPosition(pos)) {
         stakedOperatorIds.add(pos.operatorId);
       }
     }

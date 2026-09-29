@@ -163,4 +163,39 @@ describe('Operator Store Sorting and Filtering', () => {
     expect(filters.sortBy).toBe('totalStaked');
     expect(filters.sortOrder).toBe('desc');
   });
+
+  it('sorts operators by user position including pending deposits', () => {
+    const store = useOperatorStore.getState();
+
+    const positions: UserPosition[] = [
+      {
+        operatorId: 'op1',
+        operatorName: 'Alpha Operator',
+        positionValue: 20,
+        storageFeeDeposit: 10,
+        pendingDeposit: { amount: 50, effectiveEpoch: 2 },
+        pendingWithdrawals: [],
+        status: 'pending',
+        lastUpdated: new Date(),
+      },
+      {
+        operatorId: 'op2',
+        operatorName: 'Beta Operator',
+        positionValue: 50,
+        storageFeeDeposit: 10,
+        pendingDeposit: null,
+        pendingWithdrawals: [],
+        status: 'active',
+        lastUpdated: new Date(),
+      },
+    ];
+
+    store.setUserPositions(positions);
+    store.setFilters({ sortBy: 'yourPosition', sortOrder: 'desc' });
+
+    const { stakedOperators } = useOperatorStore.getState();
+    // op1 total: 20 + 10 + 50 = 80, op2 total: 50 + 10 = 60
+    expect(stakedOperators[0].id).toBe('op1');
+    expect(stakedOperators[1].id).toBe('op2');
+  });
 });

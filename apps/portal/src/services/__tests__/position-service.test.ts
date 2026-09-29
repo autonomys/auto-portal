@@ -40,4 +40,60 @@ describe('positionService', () => {
     // storageFeeDeposit should reflect the live currentValue (0)
     expect(position?.storageFeeDeposit).toBe(0);
   });
+
+  describe('calculatePortfolioSummary', () => {
+    it('accurately calculates portfolio summary aggregating positionValue, storageFee, and pending operations', async () => {
+      const service = await positionService();
+
+      const mockPositions = [
+        {
+          operatorId: '0',
+          operatorName: 'Operator 0',
+          positionValue: 100,
+          storageFeeDeposit: 10,
+          pendingDeposit: { amount: 50, effectiveEpoch: 5 },
+          pendingWithdrawals: [],
+          status: 'pending' as const,
+          lastUpdated: new Date(),
+        },
+        {
+          operatorId: '1',
+          operatorName: 'Operator 1',
+          positionValue: 200,
+          storageFeeDeposit: 20,
+          pendingDeposit: null,
+          pendingWithdrawals: [
+            {
+              grossWithdrawalAmount: 30,
+              stakeWithdrawalAmount: 25,
+              storageFeeRefund: 5,
+              unlockAtBlock: 100,
+            },
+          ],
+          status: 'withdrawing' as const,
+          lastUpdated: new Date(),
+        },
+      ];
+
+      const summary = service.calculatePortfolioSummary(mockPositions);
+
+      // Total value: (100 + 10 + 50) + (200 + 20 + 0) = 380
+      expect(summary.totalValue).toBe(380);
+      expect(summary.activePositions).toBe(2);
+      expect(summary.totalStorageFee).toBe(30);
+      expect(summary.pendingDeposits).toBe(1);
+      expect(summary.pendingWithdrawals).toBe(1);
+    });
+
+    it('returns zeroes for empty positions list', async () => {
+      const service = await positionService();
+      const summary = service.calculatePortfolioSummary([]);
+
+      expect(summary.totalValue).toBe(0);
+      expect(summary.activePositions).toBe(0);
+      expect(summary.totalStorageFee).toBe(0);
+      expect(summary.pendingDeposits).toBe(0);
+      expect(summary.pendingWithdrawals).toBe(0);
+    });
+  });
 });
