@@ -32,6 +32,8 @@ export const calculateReturnDetails = (
   const periodReturn = growth - 1;
   const annualizedReturn = Math.pow(growth, 365 / daysDiff) - 1;
 
+  if (!Number.isFinite(annualizedReturn)) return null;
+
   return {
     periodReturn,
     annualizedReturn,

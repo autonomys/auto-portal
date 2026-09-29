@@ -69,6 +69,24 @@ describe('APY Calculations', () => {
       const details = calculateReturnDetails(startPrice, endPrice);
       expect(details).toBeNull();
     });
+
+    it('returns null when dates are invalid or identical', () => {
+      const validPrice = { price: 1.0, date: new Date('2023-01-01T00:00:00Z') };
+      const invalidDatePrice = { price: 1.1, date: new Date('not-a-date') };
+
+      expect(calculateReturnDetails(validPrice, invalidDatePrice)).toBeNull();
+      expect(calculateReturnDetails(invalidDatePrice, validPrice)).toBeNull();
+      // Identical timestamps (daysDiff === 0)
+      expect(calculateReturnDetails(validPrice, validPrice)).toBeNull();
+    });
+
+    it('returns null when annualized return overflows to Infinity', () => {
+      const start = { price: 1.0, date: new Date('2023-01-01T00:00:00.000Z') };
+      // 1 millisecond later with huge price jump -> Math.pow overflows to Infinity
+      const end = { price: 1000.0, date: new Date('2023-01-01T00:00:00.001Z') };
+
+      expect(calculateReturnDetails(start, end)).toBeNull();
+    });
   });
 
   describe('Real-world scenarios', () => {
