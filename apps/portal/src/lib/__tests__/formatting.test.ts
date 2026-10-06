@@ -3,7 +3,9 @@ import {
   formatNumber,
   formatAI3,
   formatPercentage,
+  formatCompactNumber,
   getAPYColor,
+  truncateAddress,
   formatTimeAgo,
 } from '../formatting';
 
@@ -62,6 +64,43 @@ describe('formatPercentage', () => {
   });
 });
 
+describe('formatCompactNumber', () => {
+  it('returns "0" for invalid inputs or NaN', () => {
+    expect(formatCompactNumber(NaN)).toBe('0');
+    expect(formatCompactNumber('invalid')).toBe('0');
+  });
+
+  it('formats numbers under 1,000 using standard formatNumber', () => {
+    expect(formatCompactNumber(0)).toBe('0');
+    expect(formatCompactNumber(42)).toBe('42');
+    expect(formatCompactNumber(999)).toBe('999');
+    expect(formatCompactNumber('500')).toBe('500');
+  });
+
+  it('formats thousands with "K" suffix', () => {
+    expect(formatCompactNumber(1_000)).toBe('1.0K');
+    expect(formatCompactNumber(12_500)).toBe('12.5K');
+    expect(formatCompactNumber(999_900)).toBe('999.9K');
+  });
+
+  it('formats millions with "M" suffix', () => {
+    expect(formatCompactNumber(1_000_000)).toBe('1.0M');
+    expect(formatCompactNumber(2_500_000)).toBe('2.5M');
+  });
+
+  it('formats billions with "B" suffix', () => {
+    expect(formatCompactNumber(1_000_000_000)).toBe('1.0B');
+    expect(formatCompactNumber(5_430_000_000)).toBe('5.4B');
+  });
+
+  it('correctly handles negative values preserving sign', () => {
+    expect(formatCompactNumber(-500)).toBe('-500');
+    expect(formatCompactNumber(-2_500)).toBe('-2.5K');
+    expect(formatCompactNumber(-3_000_000)).toBe('-3.0M');
+    expect(formatCompactNumber(-4_000_000_000)).toBe('-4.0B');
+  });
+});
+
 describe('getAPYColor', () => {
   it('returns error colors for negative APY', () => {
     expect(getAPYColor(-2)).toBe('text-error-600');
@@ -94,6 +133,24 @@ describe('getAPYColor', () => {
     expect(getAPYColor(15, { onDark: true })).toBe('text-success-400');
     expect(getAPYColor(25)).toBe('text-success-700');
     expect(getAPYColor(25, { onDark: true })).toBe('text-success-500');
+  });
+});
+
+describe('truncateAddress', () => {
+  it('returns address untruncated when length is within startLength + endLength', () => {
+    expect(truncateAddress('0x12345678')).toBe('0x12345678');
+    expect(truncateAddress('short', 3, 3)).toBe('short');
+  });
+
+  it('truncates longer address with default 6 prefix and 4 suffix characters', () => {
+    const address = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    expect(truncateAddress(address)).toBe('5Grwva...utQY');
+  });
+
+  it('respects custom startLength and endLength', () => {
+    const address = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    expect(truncateAddress(address, 4, 4)).toBe('5Grw...utQY');
+    expect(truncateAddress(address, 8, 2)).toBe('5GrwvaEF...QY');
   });
 });
 
