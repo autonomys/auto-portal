@@ -258,9 +258,11 @@ export const getWithdrawalPreview = (
 
   // Remaining position after withdrawal
   const remainingStakePosition =
-    withdrawalType === 'all' ? 0 : totalStakePosition - netStakeWithdrawal;
+    withdrawalType === 'all' ? 0 : Math.max(0, totalStakePosition - netStakeWithdrawal);
   const remainingStorageFee =
-    withdrawalType === 'all' ? 0 : totalStorageFeeDeposit - estimatedStorageFeeRefund;
+    withdrawalType === 'all'
+      ? 0
+      : Math.max(0, totalStorageFeeDeposit - estimatedStorageFeeRefund);
 
   return {
     grossWithdrawalAmount: actualGrossWithdrawalAmount, // Total amount user will receive
