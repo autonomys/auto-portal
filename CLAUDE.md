@@ -77,7 +77,7 @@ The portal uses a layered architecture:
 - **`hooks/`** — Custom hooks wrapping stores and services (`use-operators`, `use-positions`, `use-wallet`, `use-staking-transaction`, `use-withdrawal-transaction`)
 - **`pages/`** — Route-level components: Dashboard, Operators, OperatorDetail, Staking, Withdrawal
 - **`components/`** — Feature components grouped by domain (`operators/`, `staking/`, `positions/`, `wallet/`, `layout/`, `ui/`)
-- **`lib/`** — Pure utility functions: `apy.ts` (return calculations), `formatting.ts`, `fixed-point.ts`, `operator-mapper.ts`, `staking-utils.ts`, `withdrawal-utils.ts`
+- **`lib/`** — Pure utility functions: `apy.ts` (return calculations), `formatting.ts`, `operator-mapper.ts`, `staking-utils.ts`, `withdrawal-utils.ts`
 - **`features/`** — Plugin-style feature modules registered via `registerFeatures()` from `shared-lib`; loaded lazily as routes
 - **`types/`** — TypeScript interfaces for operators, positions, wallets, indexer data, transactions
 
