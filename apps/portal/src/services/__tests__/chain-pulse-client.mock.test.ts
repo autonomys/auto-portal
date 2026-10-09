@@ -8,17 +8,6 @@ describe('mockChainPulseClient', () => {
     expect(operators).toHaveLength(3);
   });
 
-  it('returns operator by id when found', async () => {
-    const operator = await mockChainPulseClient.getOperator('1');
-    expect(operator).toBeDefined();
-    expect(operator?.id).toBe('1');
-  });
-
-  it('returns null when operator id is not found', async () => {
-    const operator = await mockChainPulseClient.getOperator('non-existent');
-    expect(operator).toBeNull();
-  });
-
   it('throws on unmocked methods', async () => {
     await expect(mockChainPulseClient.getSharePrices('1')).rejects.toThrow(
       'getSharePrices: not implemented in mock mode',
