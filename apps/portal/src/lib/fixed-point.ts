@@ -5,6 +5,7 @@ export const multiplySharesBySharePrice = (sharesStr: string, sharePriceStr: str
     // Treat both shares and share_price as fixed-point integers scaled by 1e18
     const shares = BigInt(sharesStr);
     const price = BigInt(sharePriceStr);
+    if (shares < 0n || price < 0n) return '0';
     const amount = (shares * price) / FIXED_1E18;
     return amount.toString();
   } catch {

@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { calculateReturnDetails } from '../apy';
+import {
+  calculateReturnDetails,
+  adjustReturnDetailsForStakeRatio,
+  adjustReturnDetailsWindowsForStakeRatio,
+} from '../apy';
 
 describe('APY Calculations', () => {
   describe('calculateReturnDetails', () => {
@@ -106,6 +110,35 @@ describe('APY Calculations', () => {
       expect(details).not.toBeNull();
       expect(details!.periodReturn).toBeCloseTo(0.00846, 4); // ~0.85% return
       expect(details!.annualizedReturn).toBeGreaterThan(0.4); // Should be high when annualized
+    });
+  });
+
+  describe('adjustReturnDetailsForStakeRatio', () => {
+    const baseDetails = {
+      periodReturn: 0.1,
+      annualizedReturn: 0.2,
+      startDate: new Date('2024-01-01'),
+      endDate: new Date('2024-02-01'),
+    };
+
+    it('scales returns according to custom stake ratio', () => {
+      const adjusted = adjustReturnDetailsForStakeRatio(baseDetails, 0.5);
+      expect(adjusted.periodReturn).toBeCloseTo(0.05, 6);
+      expect(adjusted.annualizedReturn).toBeCloseTo(0.1, 6);
+      expect(adjusted.startDate).toEqual(baseDetails.startDate);
+      expect(adjusted.endDate).toEqual(baseDetails.endDate);
+    });
+
+    it('adjusts windows correctly', () => {
+      const windows = {
+        d1: baseDetails,
+        d7: baseDetails,
+      };
+      const adjusted = adjustReturnDetailsWindowsForStakeRatio(windows, 0.8);
+      expect(adjusted.d1?.periodReturn).toBeCloseTo(0.08, 6);
+      expect(adjusted.d7?.annualizedReturn).toBeCloseTo(0.16, 6);
+      expect(adjusted.d3).toBeUndefined();
+      expect(adjusted.d30).toBeUndefined();
     });
   });
 });
