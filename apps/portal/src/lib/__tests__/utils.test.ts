@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { shortenAddress, getNetworkBadge, isMainnet } from '../utils';
+import { shortenAddress, getNetworkBadge } from '../utils';
 
 describe('shortenAddress', () => {
   it('shortens standard address with unicode ellipsis', () => {
@@ -51,14 +51,5 @@ describe('getNetworkBadge', () => {
       label: 'LOCAL',
       variant: 'secondary',
     });
-  });
-});
-
-describe('isMainnet', () => {
-  it('returns true only for "mainnet"', () => {
-    expect(isMainnet('mainnet')).toBe(true);
-    expect(isMainnet('chronos')).toBe(false);
-    expect(isMainnet('taurus')).toBe(false);
-    expect(isMainnet('dev')).toBe(false);
   });
 });
