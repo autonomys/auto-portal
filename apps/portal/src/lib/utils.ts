@@ -87,5 +87,3 @@ export const getNetworkBadge = (networkId: string): { label: string; variant: Ba
           : 'secondary';
   return { label, variant };
 };
-
-export const isMainnet = (networkId: string) => networkId === 'mainnet';
