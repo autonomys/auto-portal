@@ -125,8 +125,8 @@ export const realChainPulseClient: ChainPulseClient = {
     signal?: AbortSignal,
   ): Promise<ChainPulseDeposit[]> {
     const qs = new URLSearchParams({ address });
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.offset) qs.set('offset', String(params.offset));
+    if (params?.limit !== undefined) qs.set('limit', String(params.limit));
+    if (params?.offset !== undefined) qs.set('offset', String(params.offset));
     return fetchJson<ChainPulseDeposit[]>(
       `/v1/staking/operators/${operatorId}/deposits?${qs}`,
       signal,
@@ -140,8 +140,8 @@ export const realChainPulseClient: ChainPulseClient = {
     signal?: AbortSignal,
   ): Promise<ChainPulseWithdrawal[]> {
     const qs = new URLSearchParams({ address });
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.offset) qs.set('offset', String(params.offset));
+    if (params?.limit !== undefined) qs.set('limit', String(params.limit));
+    if (params?.offset !== undefined) qs.set('offset', String(params.offset));
     return fetchJson<ChainPulseWithdrawal[]>(
       `/v1/staking/operators/${operatorId}/withdrawals?${qs}`,
       signal,
