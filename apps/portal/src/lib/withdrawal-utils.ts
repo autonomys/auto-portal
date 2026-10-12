@@ -136,37 +136,6 @@ export const checkWithdrawalUnlockStatus = async (
 };
 
 /**
- * Check multiple withdrawals and return their unlock statuses
- * @param withdrawals - Array of withdrawals with unlockAtBlock property
- * @returns Promise that resolves to array of unlock statuses
- */
-export const checkMultipleWithdrawalsStatus = async (
-  withdrawals: { unlockAtBlock: number }[],
-): Promise<WithdrawalUnlockStatus[]> => {
-  if (withdrawals.length === 0) {
-    return [];
-  }
-
-  // Get current block once and reuse for all withdrawals
-  const currentDomainBlock = await getCurrentDomainBlockNumber();
-
-  return withdrawals.map(withdrawal => {
-    const blocksRemaining = Math.max(0, withdrawal.unlockAtBlock - currentDomainBlock);
-    const isUnlockable = blocksRemaining === 0;
-    const estimatedSecondsRemaining = blocksRemaining * ESTIMATED_BLOCK_TIME_SECONDS;
-    const estimatedTimeRemaining = formatTimeRemaining(estimatedSecondsRemaining);
-
-    return {
-      isUnlockable,
-      currentDomainBlock,
-      unlockAtBlock: withdrawal.unlockAtBlock,
-      blocksRemaining,
-      estimatedTimeRemaining,
-    };
-  });
-};
-
-/**
  * Format seconds into human-readable time duration
  * @param seconds - Number of seconds
  * @returns Formatted time string
@@ -204,17 +173,6 @@ export const calculateStorageFeeRefund = (
   withdrawalPercentage: number,
   totalStorageFeeDeposit: number,
 ): number => withdrawalPercentage * totalStorageFeeDeposit;
-
-/**
- * Calculate net stake withdrawal from gross withdrawal amount
- * @param grossWithdrawalAmount - Total amount user wants to withdraw
- * @param storageFeeRefund - Storage fee refund portion
- * @returns Net stake amount being withdrawn
- */
-export const calculateNetStakeWithdrawal = (
-  grossWithdrawalAmount: number,
-  storageFeeRefund: number,
-): number => grossWithdrawalAmount - storageFeeRefund;
 
 /**
  * Get withdrawal preview information
