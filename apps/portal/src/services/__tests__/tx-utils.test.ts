@@ -10,6 +10,32 @@ describe('tx-utils', () => {
       expect(formatDispatchError(undefined)).toBe('Transaction failed during execution');
     });
 
+    it('decodes module error with registry.findMetaError', () => {
+      const mockRegistry = {
+        findMetaError: vi.fn().mockReturnValue({
+          section: 'staking',
+          name: 'CannotWithdraw',
+        }),
+      };
+      const moduleErr = {
+        isModule: true,
+        asModule: '0x0102',
+      };
+      expect(formatDispatchError(moduleErr, mockRegistry)).toBe(
+        'Transaction failed: staking.CannotWithdraw',
+      );
+    });
+
+    it('formats direct section and name properties', () => {
+      const directErr = {
+        section: 'balances',
+        name: 'InsufficientBalance',
+      };
+      expect(formatDispatchError(directErr)).toBe(
+        'Transaction failed: balances.InsufficientBalance',
+      );
+    });
+
     it('formats module error with string representation', () => {
       const moduleErr = {
         isModule: true,
@@ -174,7 +200,12 @@ describe('tx-utils', () => {
       vi.useFakeTimers();
 
       const tx = {
-        signAndSend: vi.fn().mockReturnValue(Promise.resolve(mockUnsub)),
+        signAndSend: vi.fn((_account, _opts, callback) => {
+          callback({
+            status: { isReady: true },
+          } as unknown as ISubmittableResult);
+          return Promise.resolve(mockUnsub);
+        }),
       } as unknown as SubmittableExtrinsic<'promise', ISubmittableResult>;
 
       const promise = signAndSendTx(tx, mockAccount, mockSigner, undefined, { timeout: 1000 });

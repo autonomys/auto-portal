@@ -15,14 +15,38 @@ export interface SignAndSendOptions {
 
 export type TxProgressCallback = (result: ISubmittableResult) => void;
 
-export const formatDispatchError = (dispatchError: unknown): string => {
+export const formatDispatchError = (
+  dispatchError: unknown,
+  registry?: { findMetaError?: (mod: unknown) => { section: string; name: string } },
+): string => {
   if (!dispatchError) return 'Transaction failed during execution';
   if (typeof dispatchError === 'object' && dispatchError !== null) {
-    if ('isModule' in dispatchError && (dispatchError as { isModule: boolean }).isModule) {
+    const err = dispatchError as Record<string, unknown>;
+    if (err.section && err.name) {
+      return `Transaction failed: ${String(err.section)}.${String(err.name)}`;
+    }
+    const reg =
+      registry ??
+      (err.registry as
+        | { findMetaError?: (mod: unknown) => { section: string; name: string } }
+        | undefined);
+    if (err.isModule) {
+      if (err.asModule && reg?.findMetaError) {
+        try {
+          const { section, name } = reg.findMetaError(err.asModule);
+          return `Transaction failed: ${section}.${name}`;
+        } catch {
+          // Fallback to string check
+        }
+      }
       const errStr = String(dispatchError);
-      return errStr && errStr !== '[object Object]'
-        ? `Transaction failed: ${errStr}`
-        : 'Transaction failed with module error';
+      if (errStr && errStr !== '[object Object]') {
+        return `Transaction failed: ${errStr}`;
+      }
+      return 'Transaction failed with module error';
+    }
+    if (typeof err.message === 'string' && err.message) {
+      return `Transaction failed: ${err.message}`;
     }
     const errStr = String(dispatchError);
     if (errStr && errStr !== '[object Object]') {
@@ -43,6 +67,7 @@ export const signAndSendTx = async (
     let unsub: (() => void) | undefined;
     let timeoutId: NodeJS.Timeout | undefined;
     let isSettled = false;
+    let hasReceivedStatus = false;
 
     const cleanup = () => {
       if (timeoutId) {
@@ -59,17 +84,23 @@ export const signAndSendTx = async (
       }
     };
 
-    if (options?.timeout !== undefined && options.timeout > 0) {
-      timeoutId = setTimeout(() => {
-        if (!isSettled) {
-          isSettled = true;
-          cleanup();
-          reject(new Error(`Transaction timed out after ${options.timeout}ms`));
-        }
-      }, options.timeout);
-    }
+    const startTimeout = () => {
+      if (options?.timeout !== undefined && options.timeout > 0 && !timeoutId && !isSettled) {
+        timeoutId = setTimeout(() => {
+          if (!isSettled) {
+            isSettled = true;
+            cleanup();
+            reject(new Error(`Transaction timed out after ${options.timeout}ms`));
+          }
+        }, options.timeout);
+      }
+    };
 
     tx.signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
+      if (!hasReceivedStatus) {
+        hasReceivedStatus = true;
+        startTimeout();
+      }
       if (onProgress) onProgress(result);
 
       const { status, txHash, dispatchError } = result;
@@ -80,7 +111,16 @@ export const signAndSendTx = async (
           if (dispatchError) {
             resolve({
               success: false,
-              error: formatDispatchError(dispatchError),
+              error: formatDispatchError(
+                dispatchError,
+                (
+                  tx as unknown as {
+                    registry?: {
+                      findMetaError?: (mod: unknown) => { section: string; name: string };
+                    };
+                  }
+                )?.registry,
+              ),
               txHash: txHash?.toString(),
             });
           } else {
