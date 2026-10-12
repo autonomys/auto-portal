@@ -9,25 +9,78 @@ export interface TxResult {
   error?: string;
 }
 
+export interface SignAndSendOptions {
+  timeout?: number;
+}
+
 export type TxProgressCallback = (result: ISubmittableResult) => void;
+
+export const formatDispatchError = (dispatchError: unknown): string => {
+  if (!dispatchError) return 'Transaction failed during execution';
+  if (typeof dispatchError === 'object' && dispatchError !== null) {
+    if ('isModule' in dispatchError && (dispatchError as { isModule: boolean }).isModule) {
+      const errStr = String(dispatchError);
+      return errStr && errStr !== '[object Object]'
+        ? `Transaction failed: ${errStr}`
+        : 'Transaction failed with module error';
+    }
+    const errStr = String(dispatchError);
+    if (errStr && errStr !== '[object Object]') {
+      return `Transaction failed: ${errStr}`;
+    }
+  }
+  return 'Transaction failed during execution';
+};
 
 export const signAndSendTx = async (
   tx: SubmittableExtrinsic<'promise', ISubmittableResult>,
   accountAddress: string,
   signer: Signer,
   onProgress?: TxProgressCallback,
+  options?: SignAndSendOptions,
 ): Promise<TxResult> =>
   new Promise<TxResult>((resolve, reject) => {
-    const unsubPromise = tx
-      .signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
-        if (onProgress) onProgress(result);
+    let unsub: (() => void) | undefined;
+    let timeoutId: NodeJS.Timeout | undefined;
+    let isSettled = false;
 
-        const { status, txHash, dispatchError } = result;
-        if (status?.isInBlock) {
+    const cleanup = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+      if (unsub) {
+        try {
+          unsub();
+        } catch {
+          // ignore cleanup errors
+        }
+        unsub = undefined;
+      }
+    };
+
+    if (options?.timeout !== undefined && options.timeout > 0) {
+      timeoutId = setTimeout(() => {
+        if (!isSettled) {
+          isSettled = true;
+          cleanup();
+          reject(new Error(`Transaction timed out after ${options.timeout}ms`));
+        }
+      }, options.timeout);
+    }
+
+    tx.signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
+      if (onProgress) onProgress(result);
+
+      const { status, txHash, dispatchError } = result;
+      if (status?.isInBlock) {
+        if (!isSettled) {
+          isSettled = true;
+          cleanup();
           if (dispatchError) {
             resolve({
               success: false,
-              error: 'Transaction failed during execution',
+              error: formatDispatchError(dispatchError),
               txHash: txHash?.toString(),
             });
           } else {
@@ -37,25 +90,37 @@ export const signAndSendTx = async (
               blockHash: status.asInBlock?.toString(),
             });
           }
-        } else if (status?.isFinalized) {
-          // no-op; we already resolved at isInBlock
-        } else if (status?.isDropped || status?.isInvalid) {
+        }
+      } else if (status?.isFinalized) {
+        // no-op; we already resolved at isInBlock
+      } else if (status?.isDropped || status?.isInvalid || status?.isUsurped) {
+        if (!isSettled) {
+          isSettled = true;
+          cleanup();
+          const errorMsg = status.isUsurped
+            ? 'Transaction was usurped by another transaction'
+            : 'Transaction was dropped or invalid';
           resolve({
             success: false,
-            error: 'Transaction was dropped or invalid',
+            error: errorMsg,
             txHash: txHash?.toString(),
           });
         }
+      }
+    })
+      .then(unsubFn => {
+        unsub = unsubFn;
+        if (isSettled) {
+          cleanup();
+        }
       })
       .catch((error: unknown) => {
-        // Propagate wallet cancellation/rejection
-        reject(error);
+        if (!isSettled) {
+          isSettled = true;
+          cleanup();
+          reject(error);
+        }
       });
-
-    // Synchronous safety net
-    if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
-      (unsubPromise as Promise<unknown>).catch((err: unknown) => reject(err));
-    }
   });
 
 export const isUserCancellationError = (error: unknown): boolean => {
