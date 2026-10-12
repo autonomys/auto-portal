@@ -36,11 +36,3 @@ export const layout = {
   pageHeader: 'border-b border-border pb-8 text-center',
   pageContent: 'space-y-12',
 } as const;
-
-export const getLayoutClasses = (pattern: keyof typeof layout, ...args: unknown[]) => {
-  const layoutValue = layout[pattern];
-  if (typeof layoutValue === 'function') {
-    return (layoutValue as (...args: unknown[]) => string)(...args);
-  }
-  return layoutValue as string;
-};

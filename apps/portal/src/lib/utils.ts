@@ -7,13 +7,13 @@ export const shortenAddress = (addr?: string, length = 4) => {
 };
 
 // Typography utilities
-export { typography, getTypographyClasses, type TypographyVariant } from './typography';
+export { typography, type TypographyVariant } from './typography';
 
 // Spacing utilities
 export { spacing, getSpacingClasses, type SpacingSize } from './spacing';
 
 // Layout utilities
-export { layout, getLayoutClasses } from './layout';
+export { layout } from './layout';
 
 // Re-export semantic color utilities for convenience
 export {
