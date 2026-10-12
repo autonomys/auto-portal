@@ -13,33 +13,43 @@ let connectionPromise: Promise<Awaited<ReturnType<typeof activate>>> | null = nu
 export const getSharedApiConnection = async (
   networkId: string = config.network.defaultNetworkId,
 ) => {
+  if (!networkId || typeof networkId !== 'string' || networkId.trim().length === 0) {
+    throw new Error('Valid networkId is required');
+  }
+  const targetNetworkId = networkId.trim();
+
   // Return existing connection if same network
-  if (sharedApi && currentNetworkId === networkId) {
+  if (sharedApi && currentNetworkId === targetNetworkId) {
     return sharedApi;
   }
 
   // If connection is being established, wait for it
   if (connectionPromise) {
-    await connectionPromise;
-    if (sharedApi && currentNetworkId === networkId) {
+    await connectionPromise.catch(() => {});
+    if (sharedApi && currentNetworkId === targetNetworkId) {
       return sharedApi;
     }
   }
 
   // Disconnect existing connection if switching networks
-  if (sharedApi && currentNetworkId !== networkId) {
-    await disconnect(sharedApi);
-    sharedApi = null;
-    currentNetworkId = null;
+  if (sharedApi && currentNetworkId !== targetNetworkId) {
+    try {
+      await disconnect(sharedApi);
+    } catch (err) {
+      console.warn('Error disconnecting previous RPC connection:', err);
+    } finally {
+      sharedApi = null;
+      currentNetworkId = null;
+    }
   }
 
   // Create new connection with promise to avoid race conditions
-  connectionPromise = activate({ networkId });
+  connectionPromise = activate({ networkId: targetNetworkId });
 
   try {
     sharedApi = await connectionPromise;
-    currentNetworkId = networkId;
-    console.log(`🔗 Established shared RPC connection to ${networkId}`);
+    currentNetworkId = targetNetworkId;
+    console.log(`🔗 Established shared RPC connection to ${targetNetworkId}`);
     return sharedApi;
   } catch (error) {
     console.error('❌ Failed to establish RPC connection:', error);
@@ -53,11 +63,29 @@ export const getSharedApiConnection = async (
  * Disconnect shared API connection
  */
 export const disconnectSharedApi = async () => {
-  if (sharedApi) {
-    await disconnect(sharedApi);
-    sharedApi = null;
-    currentNetworkId = null;
-    console.log('🔌 Disconnected shared RPC connection');
+  if (connectionPromise) {
+    try {
+      const api = await connectionPromise;
+      if (api) {
+        await disconnect(api);
+      }
+    } catch {
+      // In-flight connection failed, no active connection to disconnect
+    } finally {
+      sharedApi = null;
+      currentNetworkId = null;
+      console.log('🔌 Disconnected shared RPC connection');
+    }
+  } else if (sharedApi) {
+    try {
+      await disconnect(sharedApi);
+    } catch (err) {
+      console.warn('Error disconnecting shared RPC connection:', err);
+    } finally {
+      sharedApi = null;
+      currentNetworkId = null;
+      console.log('🔌 Disconnected shared RPC connection');
+    }
   }
 };
 
