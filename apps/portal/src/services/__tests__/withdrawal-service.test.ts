@@ -309,12 +309,28 @@ describe('withdrawal-service', () => {
         mockInjector,
       );
 
-      expect(res.success).toBe(false);
+      // Even with 1 cancellation, the partial success flag allows the UI to refresh completed unlocks
+      expect(res.success).toBe(true);
       expect(res.totalSuccess).toBe(1);
       expect(res.totalFailed).toBe(1);
       // Operator 3 should NOT have been called because loop aborted on cancellation
       expect(res.results).toHaveLength(2);
       expect(res.results[1].error).toBe('Transaction cancelled by user');
+    });
+
+    it('returns success false when all unlock operations fail', async () => {
+      vi.mocked(signAndSendTx).mockRejectedValue(new Error('RPC network timeout'));
+
+      const res = await withdrawalService.batchUnlockFunds(
+        { operatorIds: ['1', '2'], unlockType: 'funds' },
+        { address: testAddress },
+        mockInjector,
+      );
+
+      expect(res.success).toBe(false);
+      expect(res.totalSuccess).toBe(0);
+      expect(res.totalFailed).toBe(2);
+      expect(res.results).toHaveLength(2);
     });
   });
 });

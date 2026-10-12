@@ -393,7 +393,7 @@ export const withdrawalService = {
       }
 
       return {
-        success: totalFailed === 0 && totalSuccess > 0,
+        success: totalSuccess > 0,
         results,
         totalSuccess,
         totalFailed,
