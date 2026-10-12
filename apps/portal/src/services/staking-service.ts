@@ -28,12 +28,16 @@ export const stakingService = {
    * @returns Promise that resolves to fee estimation in AI3
    */
   estimateTransactionFee: async (params: StakingParams, senderAddress: string): Promise<number> => {
+    if (!senderAddress || typeof senderAddress !== 'string' || senderAddress.trim().length === 0) {
+      throw new Error('Valid sender address is required for fee estimation');
+    }
+
     try {
       // Create the transaction
       const tx = await stakingService.createNominateTransaction(params);
 
       // Get payment info for fee estimation
-      const paymentInfo = await tx.paymentInfo(senderAddress);
+      const paymentInfo = await tx.paymentInfo(senderAddress.trim());
 
       // Convert fee from shannons to AI3
       const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
@@ -52,7 +56,19 @@ export const stakingService = {
    * @returns Transaction ready for signing and sending
    */
   createNominateTransaction: async (params: StakingParams) => {
+    if (!params) {
+      throw new Error('Staking parameters are required');
+    }
+
     const { operatorId, amount } = params;
+
+    if (!operatorId || typeof operatorId !== 'string' || operatorId.trim().length === 0) {
+      throw new Error('Valid operator ID is required');
+    }
+
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+      throw new Error('Staking amount must be a positive number');
+    }
 
     // Get API connection
     const api = await getSharedApiConnection();
@@ -63,7 +79,7 @@ export const stakingService = {
     // Create the nominateOperator extrinsic
     const tx = await nominateOperator({
       api,
-      operatorId,
+      operatorId: operatorId.trim(),
       amountToStake: amountInShannons,
     });
 
@@ -86,13 +102,25 @@ export const stakingService = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     progressCallback?: (result: any) => void,
   ): Promise<StakingResult> => {
+    if (
+      !account?.address ||
+      typeof account.address !== 'string' ||
+      account.address.trim().length === 0
+    ) {
+      throw new Error('Valid account address is required for nomination');
+    }
+
+    if (!injector?.signer) {
+      throw new Error('Wallet signer is required for nomination');
+    }
+
     try {
       // Create the transaction
       const tx = await stakingService.createNominateTransaction(params);
 
       const res: TxResult = await signAndSendTx(
         tx,
-        account.address,
+        account.address.trim(),
         injector.signer,
         progressCallback,
       );
@@ -103,9 +131,15 @@ export const stakingService = {
         throw error;
       }
       console.error('Staking transaction failed:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && error !== null && 'message' in error
+            ? String((error as { message: unknown }).message)
+            : String(error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage || 'Unknown error occurred',
       };
     }
   },

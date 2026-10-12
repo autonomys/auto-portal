@@ -49,9 +49,13 @@ export const withdrawalService = {
     params: WithdrawalParams,
     senderAddress: string,
   ): Promise<number> => {
+    if (!senderAddress || typeof senderAddress !== 'string' || senderAddress.trim().length === 0) {
+      throw new Error('Valid sender address is required for fee estimation');
+    }
+
     try {
-      const tx = await withdrawalService.createWithdrawTransaction(params, senderAddress);
-      const paymentInfo = await tx.paymentInfo(senderAddress);
+      const tx = await withdrawalService.createWithdrawTransaction(params, senderAddress.trim());
+      const paymentInfo = await tx.paymentInfo(senderAddress.trim());
       const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
       return feeInAI3;
     } catch (error) {
@@ -67,9 +71,13 @@ export const withdrawalService = {
    * @returns Promise that resolves to fee estimation in AI3
    */
   estimateUnlockFee: async (params: UnlockParams, senderAddress: string): Promise<number> => {
+    if (!senderAddress || typeof senderAddress !== 'string' || senderAddress.trim().length === 0) {
+      throw new Error('Valid sender address is required for fee estimation');
+    }
+
     try {
       const tx = await withdrawalService.createUnlockTransaction(params);
-      const paymentInfo = await tx.paymentInfo(senderAddress);
+      const paymentInfo = await tx.paymentInfo(senderAddress.trim());
       const feeInAI3 = parseFloat(shannonsToAi3(paymentInfo.partialFee.toString()));
       return feeInAI3;
     } catch (error) {
@@ -81,25 +89,53 @@ export const withdrawalService = {
   /**
    * Create a withdraw extrinsic via helpers
    * @param params - Withdrawal parameters
+   * @param senderAddress - Address of the account that will send the transaction
    * @returns Transaction ready for signing and sending
    */
   createWithdrawTransaction: async (params: WithdrawalParams, senderAddress: string) => {
+    if (!params) {
+      throw new Error('Withdrawal parameters are required');
+    }
+
     const { operatorId, amount, withdrawalType } = params;
+
+    if (!operatorId || typeof operatorId !== 'string' || operatorId.trim().length === 0) {
+      throw new Error('Valid operator ID is required');
+    }
+
+    if (!senderAddress || typeof senderAddress !== 'string' || senderAddress.trim().length === 0) {
+      throw new Error('Valid sender address is required');
+    }
+
     const api = await getSharedApiConnection();
 
     if (withdrawalType === 'all') {
-      return withdrawStakeAll({ api, operatorId, account: senderAddress });
+      return withdrawStakeAll({
+        api,
+        operatorId: operatorId.trim(),
+        account: senderAddress.trim(),
+      });
     }
 
-    if (amount === undefined || amount === null) {
-      throw new Error('Amount is required for partial withdrawal');
+    if (withdrawalType !== 'partial') {
+      throw new Error(`Unsupported withdrawal type: ${String(withdrawalType)}`);
+    }
+
+    if (
+      amount === undefined ||
+      amount === null ||
+      typeof amount !== 'number' ||
+      !Number.isFinite(amount) ||
+      amount <= 0
+    ) {
+      throw new Error('Amount must be a positive number for partial withdrawal');
     }
 
     const amountInShannons = ai3ToShannons(amount.toString());
     return withdrawStakeByValue({
       api,
-      operatorId,
-      account: senderAddress,
+      operatorId: operatorId.trim(),
+      account: senderAddress.trim(),
       amountToWithdraw: amountInShannons,
     });
   },
@@ -110,12 +146,21 @@ export const withdrawalService = {
    * @returns Transaction ready for signing and sending
    */
   createUnlockTransaction: async (params: UnlockParams) => {
+    if (!params) {
+      throw new Error('Unlock parameters are required');
+    }
+
     const { operatorId } = params;
+
+    if (!operatorId || typeof operatorId !== 'string' || operatorId.trim().length === 0) {
+      throw new Error('Valid operator ID is required');
+    }
+
     const api = await getSharedApiConnection();
 
     return unlockFunds({
       api,
-      operatorId,
+      operatorId: operatorId.trim(),
     });
   },
 
@@ -135,12 +180,24 @@ export const withdrawalService = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     progressCallback?: (result: any) => void,
   ): Promise<WithdrawalResult> => {
+    if (
+      !account?.address ||
+      typeof account.address !== 'string' ||
+      account.address.trim().length === 0
+    ) {
+      throw new Error('Valid account address is required');
+    }
+
+    if (!injector?.signer) {
+      throw new Error('Wallet signer is required');
+    }
+
     try {
-      const tx = await withdrawalService.createWithdrawTransaction(params, account.address);
+      const tx = await withdrawalService.createWithdrawTransaction(params, account.address.trim());
 
       const res: TxResult = await signAndSendTx(
         tx,
-        account.address,
+        account.address.trim(),
         injector.signer,
         progressCallback,
       );
@@ -150,9 +207,15 @@ export const withdrawalService = {
         throw error;
       }
       console.error('Withdrawal transaction failed:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && error !== null && 'message' in error
+            ? String((error as { message: unknown }).message)
+            : String(error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage || 'Unknown error occurred',
       };
     }
   },
@@ -173,12 +236,24 @@ export const withdrawalService = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     progressCallback?: (result: any) => void,
   ): Promise<WithdrawalResult> => {
+    if (
+      !account?.address ||
+      typeof account.address !== 'string' ||
+      account.address.trim().length === 0
+    ) {
+      throw new Error('Valid account address is required');
+    }
+
+    if (!injector?.signer) {
+      throw new Error('Wallet signer is required');
+    }
+
     try {
       const tx = await withdrawalService.createUnlockTransaction(params);
 
       const res: TxResult = await signAndSendTx(
         tx,
-        account.address,
+        account.address.trim(),
         injector.signer,
         progressCallback,
       );
@@ -188,9 +263,15 @@ export const withdrawalService = {
         throw error;
       }
       console.error('Unlock transaction failed:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && error !== null && 'message' in error
+            ? String((error as { message: unknown }).message)
+            : String(error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage || 'Unknown error occurred',
       };
     }
   },
@@ -210,7 +291,33 @@ export const withdrawalService = {
     injector: any,
     progressCallback?: (progress: { completed: number; total: number; current?: string }) => void,
   ): Promise<BatchWithdrawalResult> => {
+    if (!params || !Array.isArray(params.operatorIds)) {
+      throw new Error('Valid batch unlock parameters are required');
+    }
+
+    if (
+      !account?.address ||
+      typeof account.address !== 'string' ||
+      account.address.trim().length === 0
+    ) {
+      throw new Error('Valid account address is required');
+    }
+
+    if (!injector?.signer) {
+      throw new Error('Wallet signer is required');
+    }
+
     const { operatorIds } = params;
+
+    if (operatorIds.length === 0) {
+      return {
+        success: true,
+        results: [],
+        totalSuccess: 0,
+        totalFailed: 0,
+      };
+    }
+
     const results: BatchWithdrawalResult['results'] = [];
     let totalSuccess = 0;
     let totalFailed = 0;
@@ -247,7 +354,23 @@ export const withdrawalService = {
             totalFailed++;
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          if (isUserCancellationError(error)) {
+            // User rejected the signature request in wallet - abort subsequent requests to prevent spamming
+            results.push({
+              operatorId,
+              success: false,
+              error: 'Transaction cancelled by user',
+            });
+            totalFailed++;
+            break;
+          }
+
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : typeof error === 'object' && error !== null && 'message' in error
+                ? String((error as { message: unknown }).message)
+                : String(error);
           results.push({
             operatorId,
             success: false,
@@ -264,13 +387,13 @@ export const withdrawalService = {
 
       if (progressCallback) {
         progressCallback({
-          completed: operatorIds.length,
+          completed: results.length,
           total: operatorIds.length,
         });
       }
 
       return {
-        success: totalSuccess > 0,
+        success: totalFailed === 0 && totalSuccess > 0,
         results,
         totalSuccess,
         totalFailed,
