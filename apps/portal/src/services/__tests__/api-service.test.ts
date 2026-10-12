@@ -83,6 +83,25 @@ describe('api-service', () => {
       const status = getConnectionStatus();
       expect(status).toEqual({ isConnected: false, networkId: null });
     });
+
+    it('propagates activation error to all concurrent callers without opening duplicate connections', async () => {
+      vi.mocked(activate).mockImplementation(
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('RPC connection failed')), 20),
+          ),
+      );
+
+      const [res1, res2] = await Promise.allSettled([
+        getSharedApiConnection('bad-net'),
+        getSharedApiConnection('bad-net'),
+      ]);
+
+      expect(res1.status).toBe('rejected');
+      expect(res2.status).toBe('rejected');
+      expect(activate).toHaveBeenCalledTimes(1);
+      expect(getConnectionStatus()).toEqual({ isConnected: false, networkId: null });
+    });
   });
 
   describe('disconnectSharedApi', () => {

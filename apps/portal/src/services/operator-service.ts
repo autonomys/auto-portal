@@ -79,13 +79,8 @@ const mapChainPulseOperator = (
 
 export const operatorService = async () => {
   const getAllOperators = async (): Promise<Operator[]> => {
-    try {
-      const raw = await chainPulseClient.getOperators();
-      return Array.isArray(raw) ? raw.map(mapChainPulseOperator) : [];
-    } catch (err) {
-      console.warn('Failed to fetch operators:', err);
-      return [];
-    }
+    const raw = await chainPulseClient.getOperators();
+    return Array.isArray(raw) ? raw.map(mapChainPulseOperator) : [];
   };
 
   const getOperatorById = async (operatorId: string): Promise<Operator | null> => {

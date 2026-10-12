@@ -47,8 +47,16 @@ describe('operator-service', () => {
       expect(op.minimumNominatorStake).toBe('1');
     });
 
-    it('returns empty array when getAllOperators fails', async () => {
+    it('propagates error when getAllOperators fails', async () => {
       vi.mocked(chainPulseClient.getOperators).mockRejectedValueOnce(new Error('Network error'));
+
+      const service = await operatorService();
+      await expect(service.getAllOperators()).rejects.toThrow('Network error');
+    });
+
+    it('returns empty array when getAllOperators returns non-array', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(chainPulseClient.getOperators).mockResolvedValueOnce(null as any);
 
       const service = await operatorService();
       const ops = await service.getAllOperators();
