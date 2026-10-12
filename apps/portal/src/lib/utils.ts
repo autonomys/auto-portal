@@ -42,28 +42,6 @@ export {
   getWalletStatusColors,
 } from './design-tokens';
 
-export {
-  // Color application utilities
-  applySemanticColors,
-  applyStatusColor,
-  applyOperatorStatusColors,
-  applyTransactionStatusColors,
-  applyValidationColors,
-  applyWalletStatusColors,
-
-  // Component creation utilities
-  createAlertClasses,
-  createStatusBadge,
-  createSemanticButton,
-  createValidatedInput,
-  createStatusDot,
-
-  // Helper utilities
-  isPositiveSemanticColor,
-  isNegativeSemanticColor,
-  statusToSemanticColor,
-} from './color-utils';
-
 // Network helpers
 export type BadgeVariant =
   | 'default'
