@@ -36,30 +36,6 @@ export const formatPercentage = (value: number, decimals: number = 1): string =>
   return `${value.toFixed(safeDecimals)}%`;
 };
 
-/**
- * Format large numbers with suffixes (K, M, B)
- */
-export const formatCompactNumber = (value: string | number): string => {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
-
-  if (isNaN(num)) return '0';
-
-  const sign = num < 0 ? '-' : '';
-  const abs = Math.abs(num);
-
-  if (abs >= 1_000_000_000) {
-    return `${sign}${(abs / 1_000_000_000).toFixed(1)}B`;
-  }
-  if (abs >= 1_000_000) {
-    return `${sign}${(abs / 1_000_000).toFixed(1)}M`;
-  }
-  if (abs >= 1_000) {
-    return `${sign}${(abs / 1_000).toFixed(1)}K`;
-  }
-
-  return formatNumber(num);
-};
-
 interface ApyColorOptions {
   onDark?: boolean;
 }
@@ -84,21 +60,6 @@ export const getAPYColor = (apy: number, options?: ApyColorOptions) => {
     return onDark ? 'text-success-400' : 'text-success-600';
   }
   return onDark ? 'text-success-500' : 'text-success-700';
-};
-
-/**
- * Truncate address for display
- */
-export const truncateAddress = (
-  address: string,
-  startLength: number = 6,
-  endLength: number = 4,
-): string => {
-  if (address.length <= startLength + endLength) {
-    return address;
-  }
-
-  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
 };
 
 /**
