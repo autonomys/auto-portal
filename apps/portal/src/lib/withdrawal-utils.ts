@@ -147,23 +147,34 @@ export const checkMultipleWithdrawalsStatus = async (
     return [];
   }
 
-  // Get current block once and reuse for all withdrawals
-  const currentDomainBlock = await getCurrentDomainBlockNumber();
+  try {
+    // Get current block once and reuse for all withdrawals
+    const currentDomainBlock = await getCurrentDomainBlockNumber();
 
-  return withdrawals.map(withdrawal => {
-    const blocksRemaining = Math.max(0, withdrawal.unlockAtBlock - currentDomainBlock);
-    const isUnlockable = blocksRemaining === 0;
-    const estimatedSecondsRemaining = blocksRemaining * ESTIMATED_BLOCK_TIME_SECONDS;
-    const estimatedTimeRemaining = formatTimeRemaining(estimatedSecondsRemaining);
+    return withdrawals.map(withdrawal => {
+      const blocksRemaining = Math.max(0, withdrawal.unlockAtBlock - currentDomainBlock);
+      const isUnlockable = blocksRemaining === 0;
+      const estimatedSecondsRemaining = blocksRemaining * ESTIMATED_BLOCK_TIME_SECONDS;
+      const estimatedTimeRemaining = formatTimeRemaining(estimatedSecondsRemaining);
 
-    return {
-      isUnlockable,
-      currentDomainBlock,
-      unlockAtBlock: withdrawal.unlockAtBlock,
-      blocksRemaining,
-      estimatedTimeRemaining,
-    };
-  });
+      return {
+        isUnlockable,
+        currentDomainBlock,
+        unlockAtBlock: withdrawal.unlockAtBlock,
+        blocksRemaining,
+        estimatedTimeRemaining,
+      };
+    });
+  } catch (error) {
+    console.error('Failed to check multiple withdrawals status:', error);
+    return withdrawals.map(withdrawal => ({
+      isUnlockable: false,
+      currentDomainBlock: 0,
+      unlockAtBlock: withdrawal.unlockAtBlock || 0,
+      blocksRemaining: 0,
+      estimatedTimeRemaining: 'Unknown',
+    }));
+  }
 };
 
 /**
@@ -171,7 +182,7 @@ export const checkMultipleWithdrawalsStatus = async (
  * @param seconds - Number of seconds
  * @returns Formatted time string
  */
-const formatTimeRemaining = (seconds: number): string => {
+export const formatTimeRemaining = (seconds: number): string => {
   // Handle invalid input
   if (!Number.isFinite(seconds) || Number.isNaN(seconds)) {
     return 'Unknown';
@@ -203,7 +214,10 @@ const formatTimeRemaining = (seconds: number): string => {
 export const calculateStorageFeeRefund = (
   withdrawalPercentage: number,
   totalStorageFeeDeposit: number,
-): number => withdrawalPercentage * totalStorageFeeDeposit;
+): number => {
+  if (!Number.isFinite(withdrawalPercentage) || !Number.isFinite(totalStorageFeeDeposit)) return 0;
+  return Math.max(0, withdrawalPercentage * totalStorageFeeDeposit);
+};
 
 /**
  * Calculate net stake withdrawal from gross withdrawal amount
@@ -214,7 +228,11 @@ export const calculateStorageFeeRefund = (
 export const calculateNetStakeWithdrawal = (
   grossWithdrawalAmount: number,
   storageFeeRefund: number,
-): number => grossWithdrawalAmount - storageFeeRefund;
+): number => {
+  const gross = Number.isFinite(grossWithdrawalAmount) ? grossWithdrawalAmount : 0;
+  const refund = Number.isFinite(storageFeeRefund) ? storageFeeRefund : 0;
+  return Math.max(0, gross - refund);
+};
 
 /**
  * Get withdrawal preview information
@@ -232,9 +250,25 @@ export const getWithdrawalPreview = (
 ) => {
   const totalPosition = totalStakePosition + totalStorageFeeDeposit;
 
+  if (!Number.isFinite(totalPosition) || totalPosition <= 0) {
+    return {
+      grossWithdrawalAmount: 0,
+      netStakeWithdrawal: 0,
+      storageFeeRefund: 0,
+      percentage: 0,
+      remainingPosition: 0,
+      remainingStorageFee: 0,
+      withdrawalType,
+    };
+  }
+
   // Calculate percentage based on total position (stake + storage fund)
+  const safeGrossAmount = Math.max(
+    0,
+    Number.isFinite(grossWithdrawalAmount) ? grossWithdrawalAmount : 0,
+  );
   const percentage =
-    withdrawalType === 'all' ? 100 : Math.min(100, (grossWithdrawalAmount / totalPosition) * 100);
+    withdrawalType === 'all' ? 100 : Math.min(100, (safeGrossAmount / totalPosition) * 100);
   const withdrawalPercentage = percentage / 100; // Convert to 0-1 range
 
   // Estimate proportional storage fund refund (actual amount determined by protocol)
@@ -248,19 +282,17 @@ export const getWithdrawalPreview = (
   const netStakeWithdrawal =
     withdrawalType === 'all'
       ? totalStakePosition
-      : Math.max(0, grossWithdrawalAmount - estimatedStorageFeeRefund);
+      : Math.max(0, safeGrossAmount - estimatedStorageFeeRefund);
 
   // For full withdrawal, recalculate gross amount to be accurate
   const actualGrossWithdrawalAmount =
-    withdrawalType === 'all'
-      ? totalStakePosition + estimatedStorageFeeRefund
-      : grossWithdrawalAmount;
+    withdrawalType === 'all' ? totalStakePosition + estimatedStorageFeeRefund : safeGrossAmount;
 
   // Remaining position after withdrawal
   const remainingStakePosition =
-    withdrawalType === 'all' ? 0 : totalStakePosition - netStakeWithdrawal;
+    withdrawalType === 'all' ? 0 : Math.max(0, totalStakePosition - netStakeWithdrawal);
   const remainingStorageFee =
-    withdrawalType === 'all' ? 0 : totalStorageFeeDeposit - estimatedStorageFeeRefund;
+    withdrawalType === 'all' ? 0 : Math.max(0, totalStorageFeeDeposit - estimatedStorageFeeRefund);
 
   return {
     grossWithdrawalAmount: actualGrossWithdrawalAmount, // Total amount user will receive
