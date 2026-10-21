@@ -2,8 +2,9 @@ export { cn } from './cn';
 
 export const shortenAddress = (addr?: string, length = 4) => {
   if (!addr) return '';
-  if (addr.length <= length * 2 + 2) return addr;
-  return `${addr.slice(0, length + 2)}…${addr.slice(-length)}`;
+  const safeLength = Number.isFinite(length) ? Math.max(1, Math.floor(length)) : 4;
+  if (addr.length <= safeLength * 2 + 2) return addr;
+  return `${addr.slice(0, safeLength + 2)}…${addr.slice(-safeLength)}`;
 };
 
 // Typography utilities

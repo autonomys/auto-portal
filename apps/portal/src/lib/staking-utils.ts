@@ -89,10 +89,21 @@ export const validateStakingAmount = (
   };
 };
 
-export const formatAI3Amount = (amount: number, decimals = 5): string => amount.toFixed(decimals);
+export const formatAI3Amount = (amount: number, decimals = 5): string => {
+  if (!Number.isFinite(amount)) return '0';
+  const safeDecimals = Number.isFinite(decimals)
+    ? Math.max(0, Math.min(20, Math.floor(decimals)))
+    : 5;
+  return amount.toFixed(safeDecimals);
+};
 
-export const formatAI3AmountWithCommas = (amount: number, decimals = 5): string =>
-  amount.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+export const formatAI3AmountWithCommas = (amount: number, decimals = 5): string => {
+  if (!Number.isFinite(amount)) return '0';
+  const safeDecimals = Number.isFinite(decimals)
+    ? Math.max(0, Math.min(20, Math.floor(decimals)))
+    : 5;
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: safeDecimals,
+    maximumFractionDigits: safeDecimals,
   });
+};

@@ -21,6 +21,13 @@ describe('shortenAddress', () => {
     expect(shortenAddress('0x1234', 4)).toBe('0x1234');
     expect(shortenAddress('short-addr', 4)).toBe('short-addr');
   });
+
+  it('handles non-positive and non-finite lengths safely', () => {
+    const addr = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+    expect(shortenAddress(addr, 0)).toBe('5Gr…Y');
+    expect(shortenAddress(addr, -2)).toBe('5Gr…Y');
+    expect(shortenAddress(addr, NaN)).toBe('5Grwva…utQY');
+  });
 });
 
 describe('getNetworkBadge', () => {
