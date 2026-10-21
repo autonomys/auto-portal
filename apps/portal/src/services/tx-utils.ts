@@ -18,6 +18,33 @@ export const signAndSendTx = async (
   onProgress?: TxProgressCallback,
 ): Promise<TxResult> =>
   new Promise<TxResult>((resolve, reject) => {
+    let settled = false;
+    let unsub: (() => void) | undefined;
+
+    const cleanup = () => {
+      if (unsub) {
+        try {
+          unsub();
+        } catch {
+          // Ignore unsubscribe failures
+        }
+      }
+    };
+
+    const settleResolve = (result: TxResult) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(result);
+    };
+
+    const settleReject = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+
     const unsubPromise = tx
       .signAndSend(accountAddress, { signer }, (result: ISubmittableResult) => {
         if (onProgress) onProgress(result);
@@ -25,13 +52,13 @@ export const signAndSendTx = async (
         const { status, txHash, dispatchError } = result;
         if (status?.isInBlock) {
           if (dispatchError) {
-            resolve({
+            settleResolve({
               success: false,
               error: 'Transaction failed during execution',
               txHash: txHash?.toString(),
             });
           } else {
-            resolve({
+            settleResolve({
               success: true,
               txHash: txHash?.toString(),
               blockHash: status.asInBlock?.toString(),
@@ -39,22 +66,34 @@ export const signAndSendTx = async (
           }
         } else if (status?.isFinalized) {
           // no-op; we already resolved at isInBlock
+        } else if (status?.isUsurped) {
+          settleResolve({
+            success: false,
+            error: 'Transaction was usurped by another transaction',
+            txHash: txHash?.toString(),
+          });
         } else if (status?.isDropped || status?.isInvalid) {
-          resolve({
+          settleResolve({
             success: false,
             error: 'Transaction was dropped or invalid',
             txHash: txHash?.toString(),
           });
         }
       })
+      .then((unsubFn: unknown) => {
+        if (typeof unsubFn === 'function') {
+          unsub = unsubFn as () => void;
+          if (settled) cleanup();
+        }
+      })
       .catch((error: unknown) => {
         // Propagate wallet cancellation/rejection
-        reject(error);
+        settleReject(error);
       });
 
     // Synchronous safety net
     if (unsubPromise && typeof (unsubPromise as Promise<unknown>).catch === 'function') {
-      (unsubPromise as Promise<unknown>).catch((err: unknown) => reject(err));
+      (unsubPromise as Promise<unknown>).catch((err: unknown) => settleReject(err));
     }
   });
 
