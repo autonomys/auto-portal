@@ -53,10 +53,6 @@ export const mockChainPulseClient: ChainPulseClient = {
     return MOCK_OPERATORS;
   },
 
-  async getOperator(id: string): Promise<ChainPulseOperator | null> {
-    return MOCK_OPERATORS.find(op => op.id === id) || null;
-  },
-
   async getSharePrices(): Promise<ChainPulseSharePrice[]> {
     throw new Error('getSharePrices: not implemented in mock mode');
   },

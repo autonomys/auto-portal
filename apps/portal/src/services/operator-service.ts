@@ -3,10 +3,8 @@ import { chainPulseClient, type ChainPulseSharePrice } from './chain-pulse-clien
 import { shannonsToAi3 } from '@autonomys/auto-utils';
 import {
   calculateReturnDetails,
-  adjustReturnDetailsForStakeRatio,
   adjustReturnDetailsWindowsForStakeRatio,
   type PricePoint,
-  type ReturnDetails,
 } from '@/lib/apy';
 
 // Chain-pulse stores share_price as Perquintill (shares-per-stake), which
@@ -66,39 +64,6 @@ export const operatorService = async () => {
     return raw.map(mapChainPulseOperator);
   };
 
-  const getOperatorById = async (operatorId: string): Promise<Operator | null> => {
-    const raw = await chainPulseClient.getOperator(operatorId);
-    return raw ? mapChainPulseOperator(raw) : null;
-  };
-
-  const estimateOperatorReturnDetails = async (
-    operatorId: string,
-    lookbackDays: number,
-  ): Promise<ReturnDetails | null> => {
-    try {
-      const latestRows = await chainPulseClient.getSharePrices(operatorId, { limit: 1 });
-      if (!latestRows.length) return null;
-
-      const MS_PER_DAY = 24 * 60 * 60 * 1000;
-      const sinceISO = new Date(Date.now() - lookbackDays * MS_PER_DAY).toISOString();
-      const earliestRows = await chainPulseClient.getSharePrices(operatorId, {
-        since: sinceISO,
-        limit: 1,
-      });
-      if (!earliestRows.length) return null;
-
-      const startPrice = toPricePoint(earliestRows[0]);
-      const endPrice = toPricePoint(latestRows[0]);
-      if (!startPrice || !endPrice) return null;
-
-      const returnDetails = calculateReturnDetails(startPrice, endPrice);
-      return returnDetails ? adjustReturnDetailsForStakeRatio(returnDetails) : null;
-    } catch (err) {
-      console.warn('Failed to estimate APY for operator', operatorId, err);
-      return null;
-    }
-  };
-
   const estimateOperatorReturnDetailsWindows = async (
     operatorId: string,
   ): Promise<ReturnDetailsWindows> => {
@@ -151,28 +116,6 @@ export const operatorService = async () => {
 
   return {
     getAllOperators,
-    getOperatorById,
-    estimateOperatorReturnDetails,
     estimateOperatorReturnDetailsWindows,
-    getOperatorWithApy: async (
-      operatorId: string,
-      lookbackDays: number,
-    ): Promise<Operator | null> => {
-      const op = await getOperatorById(operatorId);
-      if (!op) return null;
-      const returnDetails = await estimateOperatorReturnDetails(operatorId, lookbackDays);
-      return returnDetails ? { ...op, estimatedReturnDetails: returnDetails } : op;
-    },
-    getOperatorWithApyWindows: async (operatorId: string): Promise<Operator | null> => {
-      const op = await getOperatorById(operatorId);
-      if (!op) return null;
-      const windows = await estimateOperatorReturnDetailsWindows(operatorId);
-      const d1 = windows.d1 ?? null;
-      return {
-        ...op,
-        ...(d1 ? { estimatedReturnDetails: d1 } : {}),
-        estimatedReturnDetailsWindows: windows,
-      };
-    },
   };
 };
