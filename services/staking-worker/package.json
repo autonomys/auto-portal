@@ -10,8 +10,7 @@
     "build": "tsc",
     "start": "node dist/main.js",
     "dev": "nodemon --watch src --exec ts-node src/main.ts",
-    "clean": "rm -rf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "auto-portal",
